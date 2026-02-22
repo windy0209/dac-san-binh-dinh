@@ -20,40 +20,50 @@ if 'gio_hang' not in st.session_state:
 def ket_noi_sheet(ten_tab):
     try:
         scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
-        creds = Credentials.from_service_account_file("credentials.json", scopes=scope)
+        # Thử lấy từ Secrets (Streamlit Cloud) hoặc file local
+        if "gcp_service_account" in st.secrets:
+            creds = Credentials.from_service_account_info(st.secrets["gcp_service_account"], scopes=scope)
+        else:
+            creds = Credentials.from_service_account_file("credentials.json", scopes=scope)
+        
         client = gspread.authorize(creds)
+        # Mở file Sheets - Hãy đảm bảo tên file chính xác 100%
         return client.open("DonHangDacSanBinhDinh").worksheet(ten_tab)
-    except Exception:
+    except Exception as e:
         return None
 
 # --- LẤY LOGO AN TOÀN ---
 def lay_logo_an_toan():
     logo_mac_dinh = "https://cdn-icons-png.flaticon.com/512/4062/4062916.png"
-    try:
-        ws = ket_noi_sheet("CauHinh")
-        if ws:
+    ws = ket_noi_sheet("CauHinh")
+    if ws:
+        try:
             data = ws.get_all_records()
             for row in data:
                 if row.get('Ten_Cau_Hinh') == 'Logo' and row.get('Gia_Tri'):
                     return row['Gia_Tri']
-    except:
-        pass
+        except: pass
     return logo_mac_dinh
 
-# --- SIDEBAR & LOGO ---
+# --- GIAO DIỆN CSS ---
+st.markdown("""<style>
+    .the-san-pham { background-color: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); text-align: center; margin-bottom: 20px; border: 1px solid #eee; height: 490px; }
+    .gia-ban { color: #d32f2f; font-weight: bold; font-size: 22px; margin: 5px 0; }
+    </style>""", unsafe_allow_html=True)
+
+# --- SIDEBAR ---
 logo_url = lay_logo_an_toan()
 with st.sidebar:
-    if logo_url:
-        st.image(logo_url, width=120)
+    if logo_url: st.image(logo_url, width=120)
     st.markdown("<h2 style='text-align: center; color: #d32f2f; margin-top: -10px;'>XỨ NẪU STORE</h2>", unsafe_allow_html=True)
     chon_menu = option_menu(None, ["Cửa Hàng", "Giỏ Hàng", "Thông Tin Shop", "Quản Trị Viên"], 
                             icons=["shop", "cart3", "info-circle", "person-badge-key"], default_index=0)
 
-# --- TRANG CỬA HÀNG ---
+# --- 1. TRANG CỬA HÀNG ---
 if chon_menu == "Cửa Hàng":
     st.title("🛍️ Đặc Sản Bình Định Chính Gốc")
     ws_sp = ket_noi_sheet("SanPham")
-    if ws_sp:
+    if ws_sp is not None:
         data = ws_sp.get_all_records()
         if data:
             df_sp = pd.DataFrame(data)
@@ -64,26 +74,16 @@ if chon_menu == "Cửa Hàng":
             for i, sp in df_sp.iterrows():
                 id_sp = str(sp['ID'])
                 with cot[i % 3]:
-                    st.markdown(f"""
-                        <div style="background-color: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); text-align: center; margin-bottom: 20px; border: 1px solid #eee; height: 490px;">
-                            <img src="{sp['Hình ảnh']}" width="100%" style="height:180px; object-fit:cover; border-radius:10px;" onerror="this.src='https://via.placeholder.com/150'">
-                            <h4>{sp['Sản phẩm']}</h4>
-                            <p style="color: #d32f2f; font-weight: bold; font-size: 22px;">{sp['Giá']:,} VNĐ</p>
-                            <p style="color: #2e7d32; font-weight: bold; font-size: 14px;">📦 Còn lại: {int(sp['Tồn kho'])}</p>
-                        </div>
-                    """, unsafe_allow_html=True)
-                    
+                    st.markdown(f'<div class="the-san-pham"><img src="{sp["Hình ảnh"]}" width="100%" style="height:180px; object-fit:cover; border-radius:10px;" onerror="this.src=\'https://via.placeholder.com/150\'"><h4>{sp["Sản phẩm"]}</h4><p class="gia-ban">{sp["Giá"]:,} VNĐ</p><p style="color: #2e7d32; font-weight: bold;">📦 Còn lại: {int(sp["Tồn kho"])}</p></div>', unsafe_allow_html=True)
                     if sp['Tồn kho'] > 0:
-                        sl_chon = st.number_input(f"Số lượng:", min_value=1, max_value=int(sp['Tồn kho']), key=f"sl_{i}")
+                        sl = st.number_input(f"Số lượng:", min_value=1, max_value=int(sp['Tồn kho']), key=f"sl_{i}")
                         if st.button(f"🛒 Thêm vào giỏ", key=f"btn_{i}"):
-                            hien_tai = st.session_state.gio_hang.get(id_sp, 0)
-                            if (hien_tai + sl_chon) <= sp['Tồn kho']:
-                                st.session_state.gio_hang[id_sp] = hien_tai + sl_chon
-                                st.toast(f"Đã thêm {int(sl_chon)} {sp['Sản phẩm']}!", icon='✅')
-                            else: st.error("Không đủ hàng!")
+                            st.session_state.gio_hang[id_sp] = st.session_state.gio_hang.get(id_sp, 0) + sl
+                            st.toast(f"Đã thêm {int(sl)} {sp['Sản phẩm']}!")
                     else: st.button("Hết hàng", disabled=True, key=f"out_{i}")
+    else: st.error("⚠️ Không thể kết nối với bảng sản phẩm. Vui lòng kiểm tra lại Google Sheets.")
 
-# --- TRANG QUẢN TRỊ VIÊN ---
+# --- 2. QUẢN TRỊ VIÊN ---
 elif chon_menu == "Quản Trị Viên":
     if not st.session_state.da_dang_nhap:
         st.subheader("🔐 Đăng nhập Admin")
@@ -93,107 +93,95 @@ elif chon_menu == "Quản Trị Viên":
             if tk == "admin" and mk == "binhdinh0209":
                 st.session_state.da_dang_nhap = True
                 st.rerun()
+            else: st.error("Sai tài khoản hoặc mật khẩu!")
     else:
         t1, t2, t3 = st.tabs(["📦 Kho Hàng", "📜 Quản Lý Đơn Hàng", "⚙️ Cấu Hình"])
-        
+        ws_sp = ket_noi_sheet("SanPham")
+        ws_don = ket_noi_sheet("DonHang")
+
         with t2:
             st.subheader("Quản lý trạng thái đơn hàng")
-            ws_don = ket_noi_sheet("DonHang")
-            ws_sp = ket_noi_sheet("SanPham")
-            
             if ws_don and ws_sp:
                 df_don_old = pd.DataFrame(ws_don.get_all_records())
                 st.info("💡 Khi chuyển trạng thái sang 'Hủy', hệ thống sẽ tự động cộng lại hàng vào kho.")
                 df_don_new = st.data_editor(df_don_old, use_container_width=True, key="editor_don")
                 
                 if st.button("💾 Lưu trạng thái & Cập nhật kho"):
-                    # Tìm các dòng bị thay đổi trạng thái sang "Hủy"
                     for i in range(len(df_don_old)):
                         old_status = str(df_don_old.iloc[i]['Trạng thái'])
                         new_status = str(df_don_new.iloc[i]['Trạng thái'])
-                        
-                        # Chỉ xử lý nếu trạng thái cũ KHÔNG PHẢI là Hủy, và trạng thái mới LÀ Hủy
                         if old_status != "Hủy" and new_status == "Hủy":
-                            san_pham_str = str(df_don_new.iloc[i]['Sản phẩm'])
-                            # Tách chuỗi: "Nem Chợ Huyện x2, Chả bò x1"
-                            parts = san_pham_str.split(", ")
+                            parts = str(df_don_new.iloc[i]['Sản phẩm']).split(", ")
                             for p in parts:
                                 match = re.search(r"(.+)\s+x(\d+)", p)
                                 if match:
-                                    name_sp = match.group(1).strip()
-                                    qty = int(match.group(2))
-                                    
-                                    # Tìm và cập nhật lại kho cho sản phẩm này
+                                    name_sp, qty = match.group(1).strip(), int(match.group(2))
                                     try:
                                         cell = ws_sp.find(name_sp)
-                                        # Cột 6 là Tồn kho
-                                        current_stock = int(ws_sp.cell(cell.row, 6).value)
-                                        ws_sp.update_cell(cell.row, 6, current_stock + qty)
+                                        stock = int(ws_sp.cell(cell.row, 6).value)
+                                        ws_sp.update_cell(cell.row, 6, stock + qty)
                                         st.write(f"✅ Đã hoàn trả {qty} {name_sp} vào kho.")
-                                    except:
-                                        st.warning(f"❌ Không tìm thấy sản phẩm '{name_sp}' để hoàn kho.")
-
-                    # Cập nhật lại toàn bộ bảng đơn hàng
+                                    except: pass
                     ws_don.clear()
                     ws_don.update([df_don_new.columns.values.tolist()] + df_don_new.values.tolist())
-                    st.success("Đã cập nhật đơn hàng và kho thành công!")
-                    time.sleep(2)
-                    st.rerun()
-
-        # --- CÁC TAB KHÁC GIỮ NGUYÊN ---
-        with t1:
-            df_sp = pd.DataFrame(ws_sp.get_all_records())
-            bang_sua = st.data_editor(df_sp, num_rows="dynamic", use_container_width=True)
-            if st.button("💾 Lưu kho"):
-                ws_sp.clear()
-                ws_sp.update([bang_sua.columns.values.tolist()] + bang_sua.values.tolist())
-                st.success("Đã cập nhật kho!")
-        
-        with t3:
-            ws_ch = ket_noi_sheet("CauHinh")
-            if ws_ch:
-                moi = st.text_input("Dán Link Logo mới:", value=logo_url)
-                if st.button("Cập nhật Logo"):
-                    cell = ws_ch.find("Logo")
-                    ws_ch.update_cell(cell.row, 2, moi)
-                    st.success("Logo đã thay đổi!")
+                    st.success("Đã cập nhật đơn hàng!")
                     time.sleep(1)
                     st.rerun()
 
-# --- TRANG GIỎ HÀNG, THÔNG TIN GIỮ NGUYÊN ---
+        with t1:
+            if ws_sp:
+                df_sp = pd.DataFrame(ws_sp.get_all_records())
+                bang_sua = st.data_editor(df_sp, num_rows="dynamic", use_container_width=True)
+                if st.button("💾 Lưu kho"):
+                    ws_sp.clear()
+                    ws_sp.update([bang_sua.columns.values.tolist()] + bang_sua.values.tolist())
+                    st.success("Cập nhật kho thành công!")
+
+        with t3:
+            ws_ch = ket_noi_sheet("CauHinh")
+            if ws_ch:
+                moi = st.text_input("Link Logo mới:", value=logo_url)
+                if st.button("Cập nhật Logo"):
+                    try:
+                        cell = ws_ch.find("Logo")
+                        ws_ch.update_cell(cell.row, 2, moi)
+                        st.success("Đã thay đổi logo!")
+                        time.sleep(1)
+                        st.rerun()
+                    except: st.error("Chưa có dòng 'Logo' trong Sheet!")
+
+# --- 3. GIỎ HÀNG ---
 elif chon_menu == "Giỏ Hàng":
     st.title("🛒 Giỏ Hàng")
     if not st.session_state.gio_hang: st.info("Giỏ hàng đang trống.")
     else:
         ws_sp = ket_noi_sheet("SanPham")
-        df_sp = pd.DataFrame(ws_sp.get_all_records())
-        df_sp['Giá'] = pd.to_numeric(df_sp['Giá'], errors='coerce').fillna(0)
-        tong_tien = 0
-        ds_order = []
-        for id_sp, so_luong in st.session_state.gio_hang.items():
-            sp_info = df_sp[df_sp['ID'].astype(str) == id_sp].iloc[0]
-            tong_tien += sp_info['Giá'] * so_luong
-            ds_order.append(f"{sp_info['Sản phẩm']} x{so_luong}")
-            st.write(f"🔹 {sp_info['Sản phẩm']} x{so_luong} : {sp_info['Giá']*so_luong:,} VNĐ")
-        
-        st.subheader(f"Tổng: {tong_tien:,} VNĐ")
-        with st.form("form_order"):
-            ten = st.text_input("Họ tên")
-            sdt = st.text_input("SĐT")
-            dia_chi = st.text_area("Địa chỉ")
-            if st.form_submit_button("Xác nhận đặt hàng"):
-                if ten and sdt:
-                    ws_don = ket_noi_sheet("DonHang")
-                    ws_don.append_row([datetime.now().strftime("%d/%m/%Y %H:%M"), ten, sdt, dia_chi, ", ".join(ds_order), sum(st.session_state.gio_hang.values()), f"{tong_tien:,} VNĐ", "Mới"])
-                    for id_sp, so_luong in st.session_state.gio_hang.items():
-                        cell = ws_sp.find(str(id_sp))
-                        old = int(ws_sp.cell(cell.row, 6).value)
-                        ws_sp.update_cell(cell.row, 6, old - so_luong)
-                    st.success("Đã đặt hàng!")
-                    st.session_state.gio_hang = {}
-                    st.rerun()
-
-
+        if ws_sp:
+            df_sp = pd.DataFrame(ws_sp.get_all_records())
+            df_sp['Giá'] = pd.to_numeric(df_sp['Giá'], errors='coerce').fillna(0)
+            tong_tien = 0
+            ds_order = []
+            for id_sp, sl in st.session_state.gio_hang.items():
+                sp = df_sp[df_sp['ID'].astype(str) == id_sp].iloc[0]
+                tong_tien += sp['Giá'] * sl
+                ds_order.append(f"{sp['Sản phẩm']} x{sl}")
+                st.write(f"🔹 {sp['Sản phẩm']} x{sl} : {sp['Giá']*sl:,} VNĐ")
+            
+            st.subheader(f"Tổng: {tong_tien:,} VNĐ")
+            with st.form("order_form"):
+                ten, sdt, dc = st.text_input("Họ tên"), st.text_input("SĐT"), st.text_area("Địa chỉ")
+                if st.form_submit_button("Xác nhận"):
+                    if ten and sdt:
+                        ws_don = ket_noi_sheet("DonHang")
+                        ws_don.append_row([datetime.now().strftime("%d/%m/%Y %H:%M"), ten, sdt, dc, ", ".join(ds_order), sum(st.session_state.gio_hang.values()), f"{tong_tien:,} VNĐ", "Mới"])
+                        for id_sp, sl in st.session_state.gio_hang.items():
+                            cell = ws_sp.find(str(df_sp[df_sp['ID'].astype(str) == id_sp].iloc[0]['Sản phẩm']))
+                            old = int(ws_sp.cell(cell.row, 6).value)
+                            ws_sp.update_cell(cell.row, 6, old - sl)
+                        st.success("Đặt hàng thành công!")
+                        st.session_state.gio_hang = {}
+                        time.sleep(1)
+                        st.rerun()
 
 # --- 4. THÔNG TIN SHOP ---
 elif chon_menu == "Thông Tin Shop":
