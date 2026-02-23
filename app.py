@@ -47,44 +47,36 @@ def lay_logo():
         except: pass
     return "https://raw.githubusercontent.com/windy0209/dac-san-binh-dinh/main/logo2.png"
 
-# --- 2. CSS NÂNG CAO (Thêm hiệu ứng Slider động cho Trang Chủ) ---
+# --- 2. CSS NÂNG CAO (Sửa lỗi Slider & Khung sản phẩm) ---
 st.markdown("""
     <style>
     .stApp { background-color: #f8fbf8; }
     
-    /* Hiệu ứng trượt sản phẩm liên tục (Infinite Scroll) */
+    /* Hiệu ứng trượt sản phẩm liên tục mượt mà */
     .slider {
-        width: 100%;
-        height: auto;
-        overflow: hidden;
-        background: white;
-        padding: 20px 0;
-        border-radius: 20px;
+        width: 100%; overflow: hidden; background: white;
+        padding: 20px 0; border-radius: 20px;
         box-shadow: inset 0 0 10px rgba(0,0,0,0.05);
+        margin-bottom: 30px;
     }
     .slide-track {
         display: flex;
-        width: calc(250px * 10); /* Điều chỉnh dựa trên số lượng ảnh */
-        animation: scroll 20s linear infinite;
+        width: calc(250px * 16); /* Độ rộng gấp đôi số lượng item để trượt vô tận */
+        animation: scroll 30s linear infinite;
     }
     .slide-item {
-        width: 200px;
-        margin: 0 25px;
-        text-align: center;
+        width: 200px; margin: 0 25px; text-align: center; flex-shrink: 0;
     }
     .slide-item img {
-        width: 100%;
-        height: 150px;
-        object-fit: cover;
-        border-radius: 15px;
-        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        width: 180px; height: 150px; object-fit: cover;
+        border-radius: 15px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);
     }
     @keyframes scroll {
         0% { transform: translateX(0); }
-        100% { transform: translateX(calc(-250px * 5)); } /* Trượt qua phân nửa danh sách */
+        100% { transform: translateX(calc(-250px * 8)); } /* Trượt hết một lượt danh sách */
     }
 
-    /* Container sản phẩm ở trang cửa hàng */
+    /* Container sản phẩm ở trang Cửa Hàng */
     [data-testid="stVerticalBlockBorderWrapper"] {
         border: 1px solid #edf2ed !important;
         border-radius: 20px !important;
@@ -93,10 +85,15 @@ st.markdown("""
         padding: 15px !important;
     }
     .product-info img { border-radius: 15px; object-fit: cover; height: 180px; width: 100%; }
-    .gia-ban { color: #f39c12; font-size: 1.4rem; font-weight: 800; }
-    .stButton>button { background-color: #2e7d32; color: white; border-radius: 10px; font-weight: 600; width: 100%; height: 45px; }
-    .stButton>button:hover { background-color: #f39c12; }
+    .gia-ban { color: #f39c12; font-size: 1.4rem; font-weight: 800; margin: 5px 0; }
     
+    .stButton>button { 
+        background-color: #2e7d32; color: white; border-radius: 10px; 
+        font-weight: 600; width: 100%; height: 45px; border: none;
+    }
+    .stButton>button:hover { background-color: #f39c12; }
+    div[data-testid="stNumberInput"] label { display: none; }
+
     /* Info Box */
     .info-box { background: white; padding: 25px; border-radius: 20px; border-left: 5px solid #2e7d32; margin-bottom: 20px; }
     </style>
@@ -111,45 +108,39 @@ with st.sidebar:
                             icons=["house", "shop", "cart3", "info-circle", "person-lock"], default_index=0,
                             styles={"nav-link-selected": {"background-color": "#2e7d32"}})
 
-# --- 4. LOGIC CÁC TRANG ---
-
-# --- TRANG CHỦ ---
+# --- 4. LOGIC TRANG CHỦ (Đã fix lỗi Slider) ---
 if chon_menu == "🏠 Trang Chủ":
     st.markdown("<h1 style='text-align: center; color: #2e7d32;'>🏯 Tinh Hoa Ẩm Thực Bình Định</h1>", unsafe_allow_html=True)
     
-    # Hiển thị 3 cột ưu điểm
     c1, c2, c3 = st.columns(3)
     c1.success("🌿 **Sạch & Tươi**\n\nNguyên liệu tự nhiên 100%.")
     c2.warning("🚚 **Giao Nhanh**\n\nShip toàn quốc, nhận trong ngày.")
     c3.info("💝 **Quà Tặng**\n\nĐóng gói sang trọng, tinh tế.")
 
     st.markdown("---")
-    st.subheader("🔥 Sản Phẩm Bán Chạy")
+    st.subheader("🔥 Đặc Sản Đang Bán Chạy")
 
-    # Lấy dữ liệu sản phẩm để làm slider động
     ws_sp = ket_noi_sheet("SanPham")
     if ws_sp:
         df_sp = pd.DataFrame(ws_sp.get_all_records())
-        # Tạo danh sách HTML cho slider (Nhân đôi danh sách để tạo hiệu ứng vô tận)
-        slider_html = '<div class="slider"><div class="slide-track">'
-        # Lặp 2 lần danh sách sản phẩm để trượt không bị ngắt quãng
+        # FIX LỖI SLIDER: Viết lại cấu trúc HTML chuẩn xác
+        slider_items = ""
+        # Nhân đôi danh sách để tạo vòng lặp vô tận
         for _ in range(2):
             for _, row in df_sp.iterrows():
                 img = row['Hình ảnh'] if la_url_hop_le(row['Hình ảnh']) else "https://via.placeholder.com/150"
-                slider_html += f"""
+                slider_items += f"""
                     <div class="slide-item">
                         <img src="{img}">
-                        <p style="font-weight:600; margin-top:5px;">{row['Sản phẩm']}</p>
+                        <p style="font-weight:600; margin-top:5px; margin-bottom:0;">{row['Sản phẩm']}</p>
                         <p style="color:#f39c12; font-weight:700;">{row['Giá']:,}đ</p>
                     </div>
                 """
-        slider_html += '</div></div>'
-        st.markdown(slider_html, unsafe_allow_html=True)
+        
+        full_slider_html = f'<div class="slider"><div class="slide-track">{slider_items}</div></div>'
+        st.markdown(full_slider_html, unsafe_allow_html=True)
 
-    st.markdown("---")
-    st.info("💡 **Gợi ý:** Nhấn vào mục **Cửa Hàng** ở menu bên trái để chọn mua những đặc sản tươi ngon nhất!")
-
-# --- CỬA HÀNG ---
+# --- 5. TRANG CỬA HÀNG ---
 elif chon_menu == "🛍️ Cửa Hàng":
     st.subheader("🌟 Danh Sách Sản Phẩm")
     ws_sp = ket_noi_sheet("SanPham")
@@ -171,18 +162,17 @@ elif chon_menu == "🛍️ Cửa Hàng":
                     
                     if int(row['Tồn kho']) > 0:
                         c_sl, c_btn = st.columns([1, 2])
-                        with c_sl: sl = st.number_input("SL", 1, 100, key=f"sl_{i}", label_visibility="collapsed")
+                        with c_sl: sl = st.number_input("SL", 1, 100, key=f"sl_{i}")
                         with c_btn:
                             if st.button(f"THÊM 🛒", key=f"btn_{i}"):
                                 st.session_state.gio_hang[str(row['ID'])] = st.session_state.gio_hang.get(str(row['ID']), 0) + sl
                                 st.toast(f"Đã thêm {row['Sản phẩm']}!", icon="✅")
                     else: st.button("HẾT HÀNG", disabled=True, key=f"out_{i}")
 
-# --- GIỎ HÀNG ---
+# --- 6. GIỎ HÀNG ---
 elif chon_menu == "🛒 Giỏ Hàng":
-    st.title("🛒 Giỏ Hàng Của Bạn")
-    if not st.session_state.gio_hang: 
-        st.warning("Giỏ hàng trống. Hãy quay lại Cửa hàng để chọn món nhé!")
+    st.title("🛒 Giỏ Hàng")
+    if not st.session_state.gio_hang: st.warning("Giỏ hàng trống.")
     else:
         ws_sp = ket_noi_sheet("SanPham")
         df_sp = pd.DataFrame(ws_sp.get_all_records())
@@ -201,11 +191,10 @@ elif chon_menu == "🛒 Giỏ Hàng":
                     ws_don = ket_noi_sheet("DonHang")
                     ws_don.append_row([datetime.now().strftime("%d/%m/%Y %H:%M"), t, s, d, ", ".join(ds_str), sum(st.session_state.gio_hang.values()), f"{tong:,} VNĐ", "Mới"])
                     st.session_state.gio_hang = {}
-                    st.success("Đã nhận đơn hàng! Chúng tôi sẽ gọi xác nhận ngay.")
-                    st.balloons()
+                    st.success("Đặt hàng thành công!"); st.balloons()
                     time.sleep(2); st.rerun()
 
-# --- THÔNG TIN ---
+# --- 7. THÔNG TIN & QUẢN TRỊ ---
 elif chon_menu == "📞 Thông Tin":
     st.markdown("<h1 style='color: #2e7d32;'>📞 Liên Hệ Xứ Nẫu</h1>", unsafe_allow_html=True)
     c1, c2 = st.columns(2)
@@ -214,7 +203,6 @@ elif chon_menu == "📞 Thông Tin":
     with c2:
         st.markdown("""<div class="info-box"><h3>🚚 Giao hàng</h3><p>Ship COD toàn quốc</p><h3>🛡️ Cam kết</h3><p>Chính gốc 100%</p></div>""", unsafe_allow_html=True)
 
-# --- QUẢN TRỊ ---
 elif chon_menu == "📊 Quản Trị":
     if not st.session_state.da_dang_nhap:
         tk = st.text_input("Admin")
