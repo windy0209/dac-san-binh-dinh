@@ -263,22 +263,55 @@ elif chon_menu == "🛒 Giỏ Hàng":
 # 9. QUẢN TRỊ
 # =============================
 elif chon_menu == "📊 Quản Trị":
-
     if not st.session_state.da_dang_nhap:
-        tk = st.text_input("Tên đăng nhập")
-        mk = st.text_input("Mật khẩu", type="password")
+        tk = st.text_input("Admin User")
+        mk = st.text_input("Password", type="password")
         if st.button("Đăng nhập"):
             if tk == "admin" and mk == "binhdinh0209":
-                st.session_state.da_dang_nhap = True
-                st.rerun()
+                st.session_state.da_dang_nhap = True; st.rerun()
     else:
-        ws = ket_noi_sheet("SanPham")
-        df = pd.DataFrame(ws.get_all_records())
-        st.data_editor(df, use_container_width=True)
+        tab1, tab2, tab3 = st.tabs(["📦 KHO", "📝 ĐƠN HÀNG", "⚙️ CẤU HÌNH"])
+        ws_sp = ket_noi_sheet("SanPham")
+        ws_don = ket_noi_sheet("DonHang")
+        
+        with tab1:
+            df_sp = pd.DataFrame(ws_sp.get_all_records())
+            df_edit = st.data_editor(df_sp, num_rows="dynamic", use_container_width=True)
+            if st.button("LƯU KHO"):
+                ws_sp.clear()
+                ws_sp.update([df_edit.columns.values.tolist()] + df_edit.values.tolist())
+                st.success("Đã cập nhật!")
 
-        if st.button("Đăng xuất"):
-            st.session_state.da_dang_nhap = False
-            st.rerun()
+        with tab2:
+            df_don_old = pd.DataFrame(ws_don.get_all_records())
+            df_don_new = st.data_editor(df_don_old, use_container_width=True)
+            if st.button("CẬP NHẬT TRẠNG THÁI & HOÀN KHO"):
+                for i in range(len(df_don_old)):
+                    if str(df_don_old.iloc[i]['Trạng thái']) != "Hủy" and str(df_don_new.iloc[i]['Trạng thái']) == "Hủy":
+                        parts = str(df_don_new.iloc[i]['Sản phẩm']).split(", ")
+                        for p in parts:
+                            m = re.search(r"(.+)\s+x(\d+)", p)
+                            if m:
+                                name, qty = m.group(1).strip(), int(m.group(2))
+                                try:
+                                    c = ws_sp.find(name)
+                                    ws_sp.update_cell(c.row, 6, int(ws_sp.cell(c.row, 6).value) + qty)
+                                    st.write(f"📦 Đã hoàn {qty} {name}")
+                                except: pass
+                ws_don.clear()
+                ws_don.update([df_don_new.columns.values.tolist()] + df_don_new.values.tolist())
+                st.success("Thành công!"); time.sleep(1); st.rerun()
+
+        with tab3:
+            ws_ch = ket_noi_sheet("CauHinh")
+            moi = st.text_input("Link Logo mới:", value=logo_url)
+            if st.button("CẬP NHẬT LOGO"):
+                c = ws_ch.find("Logo")
+                ws_ch.update_cell(c.row, 2, moi); st.rerun()
+
+    if st.button("Đăng xuất"):
+        st.session_state.da_dang_nhap = False
+        st.rerun()
 
 # =============================
 # 10. THÔNG TIN
@@ -314,6 +347,7 @@ elif chon_menu == "📞 Thông Tin":
         width="100%" height="400" style="border:0; border-radius:20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1);" 
         allowfullscreen="" loading="lazy"></iframe>
         """, unsafe_allow_html=True)
+
 
 
 
