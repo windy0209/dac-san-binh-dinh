@@ -138,16 +138,24 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # =============================
-# 5. SIDEBAR
+# 5. SIDEBAR (Căn giữa Logo và Tên)
 # =============================
 with st.sidebar:
-    st.image("https://raw.githubusercontent.com/windy0209/dac-san-binh-dinh/main/logo2.png", width=120)
-    st.markdown("<h2 style='text-align:center;color:#2e7d32'>CỬA HÀNG XỨ NẪU</h2>", unsafe_allow_html=True)
+    # Sử dụng HTML/CSS để ép logo và text vào giữa
+    st.markdown(
+        """
+        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;">
+            <img src="https://raw.githubusercontent.com/windy0209/dac-san-binh-dinh/main/logo2.png" width="120" style="margin-bottom: 10px;">
+            <h2 style="color: #2e7d32; margin-top: 0;">CỬA HÀNG XỨ NẪU</h2>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
 
     chon_menu = option_menu(
         None,
         ["🏠 Trang Chủ", "🛍️ Cửa Hàng", "🛒 Giỏ Hàng", "📞 Thông Tin", "📊 Quản Trị"],
-        icons=["house", "shop", "cart3", "info-circle", "person-lock"],
+        # icons=["house", "shop", "cart3", "info-circle", "person-lock"],
         default_index=0,
         styles={"nav-link-selected": {"background-color": "#2e7d32"}}
     )
@@ -306,4 +314,5 @@ elif chon_menu == "📞 Thông Tin":
         width="100%" height="400" style="border:0; border-radius:20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1);" 
         allowfullscreen="" loading="lazy"></iframe>
         """, unsafe_allow_html=True)
+
 
