@@ -155,7 +155,7 @@ with st.sidebar:
     chon_menu = option_menu(
         None,
         ["🏠 Trang Chủ", "🛍️ Cửa Hàng", "🛒 Giỏ Hàng", "📞 Thông Tin", "📊 Quản Trị"],
-        # icons=["house", "shop", "cart3", "info-circle", "person-lock"],
+        
         default_index=0,
         styles={"nav-link-selected": {"background-color": "#2e7d32"}}
     )
@@ -265,7 +265,7 @@ elif chon_menu == "🛒 Giỏ Hàng":
 elif chon_menu == "📊 Quản Trị":
 
     if not st.session_state.da_dang_nhap:
-        tk = st.text_input("Admin")
+        tk = st.text_input("Tên đăng nhập")
         mk = st.text_input("Mật khẩu", type="password")
         if st.button("Đăng nhập"):
             if tk == "admin" and mk == "binhdinh0209":
@@ -314,5 +314,6 @@ elif chon_menu == "📞 Thông Tin":
         width="100%" height="400" style="border:0; border-radius:20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1);" 
         allowfullscreen="" loading="lazy"></iframe>
         """, unsafe_allow_html=True)
+
 
 
