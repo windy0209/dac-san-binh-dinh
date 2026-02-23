@@ -8,7 +8,7 @@ import time
 import re
 
 # --- CẤU HÌNH TRANG ---
-st.set_page_config(page_title="Xứ Nẫu Store - Đặc Sản Bình Định", layout="wide", page_icon="🍱")
+st.set_page_config(page_title="Cửa Hàng Xứ Nẫu  - Đặc Sản Bình Định", layout="wide", page_icon="🍱")
 
 # --- KHỞI TẠO TRẠNG THÁI ---
 if 'da_dang_nhap' not in st.session_state:
@@ -77,7 +77,7 @@ st.markdown("""
 logo_url = lay_logo()
 with st.sidebar:
     if la_url_hop_le(logo_url): st.image(logo_url, width=120)
-    st.markdown("<h2 style='text-align: center; color: #2e7d32; margin-top:-10px;'>XỨ NẪU STORE</h2>", unsafe_allow_html=True)
+    st.markdown("<h2 style='text-align: center; color: #2e7d32; margin-top:-10px;'>CỬA HÀNG XỨ NẪU </h2>", unsafe_allow_html=True)
     chon_menu = option_menu(None, ["🏠 Trang Chủ", "🛍️ Cửa Hàng", "🛒 Giỏ Hàng", "📊 Quản Trị"], 
                             icons=["house", "shop", "cart3", "person-lock"], default_index=0,
                             styles={"nav-link-selected": {"background-color": "#2e7d32"}})
@@ -151,8 +151,8 @@ elif chon_menu == "🛒 Giỏ Hàng":
 # --- 4. QUẢN TRỊ ---
 elif chon_menu == "📊 Quản Trị":
     if not st.session_state.da_dang_nhap:
-        tk = st.text_input("Admin User")
-        mk = st.text_input("Password", type="password")
+        tk = st.text_input("Admin")
+        mk = st.text_input("Mật khẩu", type="password")
         if st.button("Đăng nhập"):
             if tk == "admin" and mk == "binhdinh0209":
                 st.session_state.da_dang_nhap = True; st.rerun()
@@ -195,3 +195,4 @@ elif chon_menu == "📊 Quản Trị":
             if st.button("CẬP NHẬT LOGO"):
                 c = ws_ch.find("Logo")
                 ws_ch.update_cell(c.row, 2, moi); st.rerun()
+
