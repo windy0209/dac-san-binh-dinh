@@ -42,7 +42,7 @@ def lay_logo():
                 if row.get('Ten_Cau_Hinh') == 'Logo' and la_url_hop_le(row.get('Gia_Tri')):
                     return row['Gia_Tri']
         except: pass
-    return "https://cdn-icons-png.flaticon.com/512/4062/4062916.png"
+    return "https://github.com/windy0209/dac-san-binh-dinh/blob/main/logo2.png"
 
 # --- CSS NÂNG CAO ---
 st.markdown("""
@@ -195,4 +195,5 @@ elif chon_menu == "📊 Quản Trị":
             if st.button("CẬP NHẬT LOGO"):
                 c = ws_ch.find("Logo")
                 ws_ch.update_cell(c.row, 2, moi); st.rerun()
+
 
