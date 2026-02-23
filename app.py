@@ -56,8 +56,9 @@ def ket_noi_sheet(ten_tab):
 def la_url_hop_le(url):
     return isinstance(url, str) and url.startswith(("http://", "https://"))
 
+
 # =============================
-# 4. CSS
+# 4. CSS NÂNG CAO
 # =============================
 st.markdown("""
 <style>
@@ -85,6 +86,11 @@ st.markdown("""
     margin: 0 20px;
     text-align: center;
     flex-shrink: 0;
+    transition: transform 0.3s ease;
+}
+
+.slide-item:hover {
+    transform: scale(1.05);
 }
 
 .slide-item img {
@@ -100,14 +106,33 @@ st.markdown("""
     100% { transform: translateX(-50%); }
 }
 
-/* Info box */
-.info-box {
-    background: white;
-    padding: 25px;
-    border-radius: 20px;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.05);
-    border-left: 6px solid #2e7d32;
-    margin-bottom: 20px;
+/* Card sản phẩm */
+[data-testid="stVerticalBlockBorderWrapper"] {
+    border-radius: 20px !important;
+    background: white !important;
+    box-shadow: 0 10px 25px rgba(46,125,50,0.08) !important;
+    padding: 15px !important;
+}
+
+.gia-ban {
+    color: #f39c12;
+    font-size: 1.3rem;
+    font-weight: 800;
+    margin: 5px 0;
+}
+
+.stButton>button {
+    background-color: #2e7d32;
+    color: white;
+    border-radius: 12px;
+    font-weight: 600;
+    width: 100%;
+    height: 40px;
+    border: none;
+}
+
+.stButton>button:hover {
+    background-color: #f39c12;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -128,68 +153,121 @@ with st.sidebar:
     )
 
 # =============================
-# 6. TRANG CHỦ
+# 6. TRANG CHỦ (SLIDER FIXED)
 # =============================
 if chon_menu == "🏠 Trang Chủ":
 
     st.markdown("<h1 style='text-align:center;color:#2e7d32;'>🏯 Tinh Hoa Ẩm Thực Bình Định</h1>", unsafe_allow_html=True)
+
+    c1, c2, c3 = st.columns(3)
+    c1.success("🌿 **Sạch & Tươi**\n\nNguyên liệu tự nhiên 100%.")
+    c2.warning("🚚 **Giao Nhanh**\n\nShip toàn quốc.")
+    c3.info("💝 **Quà Tặng**\n\nĐóng gói sang trọng.")
+
+    st.markdown("---")
     st.subheader("🔥 Đặc Sản Đang Bán Chạy")
+
+    ws = ket_noi_sheet("SanPham")
+    if ws:
+        data = ws.get_all_records()
+
+        slider_content = ""
+
+        for _ in range(2):  # nhân đôi để chạy mượt
+            for row in data:
+                img = row["Hình ảnh"] if la_url_hop_le(row["Hình ảnh"]) else "https://via.placeholder.com/200"
+                slider_content += f"""
+<div class="slide-item">
+<img src="{img}">
+<p style="font-weight:600;margin:10px 0 0 0;color:#333;">{row['Sản phẩm']}</p>
+<p style="color:#f39c12;font-weight:700;margin:0;">{row['Giá']:,}đ</p>
+</div>
+"""
+
+        full_html = f"""
+<div class="slider-container">
+<div class="slide-track">
+{slider_content}
+</div>
+</div>
+"""
+
+        st.markdown(full_html.strip(), unsafe_allow_html=True)
 
 # =============================
 # 7. CỬA HÀNG
 # =============================
 elif chon_menu == "🛍️ Cửa Hàng":
+
     st.subheader("🌟 Danh Sách Sản Phẩm")
+    ws = ket_noi_sheet("SanPham")
+
+    if ws:
+        df = pd.DataFrame(ws.get_all_records())
+        cols = st.columns(3)
+
+        for i, row in df.iterrows():
+            with cols[i % 3]:
+                with st.container(border=True):
+
+                    img = row["Hình ảnh"] if la_url_hop_le(row["Hình ảnh"]) else "https://via.placeholder.com/200"
+
+                    st.markdown(f"""
+<div style="text-align:center;">
+<img src="{img}" style="width:100%;height:180px;object-fit:cover;border-radius:15px;">
+<div style="font-weight:700;font-size:1.1rem;margin-top:10px;">{row["Sản phẩm"]}</div>
+<div class="gia-ban">{row["Giá"]:,} VNĐ</div>
+<div style="color:#2e7d32;font-weight:600;">📦 Còn: {row["Tồn kho"]}</div>
+</div>
+""", unsafe_allow_html=True)
+
+                    if int(row["Tồn kho"]) > 0:
+                        sl = st.number_input("SL", 1, 100, key=f"sl_{i}")
+                        if st.button("THÊM 🛒", key=f"btn_{i}"):
+                            st.session_state.gio_hang[str(row["ID"])] = \
+                                st.session_state.gio_hang.get(str(row["ID"]), 0) + sl
+                            st.toast("Đã thêm vào giỏ!", icon="✅")
+                    else:
+                        st.button("HẾT HÀNG", disabled=True)
 
 # =============================
 # 8. GIỎ HÀNG
 # =============================
 elif chon_menu == "🛒 Giỏ Hàng":
+
     st.title("🛒 Giỏ Hàng")
 
-# =============================
-# 9. THÔNG TIN CỬA HÀNG
-# =============================
-elif chon_menu == "📞 Thông Tin":
+    if not st.session_state.gio_hang:
+        st.warning("Giỏ hàng trống.")
+    else:
+        ws = ket_noi_sheet("SanPham")
+        df = pd.DataFrame(ws.get_all_records())
 
-    st.markdown("<h1 style='color:#2e7d32;'>📞 Thông Tin Cửa Hàng</h1>", unsafe_allow_html=True)
+        tong = 0
+        for id_sp, sl in st.session_state.gio_hang.items():
+            sp = df[df["ID"].astype(str) == id_sp].iloc[0]
+            tong += sp["Giá"] * sl
+            st.write(f"{sp['Sản phẩm']} x{sl} - {sp['Giá']*sl:,} VNĐ")
 
-    col1, col2 = st.columns(2)
-
-    with col1:
-        st.markdown("""
-        <div class="info-box">
-            <h3>🏪 Địa chỉ</h3>
-            <p>123 Đường Võ Nguyên Giáp<br>
-            TP. Quy Nhơn, Bình Định</p>
-
-            <h3>☎️ Hotline</h3>
-            <p><b>0905.xxx.xxx</b> (Hỗ trợ 24/7)</p>
-
-            <h3>🌐 Fanpage</h3>
-            <p>facebook.com/dacsanxunau</p>
-        </div>
-        """, unsafe_allow_html=True)
-
-    with col2:
-        st.markdown("""
-        <div class="info-box">
-            <h3>🚚 Chính sách giao hàng</h3>
-            <ul>
-                <li>Nội thành Quy Nhơn: 30 phút.</li>
-                <li>Toàn quốc: 2-3 ngày.</li>
-                <li>Freeship đơn trên 500.000đ.</li>
-            </ul>
-
-            <h3>🛡 Cam kết</h3>
-            <p>Sản phẩm chính gốc Bình Định.<br>
-            Không chất bảo quản.<br>
-            Đổi trả nếu không hài lòng.</p>
-        </div>
-        """, unsafe_allow_html=True)
+        st.subheader(f"Tổng tiền: {tong:,} VNĐ")
 
 # =============================
-# 10. QUẢN TRỊ
+# 9. QUẢN TRỊ
 # =============================
 elif chon_menu == "📊 Quản Trị":
-    st.title("Trang quản trị")
+
+    if not st.session_state.da_dang_nhap:
+        tk = st.text_input("Admin")
+        mk = st.text_input("Mật khẩu", type="password")
+        if st.button("Đăng nhập"):
+            if tk == "admin" and mk == "binhdinh0209":
+                st.session_state.da_dang_nhap = True
+                st.rerun()
+    else:
+        ws = ket_noi_sheet("SanPham")
+        df = pd.DataFrame(ws.get_all_records())
+        st.data_editor(df, use_container_width=True)
+
+        if st.button("Đăng xuất"):
+            st.session_state.da_dang_nhap = False
+            st.rerun()
