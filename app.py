@@ -271,3 +271,39 @@ elif chon_menu == "📊 Quản Trị":
         if st.button("Đăng xuất"):
             st.session_state.da_dang_nhap = False
             st.rerun()
+
+# =============================
+# 10. THÔNG TIN
+# =============================
+elif chon_menu == "📞 Thông Tin":
+    st.markdown("<h1 style='text-align:center;color:#2e7d32;'>📍 Thông Tin Cửa Hàng</h1>", unsafe_allow_html=True)
+    
+    col_info, col_map = st.columns([1, 1.2], gap="large")
+
+    with col_info:
+        st.markdown(f"""
+        <div class="info-card">
+            <h3 style="color: #2e7d32; margin-top: 0;">🏡 Cửa Hàng Xứ Nẫu</h3>
+            <p><b>📍 Địa chỉ:</b> 123 Đường Xuân Diệu, TP. Quy Nhơn, Bình Định</p>
+            <p><b>📞 Hotline:</b> <a href="tel:0901234567" style="color: #f39c12; text-decoration: none; font-weight: bold;">0901.234.567</a></p>
+            <p><b>📧 Email:</b> contact@xunau.vn</p>
+            <hr>
+            <h4 style="color: #2e7d32;">⏰ Giờ Hoạt Động</h4>
+            <p>Sáng: 07:30 - 11:30<br>Chiều: 13:30 - 21:00</p>
+            <p><i>(Mở cửa tất cả các ngày trong tuần)</i></p>
+            <div style="margin-top: 20px;">
+                <img src="https://img.icons8.com/color/48/000000/facebook-new.png"/>
+                <img src="https://img.icons8.com/color/48/000000/zalo.png"/>
+                <img src="https://img.icons8.com/color/48/000000/tiktok.png"/>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+
+    with col_map:
+        # Bạn có thể thay src bằng link Google Maps thật của bạn
+        st.markdown("""
+        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3875.313460673322!2d109.2215802758832!3d13.7595304971253!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x316f6b033604f847%3A0x696805f15949a707!2zVFAuIFF1eSBOaMahbiwgQsOsbmggxJDhu4tuaCwgVmnhu4d0IE5hbQ!5e0!3m2!1svi!2s!4v1700000000000!5m2!1svi!2s" 
+        width="100%" height="400" style="border:0; border-radius:20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1);" 
+        allowfullscreen="" loading="lazy"></iframe>
+        """, unsafe_allow_html=True)
+
