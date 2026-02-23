@@ -22,7 +22,7 @@ if "da_dang_nhap" not in st.session_state:
 if "gio_hang" not in st.session_state:
     st.session_state.gio_hang = {}
 if "logo_url" not in st.session_state:
-    st.session_state.logo_url = "https://cdn-icons-png.flaticon.com/512/4062/4062916.png"
+    st.session_state.logo_url = "https://raw.githubusercontent.com/windy0209/dac-san-binh-dinh/main/logo2.png"
 
 # =============================
 # 2. KẾT NỐI GOOGLE SHEETS
@@ -259,3 +259,4 @@ elif chon_menu == "📞 Thông Tin":
     with col_map:
         toa_do = pd.DataFrame({'lat': [13.8930853], 'lon': [109.1002733]})
         st.map(toa_do, zoom=14)
+
