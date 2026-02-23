@@ -266,35 +266,32 @@ elif chon_menu == "📊 Quản Trị":
     if not st.session_state.da_dang_nhap:
         col_l, col_m, col_r = st.columns([1,1.5,1])
         with col_m:
-            st.markdown("### 🔐 Đăng nhập hệ thống")
-            tk = st.text_input("Tài khoản Admin")
+            st.markdown("### 🔐 Đăng nhập Admin")
+            tk = st.text_input("Tài khoản")
             mk = st.text_input("Mật khẩu", type="password")
             if st.button("ĐĂNG NHẬP"):
                 if tk == "admin" and mk == "binhdinh0209":
                     st.session_state.da_dang_nhap = True
                     st.rerun()
-                else: st.error("Sai thông tin đăng nhập!")
+                else: st.error("Sai thông tin!")
     else:
         tab1, tab2, tab3 = st.tabs(["📦 KHO HÀNG", "📝 ĐƠN HÀNG", "⚙️ CẤU HÌNH"])
         ws_sp = ket_noi_sheet("SanPham")
         ws_don = ket_noi_sheet("DonHang")
         
         with tab1:
-            st.subheader("Cập nhật danh sách sản phẩm")
             df_sp = pd.DataFrame(ws_sp.get_all_records())
             df_edit = st.data_editor(df_sp, num_rows="dynamic", use_container_width=True)
-            if st.button("LƯU THAY ĐỔI KHO"):
+            if st.button("LƯU KHO"):
                 ws_sp.clear()
                 ws_sp.update([df_edit.columns.values.tolist()] + df_edit.values.tolist())
-                st.success("Đã cập nhật kho thành công!")
+                st.success("Đã cập nhật!")
 
         with tab2:
-            st.subheader("Quản lý đơn hàng & Trạng thái")
             df_don_old = pd.DataFrame(ws_don.get_all_records())
             df_don_new = st.data_editor(df_don_old, use_container_width=True)
-            if st.button("CẬP NHẬT TRẠNG THÁI & HOÀN KHO"):
+            if st.button("LƯU TRẠNG THÁI & HOÀN KHO"):
                 for i in range(len(df_don_old)):
-                    # Logic hoàn kho khi chuyển trạng thái sang "Hủy"
                     if str(df_don_old.iloc[i]['Trạng thái']) != "Hủy" and str(df_don_new.iloc[i]['Trạng thái']) == "Hủy":
                         parts = str(df_don_new.iloc[i]['Sản phẩm']).split(", ")
                         for p in parts:
@@ -304,25 +301,23 @@ elif chon_menu == "📊 Quản Trị":
                                 try:
                                     c = ws_sp.find(name)
                                     ws_sp.update_cell(c.row, 6, int(ws_sp.cell(c.row, 6).value) + qty)
-                                    st.info(f"📦 Đã hoàn {qty} {name} vào kho")
                                 except: pass
                 ws_don.clear()
                 ws_don.update([df_don_new.columns.values.tolist()] + df_don_new.values.tolist())
-                st.success("Cập nhật thành công!"); time.sleep(1); st.rerun()
+                st.success("Cập nhật đơn hàng thành công!"); time.sleep(1); st.rerun()
 
         with tab3:
-            st.subheader("Cài đặt hình ảnh giao diện")
+            st.subheader("Cài đặt Logo")
             ws_ch = ket_noi_sheet("CauHinh")
-            # Sử dụng biến url_logo_global đã lấy từ đầu
-            moi = st.text_input("Dán Link Logo mới (URL):", value=url_logo_global)
-            if st.button("CẬP NHẬT LOGO HỆ THỐNG"):
+            # Sửa lỗi NameError bằng cách gọi trực tiếp từ session_state
+            moi = st.text_input("Dán Link Logo mới (URL):", value=st.session_state.logo_url)
+            if st.button("CẬP NHẬT LOGO"):
                 try:
                     cell = ws_ch.find("Logo")
                     ws_ch.update_cell(cell.row, 2, moi)
-                    st.success("Đã thay đổi Logo! Vui lòng chờ tải lại...")
-                    time.sleep(1); st.rerun()
-                except: st.error("Lỗi: Không tìm thấy dòng cấu hình Logo trên Google Sheets.")
-
+                    st.session_state.logo_url = moi # Cập nhật ngay lập tức vào bộ nhớ
+                    st.success("Đã đổi Logo!"); time.sleep(1); st.rerun()
+                except: st.error("Lỗi: Không tìm thấy dòng 'Logo' trong Sheet!")
 # =============================
 # 10. THÔNG TIN
 # =============================
@@ -357,6 +352,7 @@ elif chon_menu == "📞 Thông Tin":
         width="100%" height="400" style="border:0; border-radius:20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1);" 
         allowfullscreen="" loading="lazy"></iframe>
         """, unsafe_allow_html=True)
+
 
 
 
