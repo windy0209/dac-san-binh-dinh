@@ -7,8 +7,13 @@ import pandas as pd
 import time
 import re
 
-# --- CẤU HÌNH TRANG ---
-st.set_page_config(page_title="Cửa Hàng Xứ Nẫu - Đặc Sản Bình Định", layout="wide", page_icon="🍱")
+# --- 1. CẤU HÌNH TRANG & SEO ---
+# Việc đặt tên tiêu đề đầy đủ giúp Google nhận diện từ khóa "Đặc sản Bình Định" tốt hơn.
+st.set_page_config(
+    page_title="Cửa Hàng Xứ Nẫu - Đặc Sản Bình Định Chính Gốc",
+    layout="wide",
+    page_icon="🍱"
+)
 
 # --- KHỞI TẠO TRẠNG THÁI ---
 if 'da_dang_nhap' not in st.session_state:
@@ -41,35 +46,40 @@ def lay_logo():
                 if row.get('Ten_Cau_Hinh') == 'Logo' and la_url_hop_le(row.get('Gia_Tri')):
                     return row['Gia_Tri']
         except: pass
+    # Link Raw để đảm bảo hiển thị trên web
     return "https://raw.githubusercontent.com/windy0209/dac-san-binh-dinh/main/logo2.png"
 
-# --- CSS NÂNG CAO ---
+# --- 2. CSS NÂNG CAO (Giao diện thẻ sản phẩm) ---
 st.markdown("""
     <style>
     .stApp { background-color: #f8fbf8; }
     
-    /* Khung bao ngoài container sản phẩm */
+    /* Hiệu ứng khung sản phẩm */
     [data-testid="stVerticalBlockBorderWrapper"] {
         border: 1px solid #edf2ed !important;
         border-radius: 20px !important;
         background-color: white !important;
-        box-shadow: 0 10px 25px rgba(46, 125, 50, 0.08) !important;
+        box-shadow: 0 10px 25px rgba(46,125, 50, 0.08) !important;
         padding: 15px !important;
         transition: 0.3s !important;
     }
-    
+    [data-testid="stVerticalBlockBorderWrapper"]:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 35px rgba(46, 125, 50, 0.15) !important;
+    }
+
     .product-info img { border-radius: 15px; object-fit: cover; height: 180px; width: 100%; }
     .gia-ban { color: #f39c12; font-size: 1.4rem; font-weight: 800; margin: 10px 0; }
     
+    /* Định dạng nút bấm & ô số lượng */
     .stButton>button { 
         background-color: #2e7d32; color: white; border-radius: 10px; 
         font-weight: 600; width: 100%; border: none; height: 45px;
     }
     .stButton>button:hover { background-color: #f39c12; color: white; }
-    
     div[data-testid="stNumberInput"] label { display: none; }
 
-    /* Info Box CSS */
+    /* Info Box cho mục Thông Tin */
     .info-box {
         background: white; padding: 25px; border-radius: 20px;
         border-left: 5px solid #2e7d32; box-shadow: 0 5px 15px rgba(0,0,0,0.05);
@@ -89,16 +99,18 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
-# --- SIDEBAR ---
+# --- 3. SIDEBAR MENU ---
 logo_url = lay_logo()
 with st.sidebar:
     if la_url_hop_le(logo_url): st.image(logo_url, width=120)
     st.markdown("<h2 style='text-align: center; color: #2e7d32; margin-top:-10px;'>CỬA HÀNG XỨ NẪU</h2>", unsafe_allow_html=True)
     chon_menu = option_menu(None, ["🏠 Trang Chủ", "🛍️ Cửa Hàng", "🛒 Giỏ Hàng", "📞 Thông Tin", "📊 Quản Trị"], 
-                            icons=["house", "shop", "cart3", "info-circle", "person-lock"], default_index=0,
+                            icons=["house", "shop", "cart3", "info-circle", "person-lock"], default_index=1,
                             styles={"nav-link-selected": {"background-color": "#2e7d32"}})
 
-# --- 1. TRANG CHỦ ---
+# --- 4. LOGIC CÁC TRANG ---
+
+# --- TRANG CHỦ ---
 if chon_menu == "🏠 Trang Chủ":
     banners = ["https://mia.vn/media/uploads/blog-du-lich/nem-cho-huyen-dac-san-binh-dinh-lam-say-long-bao-thuc-khach-1-1652173169.jpg",
                "https://vcdn1-dulich.vnecdn.net/2022/06/03/7-1654247844-3323-1654247920.jpg",
@@ -113,7 +125,7 @@ if chon_menu == "🏠 Trang Chủ":
     c2.warning("🚚 **Giao Nhanh**\n\nShip toàn quốc, nhận trong ngày.")
     c3.info("💝 **Quà Tặng**\n\nĐóng gói sang trọng, tinh tế.")
 
-# --- 2. CỬA HÀNG ---
+# --- CỬA HÀNG ---
 elif chon_menu == "🛍️ Cửa Hàng":
     st.subheader("🌟 Sản Phẩm Nổi Bật")
     ws_sp = ket_noi_sheet("SanPham")
@@ -125,6 +137,7 @@ elif chon_menu == "🛍️ Cửa Hàng":
         cols = st.columns(3)
         for i, row in df.iterrows():
             with cols[i % 3]:
+                # Sử dụng border=True để bao trọn nút bấm vào khung
                 with st.container(border=True):
                     img = row['Hình ảnh'] if la_url_hop_le(row['Hình ảnh']) else "https://via.placeholder.com/200"
                     st.markdown(f"""
@@ -143,12 +156,13 @@ elif chon_menu == "🛍️ Cửa Hàng":
                             if st.button(f"THÊM 🛒", key=f"btn_{i}"):
                                 st.session_state.gio_hang[str(row['ID'])] = st.session_state.gio_hang.get(str(row['ID']), 0) + sl
                                 st.toast(f"Đã thêm {row['Sản phẩm']}!", icon="✅")
-                    else: st.button("HẾT HÀNG", disabled=True, key=f"out_{i}")
+                    else:
+                        st.button("HẾT HÀNG", disabled=True, key=f"out_{i}")
 
-# --- 3. GIỎ HÀNG --- (Giữ nguyên logic cũ)
+# --- GIỎ HÀNG ---
 elif chon_menu == "🛒 Giỏ Hàng":
     st.title("🛒 Giỏ Hàng")
-    if not st.session_state.gio_hang: st.warning("Giỏ hàng trống.")
+    if not st.session_state.gio_hang: st.warning("Giỏ hàng của bạn đang trống.")
     else:
         ws_sp = ket_noi_sheet("SanPham")
         df_sp = pd.DataFrame(ws_sp.get_all_records())
@@ -161,68 +175,79 @@ elif chon_menu == "🛒 Giỏ Hàng":
         
         st.subheader(f"Tổng tiền: {tong:,} VNĐ")
         with st.form("checkout"):
-            t, s, d = st.text_input("Họ tên *"), st.text_input("SĐT *"), st.text_area("Địa chỉ *")
+            t, s, d = st.text_input("Họ tên *"), st.text_input("SĐT *"), st.text_area("Địa chỉ nhận hàng *")
             if st.form_submit_button("XÁC NHẬN ĐẶT HÀNG"):
-                if t and s:
+                if t and s and d:
                     ws_don = ket_noi_sheet("DonHang")
                     ws_don.append_row([datetime.now().strftime("%d/%m/%Y %H:%M"), t, s, d, ", ".join(ds_str), sum(st.session_state.gio_hang.values()), f"{tong:,} VNĐ", "Mới"])
+                    # Cập nhật tồn kho
                     for id_sp, sl in st.session_state.gio_hang.items():
                         cell = ws_sp.find(str(df_sp[df_sp['ID'].astype(str) == id_sp].iloc[0]['Sản phẩm']))
                         ws_sp.update_cell(cell.row, 6, int(ws_sp.cell(cell.row, 6).value) - sl)
                     st.session_state.gio_hang = {}
-                    st.success("Đã đặt hàng thành công!")
+                    st.success("Đặt hàng thành công! Chúng tôi sẽ liên hệ bạn sớm.")
                     st.balloons()
                     time.sleep(2); st.rerun()
+                else: st.error("Vui lòng điền đầy đủ thông tin sao (*)")
 
-# --- 4. THÔNG TIN CỬA HÀNG (MỤC MỚI THÊM) ---
+# --- THÔNG TIN CỬA HÀNG ---
 elif chon_menu == "📞 Thông Tin":
     st.markdown("<h1 style='color: #2e7d32;'>📞 Thông Tin Liên Hệ</h1>", unsafe_allow_html=True)
-    
     col1, col2 = st.columns(2)
-    
     with col1:
-        st.markdown(f"""
+        st.markdown("""
         <div class="info-box">
             <h3>🏠 Địa chỉ cửa hàng</h3>
             <p>123 Đường Võ Nguyên Giáp, TP. Quy Nhơn, Bình Định</p>
             <h3>☎️ Hotline / Zalo</h3>
-            <p><b>0905.XXX.XXX</b> (Hỗ trợ 24/7)</p>
-            <h3>🌐 Fanpage</h3>
-            <p><a href="#">facebook.com/dacsanxunau</a></p>
+            <p><b>0905.XXX.XXX</b> (Liên hệ để có giá sỉ)</p>
+            <h3>🌐 Website</h3>
+            <p>dac-san-binh-dinh.streamlit.app</p>
         </div>
         """, unsafe_allow_html=True)
-        
     with col2:
         st.markdown("""
         <div class="info-box">
-            <h3>🚚 Chính sách giao hàng</h3>
-            <ul>
-                <li>Nội thành Quy Nhơn: Giao trong 30 phút.</li>
-                <li>Toàn quốc: 2-3 ngày làm việc.</li>
-                <li>Freeship cho đơn hàng trên 500.000 VNĐ.</li>
-            </ul>
-            <h3>🛡️ Cam kết chất lượng</h3>
-            <p>Sản phẩm chính gốc Bình Định, không chất bảo quản, đổi trả nếu không hài lòng.</p>
+            <h3>🚚 Giao hàng toàn quốc</h3>
+            <p>Hỗ trợ ship COD toàn quốc. Freeship đơn hàng trên 500k tại nội thành Quy Nhơn.</p>
+            <h3>🛡️ Cam kết</h3>
+            <p>Thực phẩm sạch, không hóa chất, đúng chuẩn hương vị truyền thống Xứ Nẫu.</p>
         </div>
         """, unsafe_allow_html=True)
 
-# --- 5. QUẢN TRỊ --- (Giữ nguyên logic cũ)
+# --- QUẢN TRỊ ---
 elif chon_menu == "📊 Quản Trị":
     if not st.session_state.da_dang_nhap:
-        tk = st.text_input("Admin")
+        tk = st.text_input("Tên đăng nhập")
         mk = st.text_input("Mật khẩu", type="password")
         if st.button("Đăng nhập"):
             if tk == "admin" and mk == "binhdinh0209":
                 st.session_state.da_dang_nhap = True; st.rerun()
+            else: st.error("Sai thông tin!")
     else:
         tab1, tab2, tab3 = st.tabs(["📦 KHO", "📝 ĐƠN HÀNG", "⚙️ CẤU HÌNH"])
         ws_sp = ket_noi_sheet("SanPham")
         ws_don = ket_noi_sheet("DonHang")
-        # ... (Phần code quản trị còn lại không thay đổi) ...
+        
         with tab1:
             df_sp = pd.DataFrame(ws_sp.get_all_records())
             df_edit = st.data_editor(df_sp, num_rows="dynamic", use_container_width=True)
             if st.button("LƯU KHO"):
                 ws_sp.clear()
                 ws_sp.update([df_edit.columns.values.tolist()] + df_edit.values.tolist())
-                st.success("Đã cập nhật!")
+                st.success("Đã cập nhật dữ liệu kho!")
+
+        with tab2:
+            df_don_old = pd.DataFrame(ws_don.get_all_records())
+            df_don_new = st.data_editor(df_don_old, use_container_width=True)
+            if st.button("CẬP NHẬT TRẠNG THÁI"):
+                ws_don.clear()
+                ws_don.update([df_don_new.columns.values.tolist()] + df_don_new.values.tolist())
+                st.success("Thành công!"); time.sleep(1); st.rerun()
+
+        with tab3:
+            ws_ch = ket_noi_sheet("CauHinh")
+            moi = st.text_input("Link Logo mới (Raw GitHub):", value=logo_url)
+            if st.button("CẬP NHẬT LOGO"):
+                c = ws_ch.find("Logo")
+                ws_ch.update_cell(c.row, 2, moi); st.rerun()
