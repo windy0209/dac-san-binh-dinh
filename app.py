@@ -62,7 +62,6 @@ st.markdown("""
 <style>
     .stApp { background-color: #f8fbf8; }
     
-    /* Card Sản phẩm đồng bộ */
     .product-card { 
         background: white; 
         border-radius: 20px; 
@@ -74,7 +73,7 @@ st.markdown("""
         margin-bottom: 15px;
         display: flex;
         flex-direction: column;
-        height: 100%; /* Đảm bảo các card trong cùng hàng cao bằng nhau */
+        height: 100%;
     }
     .product-card:hover { transform: translateY(-5px); box-shadow: 0 12px 30px rgba(46,125,50,0.15); }
     
@@ -89,7 +88,7 @@ st.markdown("""
     .product-name {
         font-weight: 700; 
         font-size: 1.1rem;
-        height: 50px; /* Cố định chiều cao tên để tránh so le */
+        height: 50px; 
         overflow: hidden;
         display: -webkit-box;
         -webkit-line-clamp: 2;
@@ -99,15 +98,12 @@ st.markdown("""
     }
     
     .gia-ban { color: #f39c12; font-size: 1.3rem; font-weight: 800; margin-bottom: 5px; }
-    
     .stock-info { color: #2e7d32; font-size: 0.9rem; margin-bottom: 15px; font-weight: 500; }
     
-    /* Sidebar styling */
     .sidebar-content { display: flex; flex-direction: column; align-items: center; text-align: center; }
     .hotline-sidebar { color: #d32f2f; font-weight: bold; font-size: 1.1rem; margin-bottom: 2px; }
     .zalo-sidebar { color: #0068ff; font-weight: bold; font-size: 1.1rem; margin-bottom: 15px; }
     
-    /* Căn chỉnh widget bên trong card */
     div[data-testid="stNumberInput"] { margin-bottom: 5px !important; }
     .stButton>button { 
         background-color: #2e7d32; 
@@ -119,6 +115,13 @@ st.markdown("""
         height: 42px;
     }
     .stButton>button:hover { background-color: #f39c12; color: white; }
+
+    /* Slider CSS */
+    .slider-container { width: 100%; overflow: hidden; background: white; padding: 25px 0; border-radius: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); margin-top: 20px; }
+    .slide-track { display: flex; width: max-content; animation: scroll 40s linear infinite; }
+    .slide-item { width: 230px; margin: 0 20px; text-align: center; flex-shrink: 0; }
+    .slide-item img { width: 220px; height: 170px; object-fit: cover; border-radius: 18px; box-shadow: 0 8px 15px rgba(0,0,0,0.1); }
+    @keyframes scroll { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
 </style>
 """, unsafe_allow_html=True)
 
@@ -148,47 +151,9 @@ with st.sidebar:
     )
 
 # =============================
-# 6. CỬA HÀNG (ĐÃ FIX ĐỒNG BỘ KHUNG)
+# CẤU TRÚC ĐIỀU HƯỚNG CHÍNH (FIX SYNTAX ERROR)
 # =============================
-elif chon_menu == "🛍️ Cửa Hàng":
-    st.markdown("<h2 style='text-align:center; color:#2e7d32;'>🌟 Danh Sách Sản Phẩm</h2>", unsafe_allow_html=True)
-    ws = ket_noi_sheet("SanPham")
-    if ws:
-        df = pd.DataFrame(ws.get_all_records())
-        # Tạo grid với khoảng cách nhỏ để đẹp hơn
-        cols = st.columns(3, gap="medium")
-        for i, row in df.iterrows():
-            with cols[i % 3]:
-                # Mở thẻ bao quanh
-                st.markdown('<div class="product-card">', unsafe_allow_html=True)
-                
-                # Ảnh sản phẩm
-                img = row["Hình ảnh"] if la_url_hop_le(row["Hình ảnh"]) else "https://via.placeholder.com/200"
-                st.markdown(f'<img src="{img}">', unsafe_allow_html=True)
-                
-                # Tên sản phẩm (chiều cao cố định)
-                st.markdown(f'<div class="product-name">{row["Sản phẩm"]}</div>', unsafe_allow_html=True)
-                
-                # Giá và Tồn kho
-                st.markdown(f'<div class="gia-ban">{row["Giá"]:,} VNĐ</div>', unsafe_allow_html=True)
-                st.markdown(f'<div class="stock-info">📦 Còn lại: {row["Tồn kho"]}</div>', unsafe_allow_html=True)
-                
-                # Widget mua hàng
-                if int(row["Tồn kho"]) > 0:
-                    # Dùng label_visibility="collapsed" để bỏ khoảng trắng của label
-                    sl = st.number_input("SL", 1, int(row["Tồn kho"]), key=f"sl_{i}", label_visibility="collapsed")
-                    if st.button("THÊM VÀO GIỎ 🛒", key=f"btn_{i}"):
-                        st.session_state.gio_hang[str(row["ID"])] = st.session_state.gio_hang.get(str(row["ID"]), 0) + sl
-                        st.toast(f"Đã thêm {row['Sản phẩm']}!", icon="✅")
-                else:
-                    st.button("HẾT HÀNG", disabled=True, key=f"out_{i}")
-                
-                st.markdown('</div>', unsafe_allow_html=True)
 
-# (Các phần khác như Trang chủ, Giỏ hàng, Quản trị giữ nguyên như bản trước của bạn)
-# =============================
-# 5. TRANG CHỦ
-# =============================
 if chon_menu == "🏠 Trang Chủ":
     st.markdown("<h1 style='text-align:center;color:#2e7d32;'>🏯 Tinh Hoa Ẩm Thực Bình Định</h1>", unsafe_allow_html=True)
     c1, c2, c3 = st.columns(3)
@@ -208,9 +173,30 @@ if chon_menu == "🏠 Trang Chủ":
                     slider_content += f'<div class="slide-item"><img src="{img}"><p style="font-weight:600;margin:10px 0 0 0;">{row["Sản phẩm"]}</p><p class="gia-ban">{row["Giá"]:,}đ</p></div>'
             st.markdown(f'<div class="slider-container"><div class="slide-track">{slider_content}</div></div>', unsafe_allow_html=True)
 
-# =============================
-# 7. GIỎ HÀNG
-# =============================
+elif chon_menu == "🛍️ Cửa Hàng":
+    st.markdown("<h2 style='text-align:center; color:#2e7d32;'>🌟 Danh Sách Sản Phẩm</h2>", unsafe_allow_html=True)
+    ws = ket_noi_sheet("SanPham")
+    if ws:
+        df = pd.DataFrame(ws.get_all_records())
+        cols = st.columns(3, gap="medium")
+        for i, row in df.iterrows():
+            with cols[i % 3]:
+                st.markdown('<div class="product-card">', unsafe_allow_html=True)
+                img = row["Hình ảnh"] if la_url_hop_le(row["Hình ảnh"]) else "https://via.placeholder.com/200"
+                st.markdown(f'<img src="{img}">', unsafe_allow_html=True)
+                st.markdown(f'<div class="product-name">{row["Sản phẩm"]}</div>', unsafe_allow_html=True)
+                st.markdown(f'<div class="gia-ban">{row["Giá"]:,} VNĐ</div>', unsafe_allow_html=True)
+                st.markdown(f'<div class="stock-info">📦 Còn lại: {row["Tồn kho"]}</div>', unsafe_allow_html=True)
+                
+                if int(row["Tồn kho"]) > 0:
+                    sl = st.number_input("SL", 1, int(row["Tồn kho"]), key=f"sl_{i}", label_visibility="collapsed")
+                    if st.button("THÊM VÀO GIỎ 🛒", key=f"btn_{i}"):
+                        st.session_state.gio_hang[str(row["ID"])] = st.session_state.gio_hang.get(str(row["ID"]), 0) + sl
+                        st.toast(f"Đã thêm {row['Sản phẩm']}!", icon="✅")
+                else:
+                    st.button("HẾT HÀNG", disabled=True, key=f"out_{i}")
+                st.markdown('</div>', unsafe_allow_html=True)
+
 elif chon_menu == "🛒 Giỏ Hàng":
     st.title("🛒 Giỏ Hàng")
     if not st.session_state.gio_hang:
@@ -245,7 +231,6 @@ elif chon_menu == "🛒 Giỏ Hàng":
                     st.session_state.gio_hang = {}
                     st.success("Đặt hàng thành công!"); st.balloons(); time.sleep(2); st.rerun()
 
-# (Các phần QUẢN TRỊ và THÔNG TIN giữ nguyên như code cũ của bạn...)
 elif chon_menu == "📊 Quản Trị":
     if not st.session_state.da_dang_nhap:
         col_l, col_m, col_r = st.columns([1,1.5,1])
@@ -273,7 +258,6 @@ elif chon_menu == "📊 Quản Trị":
             df_don_old = pd.DataFrame(ws_don.get_all_records())
             df_don_new = st.data_editor(df_don_old, use_container_width=True)
             if st.button("CẬP NHẬT ĐƠN & HOÀN KHO"):
-                # (Logic xử lý hoàn kho giữ nguyên)
                 ws_don.clear()
                 ws_don.update([df_don_new.columns.values.tolist()] + df_don_new.values.tolist())
                 st.success("Đã cập nhật!"); time.sleep(1); st.rerun()
