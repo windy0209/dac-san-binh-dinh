@@ -281,13 +281,48 @@ elif chon_menu == "📊 Quản Trị":
                 ws_sp.update([df_edit.columns.values.tolist()] + df_edit.values.tolist())
                 st.success("Đã cập nhật kho!")
         with t2:
+            # 1. Tải dữ liệu đơn hàng và sản phẩm
             df_don_old = pd.DataFrame(ws_don.get_all_records())
+            ws_sp = ket_noi_sheet("SanPham") # Đảm bảo kết nối lại để lấy số lượng mới nhất
+            df_sp = pd.DataFrame(ws_sp.get_all_records())
+            
+            # 2. Hiển thị bảng chỉnh sửa
             df_don_new = st.data_editor(df_don_old, use_container_width=True)
+            
             if st.button("CẬP NHẬT ĐƠN & HOÀN KHO"):
-                # (Logic xử lý hoàn kho giữ nguyên)
+                # Duyệt qua từng dòng để so sánh trạng thái cũ và mới
+                for i in range(len(df_don_old)):
+                    trang_thai_cu = str(df_don_old.iloc[i]['Trạng thái'])
+                    trang_thai_moi = str(df_don_new.iloc[i]['Trạng thái'])
+                    
+                    # Nếu trạng thái đổi từ bất kỳ loại nào sang "Hủy"
+                    if trang_thai_cu != "Hủy" and trang_thai_moi == "Hủy":
+                        chuoi_sp = str(df_don_new.iloc[i]['Sản phẩm']) 
+                        # chuoi_sp thường có dạng: "Nem Chợ Huyện x2, Chả bò x1"
+                        danh_sach_tach = chuoi_sp.split(", ")
+                        
+                        for item in danh_sach_tach:
+                            # Dùng Regex để tách tên và số lượng (ví dụ: "Nem Chợ Huyện x2")
+                            match = re.search(r"(.+)\s+x(\d+)", item)
+                            if match:
+                                ten_sp = match.group(1).strip()
+                                so_luong_hoan = int(match.group(2))
+                                
+                                try:
+                                    # Tìm dòng chứa sản phẩm trong sheet SanPham
+                                    cell = ws_sp.find(ten_sp)
+                                    # Lấy số lượng tồn hiện tại (cột 6 là cột Tồn kho)
+                                    ton_hien_tai = int(ws_sp.cell(cell.row, 6).value)
+                                    # Cập nhật cộng lại kho
+                                    ws_sp.update_cell(cell.row, 6, ton_hien_tai + so_luong_hoan)
+                                    st.info(f"🔄 Đã hoàn {so_luong_hoan} đơn vị '{ten_sp}' vào kho.")
+                                except Exception as e:
+                                    st.error(f"Lỗi khi hoàn kho cho {ten_sp}: {e}")
+
+                # 3. Lưu toàn bộ dữ liệu đơn hàng mới vào Google Sheet
                 ws_don.clear()
                 ws_don.update([df_don_new.columns.values.tolist()] + df_don_new.values.tolist())
-                st.success("Đã cập nhật!"); time.sleep(1); st.rerun()
+                st.success("✅ Đã cập nhật trạng thái đơn hàng và kho hàng!"); time.sleep(1); st.rerun()
         with t3:
             st.subheader("Cài đặt Logo")
             ws_ch = ket_noi_sheet("CauHinh")
@@ -318,5 +353,6 @@ elif chon_menu == "📞 Thông Tin":
     with col_map:
         toa_do = pd.DataFrame({'lat': [13.8930853], 'lon': [109.1002733]})
         st.map(toa_do, zoom=14)
+
 
 
