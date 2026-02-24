@@ -209,38 +209,6 @@ if chon_menu == "🏠 Trang Chủ":
             st.markdown(f'<div class="slider-container"><div class="slide-track">{slider_content}</div></div>', unsafe_allow_html=True)
 
 # =============================
-# 6. CỬA HÀNG (THIẾT KẾ LẠI CARD)
-# =============================
-elif chon_menu == "🛍️ Cửa Hàng":
-    st.subheader("🌟 Danh Sách Sản Phẩm")
-    ws = ket_noi_sheet("SanPham")
-    if ws:
-        df = pd.DataFrame(ws.get_all_records())
-        cols = st.columns(3)
-        for i, row in df.iterrows():
-            with cols[i % 3]:
-                # Mở thẻ bao quanh toàn bộ nội dung
-                st.markdown('<div class="product-card">', unsafe_allow_html=True)
-                
-                # Hiển thị ảnh và thông tin cơ bản
-                img = row["Hình ảnh"] if la_url_hop_le(row["Hình ảnh"]) else "https://via.placeholder.com/200"
-                st.markdown(f'<img src="{img}">', unsafe_allow_html=True)
-                st.markdown(f'<div style="font-weight:700; min-height: 45px;">{row["Sản phẩm"]}</div>', unsafe_allow_html=True)
-                st.markdown(f'<div class="gia-ban">{row["Giá"]:,} VNĐ</div>', unsafe_allow_html=True)
-                st.markdown(f'<div style="color:#2e7d32; margin-bottom:10px;">📦 Tồn: {row["Tồn kho"]}</div>', unsafe_allow_html=True)
-                
-                # Phần tương tác đặt hàng nằm trong Card
-                if int(row["Tồn kho"]) > 0:
-                    sl = st.number_input("Số lượng", 1, int(row["Tồn kho"]), key=f"sl_{i}", label_visibility="collapsed")
-                    if st.button("THÊM VÀO GIỎ 🛒", key=f"btn_{i}"):
-                        st.session_state.gio_hang[str(row["ID"])] = st.session_state.gio_hang.get(str(row["ID"]), 0) + sl
-                        st.toast(f"Đã thêm {row['Sản phẩm']}!", icon="✅")
-                else:
-                    st.button("HẾT HÀNG", disabled=True, key=f"out_{i}")
-                
-                st.markdown('</div>', unsafe_allow_html=True) # Đóng thẻ product-card
-
-# =============================
 # 7. GIỎ HÀNG
 # =============================
 elif chon_menu == "🛒 Giỏ Hàng":
@@ -339,3 +307,4 @@ elif chon_menu == "📞 Thông Tin":
     with col_map:
         toa_do = pd.DataFrame({'lat': [13.8930853], 'lon': [109.1002733]})
         st.map(toa_do, zoom=14)
+
