@@ -69,20 +69,31 @@ st.markdown("""
     .slide-item img { width: 220px; height: 170px; object-fit: cover; border-radius: 18px; box-shadow: 0 8px 15px rgba(0,0,0,0.1); }
     @keyframes scroll { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
     
-    /* Card Sản phẩm trong Cửa Hàng */
-    .product-card { 
-        background: white; 
-        border-radius: 20px; 
-        padding: 15px; 
-        box-shadow: 0 10px 25px rgba(46,125,50,0.08); 
-        border: 1px solid #edf2ed; 
-        transition: 0.3s; 
-        text-align: center; 
-        margin-bottom: 10px;
+    /* Chiều cao cố định cho tên sản phẩm để tránh so le */
+    .product-name {
+        font-weight: 700; 
+        font-size: 1.1rem;
+        height: 50px; /* Cố định chiều cao */
+        overflow: hidden;
+        display: -webkit-box;
+        -webkit-line-clamp: 2; /* Hiển thị tối đa 2 dòng, dư ra sẽ để ... */
+        -webkit-box-orient: vertical;
+        margin-bottom: 5px;
+        color: #333;
     }
-    .product-card:hover { transform: translateY(-5px); }
-    .product-card img { border-radius: 15px; object-fit: cover; height: 180px; width: 100%; margin-bottom:10px; }
-    .gia-ban { color: #f39c12; font-size: 1.3rem; font-weight: 800; }
+    
+    /* Khung card sản phẩm đồng nhất */
+    .product-card {
+        background: white;
+        border-radius: 20px;
+        padding: 15px;
+        box-shadow: 0 10px 25px rgba(46,125,50,0.08);
+        border: 1px solid #edf2ed;
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        height: 100%; /* Giúp card co dãn đều theo hàng */
+    }
     
     /* Sidebar */
     .sidebar-content { display: flex; flex-direction: column; align-items: center; text-align: center; }
@@ -145,37 +156,56 @@ if chon_menu == "🏠 Trang Chủ":
             st.markdown(f'<div class="slider-container"><div class="slide-track">{slider_content}</div></div>', unsafe_allow_html=True)
 
 # =============================
-# 6. CỬA HÀNG (THIẾT KẾ LẠI CARD)
+# 6. CỬA HÀNG (ĐÃ FIX ĐỒNG BỘ KHUNG)
 # =============================
 elif chon_menu == "🛍️ Cửa Hàng":
-    st.subheader("🌟 Danh Sách Sản Phẩm")
+    st.markdown("<h2 style='text-align:center; color:#2e7d32;'>🌟 Danh Sách Sản Phẩm</h2>", unsafe_allow_html=True)
     ws = ket_noi_sheet("SanPham")
     if ws:
-        df = pd.DataFrame(ws.get_all_records())
-        cols = st.columns(3)
-        for i, row in df.iterrows():
-            with cols[i % 3]:
-                # Mở thẻ bao quanh toàn bộ nội dung
-                st.markdown('<div class="product-card">', unsafe_allow_html=True)
-                
-                # Hiển thị ảnh và thông tin cơ bản
-                img = row["Hình ảnh"] if la_url_hop_le(row["Hình ảnh"]) else "https://via.placeholder.com/200"
-                st.markdown(f'<img src="{img}">', unsafe_allow_html=True)
-                st.markdown(f'<div style="font-weight:700; min-height: 45px;">{row["Sản phẩm"]}</div>', unsafe_allow_html=True)
-                st.markdown(f'<div class="gia-ban">{row["Giá"]:,} VNĐ</div>', unsafe_allow_html=True)
-                st.markdown(f'<div style="color:#2e7d32; margin-bottom:10px;">📦 Tồn: {row["Tồn kho"]}</div>', unsafe_allow_html=True)
-                
-                # Phần tương tác đặt hàng nằm trong Card
-                if int(row["Tồn kho"]) > 0:
-                    sl = st.number_input("Số lượng", 1, int(row["Tồn kho"]), key=f"sl_{i}", label_visibility="collapsed")
-                    if st.button("THÊM VÀO GIỎ 🛒", key=f"btn_{i}"):
-                        st.session_state.gio_hang[str(row["ID"])] = st.session_state.gio_hang.get(str(row["ID"]), 0) + sl
-                        st.toast(f"Đã thêm {row['Sản phẩm']}!", icon="✅")
-                else:
-                    st.button("HẾT HÀNG", disabled=True, key=f"out_{i}")
-                
-                st.markdown('</div>', unsafe_allow_html=True) # Đóng thẻ product-card
-
+        # Lấy dữ liệu và xử lý lỗi nếu sheet trống
+        data = ws.get_all_records()
+        if not data:
+            st.info("Hiện chưa có sản phẩm nào trong kho.")
+        else:
+            df = pd.DataFrame(data)
+            # Sử dụng gap="medium" để tạo khoảng cách chuyên nghiệp giữa các cột
+            cols = st.columns(3, gap="medium")
+            
+            for i, row in df.iterrows():
+                with cols[i % 3]:
+                    # 1. Mở thẻ bao quanh toàn bộ nội dung
+                    st.markdown('<div class="product-card">', unsafe_allow_html=True)
+                    
+                    # 2. Hiển thị ảnh (Cố định tỷ lệ khung hình)
+                    img = row["Hình ảnh"] if la_url_hop_le(row["Hình ảnh"]) else "https://via.placeholder.com/200"
+                    st.markdown(f'<img src="{img}" style="border-radius: 15px; object-fit: cover; height: 180px; width: 100%; margin-bottom:12px;">', unsafe_allow_html=True)
+                    
+                    # 3. Tên sản phẩm (Sử dụng class CSS cố định chiều cao)
+                    st.markdown(f'<div class="product-name">{row["Sản phẩm"]}</div>', unsafe_allow_html=True)
+                    
+                    # 4. Giá bán nổi bật
+                    st.markdown(f'<div class="gia-ban" style="color:#f39c12; font-size:1.3rem; font-weight:800; margin-bottom:5px;">{row["Giá"]:,} VNĐ</div>', unsafe_allow_html=True)
+                    
+                    # 5. Thông tin tồn kho
+                    st.markdown(f'<div style="color:#2e7d32; font-size:0.9rem; margin-bottom:15px; font-weight:500;">📦 Còn lại: {row["Tồn kho"]}</div>', unsafe_allow_html=True)
+                    
+                    # 6. Phần tương tác đặt hàng (Số lượng + Nút bấm)
+                    if int(row["Tồn kho"]) > 0:
+                        # label_visibility="collapsed" để giấu chữ "Số lượng" giúp card gọn hơn
+                        sl = st.number_input("Số lượng", 1, int(row["Tồn kho"]), key=f"sl_{i}", label_visibility="collapsed")
+                        
+                        # Style cho nút bấm được đồng bộ qua CSS class stButton ở trên
+                        if st.button("THÊM VÀO GIỎ 🛒", key=f"btn_{i}"):
+                            st.session_state.gio_hang[str(row["ID"])] = st.session_state.gio_hang.get(str(row["ID"]), 0) + sl
+                            st.toast(f"Đã thêm {row['Sản phẩm']} vào giỏ!", icon="✅")
+                    else:
+                        st.button("HẾT HÀNG", disabled=True, key=f"out_{i}")
+                    
+                    # 7. Đóng thẻ product-card
+                    st.markdown('</div>', unsafe_allow_html=True)
+                    
+                    # Tạo khoảng cách nhỏ dưới mỗi card cho giao diện di động
+                    st.write("")
 # =============================
 # 7. GIỎ HÀNG
 # =============================
@@ -275,3 +305,4 @@ elif chon_menu == "📞 Thông Tin":
     with col_map:
         toa_do = pd.DataFrame({'lat': [13.8930853], 'lon': [109.1002733]})
         st.map(toa_do, zoom=14)
+
