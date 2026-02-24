@@ -156,56 +156,69 @@ if chon_menu == "🏠 Trang Chủ":
             st.markdown(f'<div class="slider-container"><div class="slide-track">{slider_content}</div></div>', unsafe_allow_html=True)
 
 # =============================
-# 6. CỬA HÀNG (ĐÃ FIX ĐỒNG BỘ KHUNG)
+# 6. CỬA HÀNG (TÍCH HỢP TÌM KIẾM & LỌC GIÁ)
 # =============================
 elif chon_menu == "🛍️ Cửa Hàng":
     st.markdown("<h2 style='text-align:center; color:#2e7d32;'>🌟 Danh Sách Sản Phẩm</h2>", unsafe_allow_html=True)
+    
     ws = ket_noi_sheet("SanPham")
     if ws:
-        # Lấy dữ liệu và xử lý lỗi nếu sheet trống
         data = ws.get_all_records()
         if not data:
             st.info("Hiện chưa có sản phẩm nào trong kho.")
         else:
-            df = pd.DataFrame(data)
-            # Sử dụng gap="medium" để tạo khoảng cách chuyên nghiệp giữa các cột
-            cols = st.columns(3, gap="medium")
-            
-            for i, row in df.iterrows():
-                with cols[i % 3]:
-                    # 1. Mở thẻ bao quanh toàn bộ nội dung
-                    st.markdown('<div class="product-card">', unsafe_allow_html=True)
-                    
-                    # 2. Hiển thị ảnh (Cố định tỷ lệ khung hình)
-                    img = row["Hình ảnh"] if la_url_hop_le(row["Hình ảnh"]) else "https://via.placeholder.com/200"
-                    st.markdown(f'<img src="{img}" style="border-radius: 15px; object-fit: cover; height: 180px; width: 100%; margin-bottom:12px;">', unsafe_allow_html=True)
-                    
-                    # 3. Tên sản phẩm (Sử dụng class CSS cố định chiều cao)
-                    st.markdown(f'<div class="product-name">{row["Sản phẩm"]}</div>', unsafe_allow_html=True)
-                    
-                    # 4. Giá bán nổi bật
-                    st.markdown(f'<div class="gia-ban" style="color:#f39c12; font-size:1.3rem; font-weight:800; margin-bottom:5px;">{row["Giá"]:,} VNĐ</div>', unsafe_allow_html=True)
-                    
-                    # 5. Thông tin tồn kho
-                    st.markdown(f'<div style="color:#2e7d32; font-size:0.9rem; margin-bottom:15px; font-weight:500;">📦 Còn lại: {row["Tồn kho"]}</div>', unsafe_allow_html=True)
-                    
-                    # 6. Phần tương tác đặt hàng (Số lượng + Nút bấm)
-                    if int(row["Tồn kho"]) > 0:
-                        # label_visibility="collapsed" để giấu chữ "Số lượng" giúp card gọn hơn
-                        sl = st.number_input("Số lượng", 1, int(row["Tồn kho"]), key=f"sl_{i}", label_visibility="collapsed")
+            df_goc = pd.DataFrame(data)
+
+            # --- KHU VỰC BỘ LỌC ---
+            with st.container():
+                col_search, col_filter = st.columns([2, 1])
+                
+                with col_search:
+                    tu_khoa = st.text_input("🔍 Tìm kiếm sản phẩm...", placeholder="Nhập tên nem, chả, tré...")
+
+                with col_filter:
+                    # Lấy giá cao nhất để làm mốc slider
+                    gia_max = int(df_goc["Giá"].max())
+                    khoang_gia = st.slider("💰 Lọc theo giá (VNĐ)", 0, gia_max, (0, gia_max), step=10000)
+
+            # --- XỬ LÝ LỌC DỮ LIỆU ---
+            df_loc = df_goc[
+                (df_goc["Sản phẩm"].str.contains(tu_khoa, case=False, na=False)) &
+                (df_goc["Giá"] >= khoang_gia[0]) &
+                (df_goc["Giá"] <= khoang_gia[1])
+            ]
+
+            st.divider() # Vạch kẻ ngăn cách bộ lọc và danh sách
+
+            # --- HIỂN THỊ KẾT QUẢ ---
+            if df_loc.empty:
+                st.warning("Không tìm thấy sản phẩm phù hợp với yêu cầu của bạn.")
+            else:
+                cols = st.columns(3, gap="medium")
+                for i, (_, row) in enumerate(df_loc.iterrows()):
+                    with cols[i % 3]:
+                        st.markdown('<div class="product-card">', unsafe_allow_html=True)
                         
-                        # Style cho nút bấm được đồng bộ qua CSS class stButton ở trên
-                        if st.button("THÊM VÀO GIỎ 🛒", key=f"btn_{i}"):
-                            st.session_state.gio_hang[str(row["ID"])] = st.session_state.gio_hang.get(str(row["ID"]), 0) + sl
-                            st.toast(f"Đã thêm {row['Sản phẩm']} vào giỏ!", icon="✅")
-                    else:
-                        st.button("HẾT HÀNG", disabled=True, key=f"out_{i}")
-                    
-                    # 7. Đóng thẻ product-card
-                    st.markdown('</div>', unsafe_allow_html=True)
-                    
-                    # Tạo khoảng cách nhỏ dưới mỗi card cho giao diện di động
-                    st.write("")
+                        # Ảnh sản phẩm
+                        img = row["Hình ảnh"] if la_url_hop_le(row["Hình ảnh"]) else "https://via.placeholder.com/200"
+                        st.markdown(f'<img src="{img}" style="border-radius: 15px; object-fit: cover; height: 180px; width: 100%; margin-bottom:12px;">', unsafe_allow_html=True)
+                        
+                        # Nội dung text (Sử dụng CSS .product-name đã định nghĩa ở các bước trước để đều khung)
+                        st.markdown(f'<div class="product-name" style="font-weight:700; height:50px; overflow:hidden;">{row["Sản phẩm"]}</div>', unsafe_allow_html=True)
+                        st.markdown(f'<div class="gia-ban" style="color:#f39c12; font-size:1.3rem; font-weight:800; margin-bottom:5px;">{row["Giá"]:,} VNĐ</div>', unsafe_allow_html=True)
+                        st.markdown(f'<div style="color:#2e7d32; font-size:0.9rem; margin-bottom:15px; font-weight:500;">📦 Còn lại: {row["Tồn kho"]}</div>', unsafe_allow_html=True)
+                        
+                        # Tương tác mua hàng
+                        if int(row["Tồn kho"]) > 0:
+                            sl = st.number_input("SL", 1, int(row["Tồn kho"]), key=f"sl_{row['ID']}", label_visibility="collapsed")
+                            if st.button("THÊM VÀO GIỎ 🛒", key=f"btn_{row['ID']}"):
+                                st.session_state.gio_hang[str(row["ID"])] = st.session_state.gio_hang.get(str(row["ID"]), 0) + sl
+                                st.toast(f"Đã thêm {row['Sản phẩm']}!", icon="✅")
+                        else:
+                            st.button("HẾT HÀNG", disabled=True, key=f"out_{row['ID']}")
+                        
+                        st.markdown('</div>', unsafe_allow_html=True)
+                        st.write("") # Tạo khoảng cách dòng
 # =============================
 # 7. GIỎ HÀNG
 # =============================
@@ -305,4 +318,5 @@ elif chon_menu == "📞 Thông Tin":
     with col_map:
         toa_do = pd.DataFrame({'lat': [13.8930853], 'lon': [109.1002733]})
         st.map(toa_do, zoom=14)
+
 
