@@ -56,20 +56,13 @@ def tai_logo_tu_sheet():
 tai_logo_tu_sheet()
 
 # =============================
-# 3. CSS NÂNG CAO
+# 3. CSS NÂNG CAO (ĐÃ FIX LỖI SO LE)
 # =============================
 st.markdown("""
 <style>
     .stApp { background-color: #f8fbf8; }
     
-    /* Slider Trang chủ */
-    .slider-container { width: 100%; overflow: hidden; background: white; padding: 25px 0; border-radius: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); margin-top: 20px; }
-    .slide-track { display: flex; width: max-content; animation: scroll 40s linear infinite; }
-    .slide-item { width: 230px; margin: 0 20px; text-align: center; flex-shrink: 0; }
-    .slide-item img { width: 220px; height: 170px; object-fit: cover; border-radius: 18px; box-shadow: 0 8px 15px rgba(0,0,0,0.1); }
-    @keyframes scroll { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
-    
-    /* Card Sản phẩm trong Cửa Hàng */
+    /* Card Sản phẩm đồng bộ */
     .product-card { 
         background: white; 
         border-radius: 20px; 
@@ -78,33 +71,65 @@ st.markdown("""
         border: 1px solid #edf2ed; 
         transition: 0.3s; 
         text-align: center; 
-        margin-bottom: 10px;
+        margin-bottom: 15px;
+        display: flex;
+        flex-direction: column;
+        height: 100%; /* Đảm bảo các card trong cùng hàng cao bằng nhau */
     }
-    .product-card:hover { transform: translateY(-5px); }
-    .product-card img { border-radius: 15px; object-fit: cover; height: 180px; width: 100%; margin-bottom:10px; }
-    .gia-ban { color: #f39c12; font-size: 1.3rem; font-weight: 800; }
+    .product-card:hover { transform: translateY(-5px); box-shadow: 0 12px 30px rgba(46,125,50,0.15); }
     
-    /* Sidebar */
+    .product-card img { 
+        border-radius: 15px; 
+        object-fit: cover; 
+        height: 180px; 
+        width: 100%; 
+        margin-bottom:12px; 
+    }
+    
+    .product-name {
+        font-weight: 700; 
+        font-size: 1.1rem;
+        height: 50px; /* Cố định chiều cao tên để tránh so le */
+        overflow: hidden;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        margin-bottom: 5px;
+        color: #333;
+    }
+    
+    .gia-ban { color: #f39c12; font-size: 1.3rem; font-weight: 800; margin-bottom: 5px; }
+    
+    .stock-info { color: #2e7d32; font-size: 0.9rem; margin-bottom: 15px; font-weight: 500; }
+    
+    /* Sidebar styling */
     .sidebar-content { display: flex; flex-direction: column; align-items: center; text-align: center; }
-    .hotline-sidebar { color: #d32f2f; font-weight: bold; font-size: 1.1rem; margin-bottom: 5px; }
+    .hotline-sidebar { color: #d32f2f; font-weight: bold; font-size: 1.1rem; margin-bottom: 2px; }
     .zalo-sidebar { color: #0068ff; font-weight: bold; font-size: 1.1rem; margin-bottom: 15px; }
     
-    /* Button & Input Styling */
-    .stButton>button { background-color: #2e7d32; color: white; border-radius: 12px; font-weight: 600; width: 100%; border: none; }
+    /* Căn chỉnh widget bên trong card */
+    div[data-testid="stNumberInput"] { margin-bottom: 5px !important; }
+    .stButton>button { 
+        background-color: #2e7d32; 
+        color: white; 
+        border-radius: 10px; 
+        font-weight: 600; 
+        width: 100%; 
+        border: none; 
+        height: 42px;
+    }
     .stButton>button:hover { background-color: #f39c12; color: white; }
-    div[data-testid="stNumberInput"] { margin-bottom: -10px; }
 </style>
 """, unsafe_allow_html=True)
 
 # =============================
-# 4. SIDEBAR (CẬP NHẬT HOTLINE/ZALO)
+# 4. SIDEBAR
 # =============================
 with st.sidebar:
     st.markdown(f'<div class="sidebar-content"><img src="{st.session_state.logo_url}" width="120"></div>', unsafe_allow_html=True)
     st.markdown("<h2 style='text-align: center; color: #2e7d32; margin-bottom: 5px;'>XỨ NẪU STORE</h2>", unsafe_allow_html=True)
     
-    # Thêm Hotline và Zalo
-    st.markdown("""
+    st.markdown(f"""
     <div style="text-align: center;">
         <div class="hotline-sidebar">📞 Hotline: 0901.234.567</div>
         <div class="zalo-sidebar">💬 Zalo: 0901.234.567</div>
@@ -122,6 +147,45 @@ with st.sidebar:
         styles={"nav-link-selected": {"background-color": "#2e7d32"}}
     )
 
+# =============================
+# 6. CỬA HÀNG (ĐÃ FIX ĐỒNG BỘ KHUNG)
+# =============================
+elif chon_menu == "🛍️ Cửa Hàng":
+    st.markdown("<h2 style='text-align:center; color:#2e7d32;'>🌟 Danh Sách Sản Phẩm</h2>", unsafe_allow_html=True)
+    ws = ket_noi_sheet("SanPham")
+    if ws:
+        df = pd.DataFrame(ws.get_all_records())
+        # Tạo grid với khoảng cách nhỏ để đẹp hơn
+        cols = st.columns(3, gap="medium")
+        for i, row in df.iterrows():
+            with cols[i % 3]:
+                # Mở thẻ bao quanh
+                st.markdown('<div class="product-card">', unsafe_allow_html=True)
+                
+                # Ảnh sản phẩm
+                img = row["Hình ảnh"] if la_url_hop_le(row["Hình ảnh"]) else "https://via.placeholder.com/200"
+                st.markdown(f'<img src="{img}">', unsafe_allow_html=True)
+                
+                # Tên sản phẩm (chiều cao cố định)
+                st.markdown(f'<div class="product-name">{row["Sản phẩm"]}</div>', unsafe_allow_html=True)
+                
+                # Giá và Tồn kho
+                st.markdown(f'<div class="gia-ban">{row["Giá"]:,} VNĐ</div>', unsafe_allow_html=True)
+                st.markdown(f'<div class="stock-info">📦 Còn lại: {row["Tồn kho"]}</div>', unsafe_allow_html=True)
+                
+                # Widget mua hàng
+                if int(row["Tồn kho"]) > 0:
+                    # Dùng label_visibility="collapsed" để bỏ khoảng trắng của label
+                    sl = st.number_input("SL", 1, int(row["Tồn kho"]), key=f"sl_{i}", label_visibility="collapsed")
+                    if st.button("THÊM VÀO GIỎ 🛒", key=f"btn_{i}"):
+                        st.session_state.gio_hang[str(row["ID"])] = st.session_state.gio_hang.get(str(row["ID"]), 0) + sl
+                        st.toast(f"Đã thêm {row['Sản phẩm']}!", icon="✅")
+                else:
+                    st.button("HẾT HÀNG", disabled=True, key=f"out_{i}")
+                
+                st.markdown('</div>', unsafe_allow_html=True)
+
+# (Các phần khác như Trang chủ, Giỏ hàng, Quản trị giữ nguyên như bản trước của bạn)
 # =============================
 # 5. TRANG CHỦ
 # =============================
