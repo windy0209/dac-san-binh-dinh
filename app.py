@@ -121,8 +121,8 @@ with st.sidebar:
     # Thêm Hotline và Zalo
     st.markdown("""
     <div style="text-align: center;">
-        <div class="hotline-sidebar">📞 Hotline: 0901.234.567</div>
-        <div class="zalo-sidebar">💬 Zalo: 0901.234.567</div>
+        <div class="hotline-sidebar">📞 Hotline: 0932.642.376</div>
+        <div class="zalo-sidebar">💬 Zalo: 0932.642.376</div>
     </div>
     """, unsafe_allow_html=True)
     
@@ -354,8 +354,8 @@ elif chon_menu == "📞 Thông Tin":
         <div style="background:white; padding:25px; border-radius:20px; box-shadow:0 10px 25px rgba(0,0,0,0.05);">
             <h3 style="color: #2e7d32; margin-top: 0;">🏡 Cửa Hàng Xứ Nẫu</h3>
             <p><b>📍 Địa chỉ:</b> 96 Ngô Đức Đệ, Phường Bình Định, TX. An Nhơn, Bình Định</p>
-            <p><b>📞 Hotline:</b> 0901.234.567</p>
-            <p><b>📧 Email:</b> contact@xunau.vn</p>
+            <p><b>📞 Hotline:</b> 0932.642.376</p>
+            <p><b>📧 Email:</b> miendatvo86@gmail.com</p>
             <hr>
             <h4 style="color: #2e7d32;">⏰ Giờ Hoạt Động</h4>
             <p>07:30 - 21:00 (Hàng ngày)</p>
@@ -364,6 +364,7 @@ elif chon_menu == "📞 Thông Tin":
     with col_map:
         toa_do = pd.DataFrame({'lat': [13.8930853], 'lon': [109.1002733]})
         st.map(toa_do, zoom=14)
+
 
 
 
