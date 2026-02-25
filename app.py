@@ -17,7 +17,7 @@ import re
 st.set_page_config(
     page_title="Cửa Hàng Xứ Nẫu - Đặc Sản Bình Định",
     layout="wide",
-    page_icon="https://raw.githubusercontent.com/windy0209/dac-san-binh-dinh/main/logo.jpg" 
+    page_icon="https://raw.githubusercontent.com/windy0209/dac-san-binh-dinh/main/default_logo.JPG" 
 )
 
 # Khởi tạo Session State
@@ -360,6 +360,7 @@ elif chon_menu == "📞 Thông Tin":
     with col_map:
         toa_do = pd.DataFrame({'lat': [13.8930853], 'lon': [109.1002733]})
         st.map(toa_do, zoom=14)
+
 
 
 
