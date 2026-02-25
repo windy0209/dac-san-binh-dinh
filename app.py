@@ -10,45 +10,26 @@ import re
 # =============================
 # 1. CẤU HÌNH TRANG & SESSION STATE
 # =============================
-# Cấu hình trang (Favicon trên tab vẫn phụ thuộc vào file gốc)
+# =============================
+# 1. CẤU HÌNH TRANG & SESSION STATE
+# =============================
+# Sử dụng emoji làm page_icon để đảm bảo hiển thị tốt trên mọi trình duyệt
 st.set_page_config(
     page_title="Cửa Hàng Xứ Nẫu - Đặc Sản Bình Định",
     layout="wide",
-    page_icon="https://raw.githubusercontent.com/windy0209/dac-san-binh-dinh/main/default_logo.JPG"
+    page_icon="https://raw.githubusercontent.com/windy0209/dac-san-binh-dinh/main/logo.jpg" 
 )
 
-# Chèn CSS để bo tròn bất kỳ ảnh nào bạn muốn trong giao diện
-st.markdown(
-    """
-    <style>
-    .round-logo {
-        border-radius: 50%;
-        overflow: hidden;
-        width: 150px;
-        height: 150px;
-        object-fit: cover;
-        display: block;
-        margin-left: auto;
-        margin-right: auto;
-    }
-    </style>
-    """,
-    unsafe_allow_html=True
-)
-
-# Hiển thị logo tròn ở Sidebar
-st.sidebar.markdown(
-    '<img src="https://raw.githubusercontent.com/windy0209/dac-san-binh-dinh/main/default_logo.JPG" class="round-logo">',
-    unsafe_allow_html=True
-)
-
+# Khởi tạo Session State
 if "da_dang_nhap" not in st.session_state:
     st.session_state.da_dang_nhap = False
+
 if "gio_hang" not in st.session_state:
     st.session_state.gio_hang = {}
+
+# Đảm bảo sử dụng link raw từ GitHub để hình ảnh hiển thị được
 if "logo_url" not in st.session_state:
     st.session_state.logo_url = "https://raw.githubusercontent.com/windy0209/dac-san-binh-dinh/main/logo2.png"
-
 # =============================
 # 2. KẾT NỐI GOOGLE SHEETS
 # =============================
@@ -379,6 +360,7 @@ elif chon_menu == "📞 Thông Tin":
     with col_map:
         toa_do = pd.DataFrame({'lat': [13.8930853], 'lon': [109.1002733]})
         st.map(toa_do, zoom=14)
+
 
 
 
