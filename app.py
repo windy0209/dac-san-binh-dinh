@@ -10,9 +10,6 @@ import re
 # =============================
 # 1. CẤU HÌNH TRANG & SESSION STATE
 # =============================
-# =============================
-# 1. CẤU HÌNH TRANG & SESSION STATE
-# =============================
 # Sử dụng emoji làm page_icon để đảm bảo hiển thị tốt trên mọi trình duyệt
 st.set_page_config(
     page_title="Cửa Hàng Xứ Nẫu - Đặc Sản Bình Định",
@@ -115,7 +112,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # =============================
-# 4. SIDEBAR (CẬP NHẬT HOTLINE/ZALO)
+# 4. SIDEBAR (CẬP NHẬT HOTLINE/ZALO & QR CODE)
 # =============================
 with st.sidebar:
     st.markdown(f'<div class="sidebar-content"><img src="{st.session_state.logo_url}" width="120"></div>', unsafe_allow_html=True)
@@ -134,12 +131,19 @@ with st.sidebar:
             st.session_state.da_dang_nhap = False
             st.rerun()
 
+    # Menu điều hướng
     chon_menu = option_menu(
         None, ["🏠 Trang Chủ", "🛍️ Cửa Hàng", "🛒 Giỏ Hàng", "📞 Thông Tin", "📊 Quản Trị"],
         default_index=0,
         styles={"nav-link-selected": {"background-color": "#2e7d32"}}
     )
 
+    # --- CHÈN MÃ QR PHÍA DƯỚI MENU ---
+    st.markdown("---") # Đường kẻ phân cách
+    st.markdown("<div style='text-align: center;'>", unsafe_allow_html=True)
+    # Thay 'qrcode.jpg' bằng đường dẫn file của bạn hoặc URL nếu bạn upload lên GitHub
+    st.image("https://raw.githubusercontent.com/windy0209/dac-san-binh-dinh/main/qrcode.png", caption="Quét mã để liên hệ", use_container_width=True)
+    st.markdown("</div>", unsafe_allow_html=True)
 # =============================
 # 5. TRANG CHỦ
 # =============================
@@ -360,6 +364,7 @@ elif chon_menu == "📞 Thông Tin":
     with col_map:
         toa_do = pd.DataFrame({'lat': [13.8930853], 'lon': [109.1002733]})
         st.map(toa_do, zoom=14)
+
 
 
 
