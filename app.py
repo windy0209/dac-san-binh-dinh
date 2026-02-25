@@ -13,7 +13,7 @@ import re
 st.set_page_config(
     page_title="Cửa Hàng Xứ Nẫu - Đặc Sản Bình Định",
     layout="wide",
-    page_icon="🍱"
+    page_icon="https://github.com/windy0209/dac-san-binh-dinh/blob/main/logo.ico"
 )
 
 if "da_dang_nhap" not in st.session_state:
@@ -353,6 +353,7 @@ elif chon_menu == "📞 Thông Tin":
     with col_map:
         toa_do = pd.DataFrame({'lat': [13.8930853], 'lon': [109.1002733]})
         st.map(toa_do, zoom=14)
+
 
 
 
