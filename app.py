@@ -18,45 +18,40 @@ st.set_page_config(
 )
 
 # =============================
-# ẨN TOÀN BỘ THANH CÔNG CỤ (CHỈ GIỮ NÚT MENU SIDEBAR)
+# TÙY CHỈNH GIAO DIỆN (NỀN SÁNG & NÚT MENU ĐỎ)
 # =============================
 st.markdown("""
 <style>
-    /* 1. Làm header trong suốt để không lộ thanh ngang nhưng vẫn giữ nút Menu */
+    /* 1. Thiết lập phông nền sáng toàn trang */
+    .stApp {
+        background-color: #ffffff !important;
+    }
+
+    /* 2. Làm header trong suốt và tùy chỉnh nút Menu */
     header[data-testid="stHeader"] {
         background-color: rgba(0,0,0,0) !important;
-        color: #2e7d32 !important;
     }
 
-    /* 2. ẨN TRIỆT ĐỂ CỤM LOGO/GIRHUB/SHARE GÓC PHẢI */
-    /* Tác động vào container chứa các nút góc phải */
-    [data-testid="stHeaderActionElements"] {
-        display: none !important;
-        visibility: hidden !important;
-    }
-    
-    /* Ẩn thêm phần tử phụ nếu nút Share vẫn còn */
-    .stAppDeployButton {
-        display: none !important;
+    /* Đổi màu biểu tượng 3 gạch (Mũi tên menu) sang MÀU ĐỎ */
+    header[data-testid="stHeader"] svg {
+        fill: #ff0000 !important; /* Màu đỏ thuần */
     }
 
-    /* 3. Ẩn menu 3 chấm (Settings) */
+    /* 3. ẨN TRIỆT ĐỂ CÁC NÚT BÊN PHẢI (Share, Star, GitHub, Deploy) */
+    [data-testid="stHeaderActionElements"], 
+    .stAppDeployButton, 
     #MainMenu {
         display: none !important;
-    }
-
-    /* 4. Ẩn Footer và các thành phần trang trí */
-    footer {
         visibility: hidden !important;
     }
-    [data-testid="stDecoration"] {
-        display: none !important;
-    }
-    
-    /* 5. ĐẢM BẢO NÚT MENU BÊN TRÁI LUÔN HIỆN */
-    /* Streamlit dùng class 'st-emotion-cache-16idsys' hoặc tương tự cho nút này */
-    header[data-testid="stHeader"] button {
-        display: inline-flex !important;
+
+    /* 4. Ẩn Footer và Decoration */
+    footer { visibility: hidden !important; }
+    [data-testid="stDecoration"] { display: none !important; }
+
+    /* 5. Tùy chỉnh Sidebar để tiệp màu với nền sáng */
+    [data-testid="stSidebar"] {
+        background-color: #f8fbf8 !important; /* Màu xanh nhạt rất nhẹ cho sidebar */
     }
 </style>
 """, unsafe_allow_html=True)
@@ -408,6 +403,7 @@ elif chon_menu == "📞 Thông Tin":
     with col_map:
         toa_do = pd.DataFrame({'lat': [13.8930853], 'lon': [109.1002733]})
         st.map(toa_do, zoom=14)
+
 
 
 
