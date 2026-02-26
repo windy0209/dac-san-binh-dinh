@@ -22,9 +22,6 @@ st.set_page_config(
 st.markdown("""
 <style>
 
-/* Ẩn header trên cùng (Fork, GitHub, 3 chấm) */
-header {visibility: hidden !important;}
-
 /* Ẩn logo Streamlit góc dưới */
 footer {visibility: hidden !important;}
 
@@ -390,6 +387,7 @@ elif chon_menu == "📞 Thông Tin":
     with col_map:
         toa_do = pd.DataFrame({'lat': [13.8930853], 'lon': [109.1002733]})
         st.map(toa_do, zoom=14)
+
 
 
 
