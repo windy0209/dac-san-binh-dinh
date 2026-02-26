@@ -20,32 +20,39 @@ st.set_page_config(
 # =============================
 # ẨN TOÀN BỘ THANH CÔNG CỤ STREAMLIT (Fork, GitHub, Menu, Logo)
 # =============================
+
 st.markdown("""
 <style>
 
-/* Ẩn header trên cùng (Fork, GitHub, 3 chấm) */
+/* Header trên cùng */
 header {visibility: hidden !important;}
 
-/* Ẩn toolbar */
+/* Toolbar */
 [data-testid="stToolbar"] {display: none !important;}
 
-/* Ẩn menu 3 chấm */
+/* Menu 3 chấm */
 button[kind="header"] {display: none !important;}
 
-/* Ẩn logo Streamlit góc dưới */
+/* Footer mặc định */
 footer {visibility: hidden !important;}
 
-/* Ẩn trạng thái và profile */
+/* Status widget / profile */
 [data-testid="stStatusWidget"] {display: none !important;}
 
-/* Ẩn badge Streamlit */
+/* Decoration */
 [data-testid="stDecoration"] {display: none !important;}
 
-/* Ẩn View Profile */
+/* Link profile */
 a[href*="profile"] {display: none !important;}
 
-/* Ẩn toàn bộ nút GitHub nếu có */
+/* Link GitHub */
 a[href*="github"] {display: none !important;}
+
+/* 🔥 Hosted with Streamlit badge */
+[data-testid="stBadge"] {
+    visibility: hidden !important;
+    display: none !important;
+}
 
 </style>
 """, unsafe_allow_html=True)
@@ -357,4 +364,5 @@ elif chon_menu == "📞 Thông Tin":
     with col_map:
         toa_do = pd.DataFrame({'lat': [13.8930853], 'lon': [109.1002733]})
         st.map(toa_do, zoom=14)
+
 
