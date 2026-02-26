@@ -14,46 +14,33 @@ import json
 st.set_page_config(
     page_title="Đặc Sản Bình Định - Cửa Hàng Xứ Nẫu | Nem Chả, Tré Chính Gốc",
     layout="wide",
-    page_icon="https://raw.githubusercontent.com/windy0209/dac-san-binh-dinh/main/default_logo.png" 
+    page_icon="https://raw.githubusercontent.com/windy0209/dac-san-binh-dinh/main/default_logo.png",
+    initial_sidebar_state="expanded"  # Tự động mở menu trên điện thoại
 )
 
 # =============================
-# ẨN TOÀN BỘ THANH CÔNG CỤ STREAMLIT (Fork, GitHub, Menu, Logo)
+# ẨN CÁC THÀNH PHẦN KHÔNG CẦN THIẾT (NHƯNG GIỮ LẠI NÚT MENU)
 # =============================
-
 st.markdown("""
 <style>
-
-/* Header trên cùng */
-header {visibility: hidden !important;}
-
-/* Toolbar */
-[data-testid="stToolbar"] {display: none !important;}
-
-/* Menu 3 chấm */
-button[kind="header"] {display: none !important;}
-
-/* Footer mặc định */
-footer {visibility: hidden !important;}
-
-/* Status widget / profile */
-[data-testid="stStatusWidget"] {display: none !important;}
-
-/* Decoration */
-[data-testid="stDecoration"] {display: none !important;}
-
-/* Link profile */
-a[href*="profile"] {display: none !important;}
-
-/* Link GitHub */
-a[href*="github"] {display: none !important;}
-
-/* 🔥 Hosted with Streamlit badge */
-[data-testid="stBadge"] {
-    visibility: hidden !important;
-    display: none !important;
+/* Làm trong suốt header để giữ lại nút Menu (Mũi tên/Ba gạch) */
+header {
+    background-color: rgba(0,0,0,0) !important;
 }
 
+/* Ẩn toolbar Streamlit nhưng giữ lại nút Menu */
+[data-testid="stToolbar"] {display: none !important;}
+
+/* Ẩn Footer và các link GitHub/Profile */
+footer {visibility: hidden !important;}
+[data-testid="stStatusWidget"] {display: none !important;}
+[data-testid="stDecoration"] {display: none !important;}
+a[href*="profile"], a[href*="github"] {display: none !important;}
+
+/* Fix lỗi hiển thị trên Mobile */
+@media (max-width: 768px) {
+    .stApp { margin-top: -50px; }
+}
 </style>
 """, unsafe_allow_html=True)
 
@@ -72,7 +59,7 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-# --- CẤU TRÚC DỮ LIỆU SCHEMA (Giúp hiện địa chỉ trên Google) ---
+# --- CẤU TRÚC DỮ LIỆU SCHEMA ---
 schema_data = {
     "@context": "https://schema.org",
     "@type": "Store",
@@ -153,7 +140,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # =============================
-# 4. SIDEBAR
+# 4. SIDEBAR (MENU ĐIỀU HƯỚNG)
 # =============================
 with st.sidebar:
     st.markdown(f'<div class="sidebar-content"><img src="{st.session_state.logo_url}" width="120" alt="Logo Đặc Sản Bình Định"></div>', unsafe_allow_html=True)
@@ -178,7 +165,6 @@ with st.sidebar:
 # 5. TRANG CHỦ
 # =============================
 if chon_menu == "🏠 Trang Chủ":
-    # H1 là tiêu đề quan trọng nhất cho SEO
     st.markdown("<h1 style='text-align:center;color:#2e7d32;'>🏯 Tinh Hoa Đặc Sản Bình Định Chính Gốc</h1>", unsafe_allow_html=True)
     c1, c2, c3 = st.columns(3)
     c1.success("🌿 **Sạch & Tươi**\n\n100% Tự nhiên, không chất bảo quản.")
@@ -364,5 +350,3 @@ elif chon_menu == "📞 Thông Tin":
     with col_map:
         toa_do = pd.DataFrame({'lat': [13.8930853], 'lon': [109.1002733]})
         st.map(toa_do, zoom=14)
-
-
