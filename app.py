@@ -22,6 +22,11 @@ st.set_page_config(
 # =============================
 st.markdown("""
 <style>
+/* Ẩn header trên cùng (Fork, GitHub, 3 chấm) */
+
+header {visibility: hidden !important;}
+
+
 
 /* Thay vì ẩn hoàn toàn, ta chỉ ẩn các nút thừa và giữ lại nút Menu */
 header[data-testid="stHeader"] {
@@ -382,4 +387,5 @@ elif chon_menu == "📞 Thông Tin":
     with col_map:
         toa_do = pd.DataFrame({'lat': [13.8930853], 'lon': [109.1002733]})
         st.map(toa_do, zoom=14)
+
 
