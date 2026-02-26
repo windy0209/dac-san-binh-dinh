@@ -20,18 +20,25 @@ st.set_page_config(
 # =============================
 # ẨN TOÀN BỘ THANH CÔNG CỤ STREAMLIT (Fork, GitHub, Menu, Logo)
 # =============================
+
 st.markdown("""
 <style>
+/* 1. Ẩn nút hình ngôi sao (Star) */
+button[data-testid="stHeaderStarButton"] { display: none !important; }
 
-/* Thay vì ẩn hoàn toàn, ta chỉ ẩn các nút thừa và giữ lại nút Menu */
+/* 2. Ẩn nút hình cây bút (App Creator/Edit) */
+button[title="Edit"] { display: none !important; }
+button[data-testid="stAppCreatorDescription"] { display: none !important; }
+
+/* 3. Ẩn logo GitHub */
+.stGithubIcon { display: none !important; }
+a[href*="github.com"] { display: none !important; }
+
+/* Giữ cho Header trong suốt để nút Menu nổi bật */
 header[data-testid="stHeader"] {
-    background-color: rgba(0,0,0,0) !important; /* Làm Header trong suốt */
-    color: #2e7d32 !important; /* Đổi màu nút menu thành màu xanh cho dễ thấy */
+    background-color: rgba(0,0,0,0) !important;
 }
 
-/* Chỉ ẩn các nút không cần thiết (GitHub, Settings) nhưng GIỮ LẠI nút đóng mở Sidebar */
-button[data-testid="stActionButton"] { display: none !important; }
-#MainMenu { visibility: hidden; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -382,6 +389,7 @@ elif chon_menu == "📞 Thông Tin":
     with col_map:
         toa_do = pd.DataFrame({'lat': [13.8930853], 'lon': [109.1002733]})
         st.map(toa_do, zoom=14)
+
 
 
 
