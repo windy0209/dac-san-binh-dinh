@@ -18,26 +18,27 @@ st.set_page_config(
 )
 
 # =============================
-# TÙY CHỈNH GIAO DIỆN (NỀN SÁNG & NÚT MENU ĐỎ)
+# CẤU HÌNH GIAO DIỆN TỐI & NÚT MENU MÀU VÀNG
 # =============================
 st.markdown("""
 <style>
-    /* 1. Thiết lập phông nền sáng toàn trang */
+    /* 1. Thiết lập phông nền tối cho toàn bộ ứng dụng */
     .stApp {
-        background-color: #ffffff !important;
+        background-color: #0E1117 !important; /* Màu nền tối chuẩn */
+        color: #FFFFFF !important; /* Màu chữ trắng để nổi bật trên nền tối */
     }
 
-    /* 2. Làm header trong suốt và tùy chỉnh nút Menu */
+    /* 2. Cấu hình Header trong suốt và đổi màu nút Menu sang VÀNG */
     header[data-testid="stHeader"] {
         background-color: rgba(0,0,0,0) !important;
     }
-
-    /* Đổi màu biểu tượng 3 gạch (Mũi tên menu) sang MÀU ĐỎ */
+    
+    /* Chỉnh màu biểu tượng 3 gạch (mũi tên) thành màu vàng */
     header[data-testid="stHeader"] svg {
-        fill: #ff0000 !important; /* Màu đỏ thuần */
+        fill: #F39C12 !important; /* Màu vàng cam rực rỡ */
     }
 
-    /* 3. ẨN TRIỆT ĐỂ CÁC NÚT BÊN PHẢI (Share, Star, GitHub, Deploy) */
+    /* 3. ẨN TRIỆT ĐỂ CÁC NÚT GÓC PHẢI (Share, Star, GitHub, Deploy) */
     [data-testid="stHeaderActionElements"], 
     .stAppDeployButton, 
     #MainMenu {
@@ -45,13 +46,19 @@ st.markdown("""
         visibility: hidden !important;
     }
 
-    /* 4. Ẩn Footer và Decoration */
+    /* 4. Tùy chỉnh Sidebar (Thanh bên) để tiệp màu nền tối */
+    [data-testid="stSidebar"] {
+        background-color: #1A1C24 !important;
+        border-right: 1px solid #333;
+    }
+
+    /* 5. Ẩn Footer và các thành phần thừa */
     footer { visibility: hidden !important; }
     [data-testid="stDecoration"] { display: none !important; }
 
-    /* 5. Tùy chỉnh Sidebar để tiệp màu với nền sáng */
-    [data-testid="stSidebar"] {
-        background-color: #f8fbf8 !important; /* Màu xanh nhạt rất nhẹ cho sidebar */
+    /* Giữ nút Menu luôn hiển thị ở góc trái */
+    header[data-testid="stHeader"] button {
+        display: inline-flex !important;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -403,6 +410,7 @@ elif chon_menu == "📞 Thông Tin":
     with col_map:
         toa_do = pd.DataFrame({'lat': [13.8930853], 'lon': [109.1002733]})
         st.map(toa_do, zoom=14)
+
 
 
 
