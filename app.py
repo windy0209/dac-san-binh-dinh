@@ -19,27 +19,44 @@ st.set_page_config(
 # =============================
 # ẨN TOÀN BỘ THANH CÔNG CỤ STREAMLIT (Fork, GitHub, Menu, Logo)
 # =============================
+# =============================
+# ẨN TOÀN BỘ THANH CÔNG CỤ STREAMLIT
+# =============================
 st.markdown("""
 <style>
 
-/* Ẩn logo Streamlit góc dưới */
+/* Header trên cùng */
+header {visibility: hidden !important;}
+
+/* Toolbar */
+[data-testid="stToolbar"] {display: none !important;}
+
+/* Menu 3 chấm */
+button[kind="header"] {display: none !important;}
+
+/* Footer mặc định */
 footer {visibility: hidden !important;}
 
-/* Ẩn trạng thái và profile */
+/* Status widget / profile */
 [data-testid="stStatusWidget"] {display: none !important;}
 
-/* Ẩn badge Streamlit */
+/* Decoration */
 [data-testid="stDecoration"] {display: none !important;}
 
-/* Ẩn View Profile */
+/* Link profile */
 a[href*="profile"] {display: none !important;}
 
-/* Ẩn toàn bộ nút GitHub nếu có */
+/* Link GitHub */
 a[href*="github"] {display: none !important;}
+
+/* 🔥 Hosted with Streamlit badge */
+[data-testid="stBadge"] {
+    visibility: hidden !important;
+    display: none !important;
+}
 
 </style>
 """, unsafe_allow_html=True)
-
 # Khởi tạo Session State
 if "da_dang_nhap" not in st.session_state:
     st.session_state.da_dang_nhap = False
@@ -387,6 +404,7 @@ elif chon_menu == "📞 Thông Tin":
     with col_map:
         toa_do = pd.DataFrame({'lat': [13.8930853], 'lon': [109.1002733]})
         st.map(toa_do, zoom=14)
+
 
 
 
