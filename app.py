@@ -17,52 +17,6 @@ st.set_page_config(
     page_icon="https://raw.githubusercontent.com/windy0209/dac-san-binh-dinh/main/default_logo.png" 
 )
 
-# =============================
-# CẤU HÌNH GIAO DIỆN TỐI & NÚT MENU MÀU VÀNG
-# =============================
-st.markdown("""
-<style>
-    /* 1. Thiết lập phông nền tối cho toàn bộ ứng dụng */
-    .stApp {
-        background-color: #0E1117 !important; /* Màu nền tối chuẩn */
-        color: #FFFFFF !important; /* Màu chữ trắng để nổi bật trên nền tối */
-    }
-
-    /* 2. Cấu hình Header trong suốt và đổi màu nút Menu sang VÀNG */
-    header[data-testid="stHeader"] {
-        background-color: rgba(0,0,0,0) !important;
-    }
-    
-    /* Chỉnh màu biểu tượng 3 gạch (mũi tên) thành màu vàng */
-    header[data-testid="stHeader"] svg {
-        fill: #F39C12 !important; /* Màu vàng cam rực rỡ */
-    }
-
-    /* 3. ẨN TRIỆT ĐỂ CÁC NÚT GÓC PHẢI (Share, Star, GitHub, Deploy) */
-    [data-testid="stHeaderActionElements"], 
-    .stAppDeployButton, 
-    #MainMenu {
-        display: none !important;
-        visibility: hidden !important;
-    }
-
-    /* 4. Tùy chỉnh Sidebar (Thanh bên) để tiệp màu nền tối */
-    [data-testid="stSidebar"] {
-        background-color: #1A1C24 !important;
-        border-right: 1px solid #333;
-    }
-
-    /* 5. Ẩn Footer và các thành phần thừa */
-    footer { visibility: hidden !important; }
-    [data-testid="stDecoration"] { display: none !important; }
-
-    /* Giữ nút Menu luôn hiển thị ở góc trái */
-    header[data-testid="stHeader"] button {
-        display: inline-flex !important;
-    }
-</style>
-""", unsafe_allow_html=True)
-
 # Khởi tạo Session State
 if "da_dang_nhap" not in st.session_state:
     st.session_state.da_dang_nhap = False
@@ -410,11 +364,3 @@ elif chon_menu == "📞 Thông Tin":
     with col_map:
         toa_do = pd.DataFrame({'lat': [13.8930853], 'lon': [109.1002733]})
         st.map(toa_do, zoom=14)
-
-
-
-
-
-
-
-
