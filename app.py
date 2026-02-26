@@ -17,6 +17,39 @@ st.set_page_config(
     page_icon="https://raw.githubusercontent.com/windy0209/dac-san-binh-dinh/main/default_logo.png" 
 )
 
+# =============================
+# ẨN TOÀN BỘ THANH CÔNG CỤ STREAMLIT (Fork, GitHub, Menu, Logo)
+# =============================
+st.markdown("""
+<style>
+
+/* Ẩn header trên cùng (Fork, GitHub, 3 chấm) */
+header {visibility: hidden !important;}
+
+/* Ẩn toolbar */
+[data-testid="stToolbar"] {display: none !important;}
+
+/* Ẩn menu 3 chấm */
+button[kind="header"] {display: none !important;}
+
+/* Ẩn logo Streamlit góc dưới */
+footer {visibility: hidden !important;}
+
+/* Ẩn trạng thái và profile */
+[data-testid="stStatusWidget"] {display: none !important;}
+
+/* Ẩn badge Streamlit */
+[data-testid="stDecoration"] {display: none !important;}
+
+/* Ẩn View Profile */
+a[href*="profile"] {display: none !important;}
+
+/* Ẩn toàn bộ nút GitHub nếu có */
+a[href*="github"] {display: none !important;}
+
+</style>
+""", unsafe_allow_html=True)
+
 # --- MÃ TỐI ƯU GOOGLE (SEO Meta Tags) ---
 st.markdown(
     """
@@ -324,3 +357,4 @@ elif chon_menu == "📞 Thông Tin":
     with col_map:
         toa_do = pd.DataFrame({'lat': [13.8930853], 'lon': [109.1002733]})
         st.map(toa_do, zoom=14)
+
