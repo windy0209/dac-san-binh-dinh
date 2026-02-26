@@ -18,27 +18,40 @@ st.set_page_config(
 )
 
 # =============================
-# ẨN TOÀN BỘ THANH CÔNG CỤ STREAMLIT (Fork, GitHub, Menu, Logo)
+# ẨN TOÀN BỘ THANH CÔNG CỤ (CHỈ GIỮ NÚT MENU SIDEBAR)
 # =============================
-
 st.markdown("""
 <style>
-/* 1. Ẩn nút hình ngôi sao (Star) */
-button[data-testid="stHeaderStarButton"] { display: none !important; }
+    /* 1. Làm header trong suốt để không lộ thanh ngang nhưng vẫn giữ nút Menu */
+    header[data-testid="stHeader"] {
+        background-color: rgba(0,0,0,0) !important;
+        color: #2e7d32 !important; /* Màu xanh cho nút menu để dễ thấy */
+    }
 
-/* 2. Ẩn nút hình cây bút (App Creator/Edit) */
-button[title="Edit"] { display: none !important; }
-button[data-testid="stAppCreatorDescription"] { display: none !important; }
+    /* 2. Ẩn các nút Share, Deploy, và các biểu tượng mặc định khác trên Toolbar */
+    [data-testid="stHeaderActionElements"] {
+        display: none !important;
+    }
 
-/* 3. Ẩn logo GitHub */
-.stGithubIcon { display: none !important; }
-a[href*="github.com"] { display: none !important; }
+    /* 3. Ẩn menu 3 chấm mặc định (Settings/Help) của Streamlit */
+    #MainMenu {
+        display: none !important;
+    }
 
-/* Giữ cho Header trong suốt để nút Menu nổi bật */
-header[data-testid="stHeader"] {
-    background-color: rgba(0,0,0,0) !important;
-}
+    /* 4. Ẩn Footer "Made with Streamlit" */
+    footer {
+        visibility: hidden !important;
+    }
 
+    /* 5. Ẩn các thành phần trang trí không cần thiết khác */
+    [data-testid="stDecoration"] {
+        display: none !important;
+    }
+    
+    /* Đảm bảo nút mở Sidebar luôn hiển thị */
+    button[kind="header"] {
+        visibility: visible !important;
+    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -389,6 +402,7 @@ elif chon_menu == "📞 Thông Tin":
     with col_map:
         toa_do = pd.DataFrame({'lat': [13.8930853], 'lon': [109.1002733]})
         st.map(toa_do, zoom=14)
+
 
 
 
