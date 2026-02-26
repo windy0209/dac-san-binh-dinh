@@ -25,32 +25,38 @@ st.markdown("""
     /* 1. Làm header trong suốt để không lộ thanh ngang nhưng vẫn giữ nút Menu */
     header[data-testid="stHeader"] {
         background-color: rgba(0,0,0,0) !important;
-        color: #2e7d32 !important; /* Màu xanh cho nút menu để dễ thấy */
+        color: #2e7d32 !important;
     }
 
-    /* 2. Ẩn các nút Share, Deploy, và các biểu tượng mặc định khác trên Toolbar */
+    /* 2. ẨN TRIỆT ĐỂ CỤM LOGO/GIRHUB/SHARE GÓC PHẢI */
+    /* Tác động vào container chứa các nút góc phải */
     [data-testid="stHeaderActionElements"] {
+        display: none !important;
+        visibility: hidden !important;
+    }
+    
+    /* Ẩn thêm phần tử phụ nếu nút Share vẫn còn */
+    .stAppDeployButton {
         display: none !important;
     }
 
-    /* 3. Ẩn menu 3 chấm mặc định (Settings/Help) của Streamlit */
+    /* 3. Ẩn menu 3 chấm (Settings) */
     #MainMenu {
         display: none !important;
     }
 
-    /* 4. Ẩn Footer "Made with Streamlit" */
+    /* 4. Ẩn Footer và các thành phần trang trí */
     footer {
         visibility: hidden !important;
     }
-
-    /* 5. Ẩn các thành phần trang trí không cần thiết khác */
     [data-testid="stDecoration"] {
         display: none !important;
     }
     
-    /* Đảm bảo nút mở Sidebar luôn hiển thị */
-    button[kind="header"] {
-        visibility: visible !important;
+    /* 5. ĐẢM BẢO NÚT MENU BÊN TRÁI LUÔN HIỆN */
+    /* Streamlit dùng class 'st-emotion-cache-16idsys' hoặc tương tự cho nút này */
+    header[data-testid="stHeader"] button {
+        display: inline-flex !important;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -402,6 +408,7 @@ elif chon_menu == "📞 Thông Tin":
     with col_map:
         toa_do = pd.DataFrame({'lat': [13.8930853], 'lon': [109.1002733]})
         st.map(toa_do, zoom=14)
+
 
 
 
