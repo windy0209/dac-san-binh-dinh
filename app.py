@@ -327,7 +327,7 @@ chon_menu = option_menu(
 )
 
 # =============================
-# 7. HÀM LÀM SẠCH GIÁ VÀ ĐỊNH DẠNG (DÙNG CHUNG)
+# 7. HÀM LÀM SẠCH GIÁ, ĐỊNH DẠNG VÀ CHUẨN HÓA SĐT
 # =============================
 def clean_price(price):
     if pd.isna(price):
@@ -338,6 +338,18 @@ def clean_price(price):
 def format_vnd(amount):
     """Định dạng số thành tiền Việt: dấu chấm + VNĐ"""
     return f"{amount:,}".replace(',', '.') + " VNĐ"
+
+def chuan_hoa_sdt(sdt):
+    """Chuẩn hóa số điện thoại: loại bỏ ký tự không phải số, nếu 9 số thì thêm 0, nếu 10 số thì giữ, else trả về None."""
+    if pd.isna(sdt):
+        return None
+    so = re.sub(r'[^\d]', '', str(sdt))
+    if len(so) == 9:
+        return '0' + so
+    elif len(so) == 10:
+        return so
+    else:
+        return None
 
 # =============================
 # 8. HIỂN THỊ NỘI DUNG THEO MENU
@@ -431,7 +443,7 @@ elif chon_menu == "🛍️ Cửa Hàng":
                         st.markdown('</div>', unsafe_allow_html=True)
                         st.write("")
 
-# ---- GIỎ HÀNG ----
+# ---- GIỎ HÀNG (ĐÃ SỬA LỖI SĐT) ----
 elif chon_menu == "🛒 Giỏ Hàng":
     st.markdown("<h1 style='color: #2e7d32;'>🛒 Giỏ Hàng</h1>", unsafe_allow_html=True)
     
@@ -440,7 +452,6 @@ elif chon_menu == "🛒 Giỏ Hàng":
     else:
         ws_sp = ket_noi_sheet("SanPham")
         df_sp = pd.DataFrame(ws_sp.get_all_records())
-        # Làm sạch giá (phòng trường hợp dữ liệu gốc chưa sạch)
         df_sp["Giá"] = df_sp["Giá"].apply(clean_price)
         
         tong, ds_order = 0, []
@@ -459,23 +470,36 @@ elif chon_menu == "🛒 Giỏ Hàng":
         
         with st.form("checkout"):
             t = st.text_input("Họ tên *")
-            s = st.text_input("SĐT *")
+            s = st.text_input("SĐT *", placeholder="VD: 0932642376")
             d = st.text_area("Địa chỉ *")
             if st.form_submit_button("XÁC NHẬN ĐẶT HÀNG"):
                 if t and s and d:
-                    ws_don = ket_noi_sheet("DonHang")
-                    # Lưu tổng tiền dạng số (không format) để dễ xử lý sau này, nhưng có thể lưu chuỗi đã format
-                    ws_don.append_row([datetime.now().strftime("%d/%m/%Y %H:%M"), t, s, d, ", ".join(ds_order), sum(st.session_state.gio_hang.values()), f"{tong} VNĐ", "Mới"])
-                    # Cập nhật tồn kho
-                    for id_sp, sl in st.session_state.gio_hang.items():
-                        sp_row = df_sp[df_sp['ID'].astype(str) == id_sp].iloc[0]
-                        cell = ws_sp.find(str(sp_row['Sản phẩm']))
-                        current_stock = int(ws_sp.cell(cell.row, 6).value)
-                        ws_sp.update_cell(cell.row, 6, current_stock - sl)
-                    st.session_state.gio_hang = {}
-                    st.success("Đặt hàng thành công!"); st.balloons(); time.sleep(2); st.rerun()
+                    # Chuẩn hóa số điện thoại
+                    sdt_chuan = chuan_hoa_sdt(s)
+                    if sdt_chuan is None:
+                        st.error("Số điện thoại không hợp lệ! Vui lòng nhập 10 số (có thể có số 0 ở đầu).")
+                    else:
+                        ws_don = ket_noi_sheet("DonHang")
+                        ws_don.append_row([
+                            datetime.now().strftime("%d/%m/%Y %H:%M"),
+                            t,
+                            sdt_chuan,  # lưu số đã chuẩn hóa
+                            d,
+                            ", ".join(ds_order),
+                            sum(st.session_state.gio_hang.values()),
+                            f"{tong} VNĐ",
+                            "Mới"
+                        ])
+                        # Cập nhật tồn kho
+                        for id_sp, sl in st.session_state.gio_hang.items():
+                            sp_row = df_sp[df_sp['ID'].astype(str) == id_sp].iloc[0]
+                            cell = ws_sp.find(str(sp_row['Sản phẩm']))
+                            current_stock = int(ws_sp.cell(cell.row, 6).value)
+                            ws_sp.update_cell(cell.row, 6, current_stock - sl)
+                        st.session_state.gio_hang = {}
+                        st.success("Đặt hàng thành công!"); st.balloons(); time.sleep(2); st.rerun()
 
-# ---- TRA CỨU ĐƠN HÀNG (ĐÃ SỬA LỖI KEYERROR) ----
+# ---- TRA CỨU ĐƠN HÀNG (ĐÃ SỬA LỖI SĐT) ----
 elif chon_menu == "🔍 Tra Cứu Đơn Hàng":
     st.markdown("<h1 style='color: #2e7d32; text-align:center;'>🔍 Tra cứu đơn hàng</h1>", unsafe_allow_html=True)
     st.markdown("<p style='color: #0066cc; text-align:center;'>Nhập số điện thoại để xem lịch sử đơn hàng của bạn.</p>", unsafe_allow_html=True)
@@ -485,74 +509,79 @@ elif chon_menu == "🔍 Tra Cứu Đơn Hàng":
         tra_cuu_btn = st.form_submit_button("TRA CỨU")
     
     if tra_cuu_btn and so_dien_thoai:
-        ws_don = ket_noi_sheet("DonHang")
-        if ws_don:
-            data = ws_don.get_all_records()
-            if data:
-                df = pd.DataFrame(data)
-                
-                # Tìm cột số điện thoại (có thể tên cột là 'SĐT', 'Điện thoại', 'SDT'...)
-                col_sdt = None
-                for col in df.columns:
-                    if 'sđt' in col.lower() or 'điện thoại' in col.lower() or 'sdt' in col.lower():
-                        col_sdt = col
-                        break
-                if col_sdt is None:
-                    st.error("❌ Không tìm thấy cột số điện thoại trong dữ liệu. Vui lòng kiểm tra lại tên cột trong sheet DonHang.")
-                else:
-                    # Lọc theo số điện thoại (loại bỏ khoảng trắng thừa)
-                    df_loc = df[df[col_sdt].astype(str).str.strip() == so_dien_thoai.strip()]
-                    
-                    if not df_loc.empty:
-                        st.success(f"✅ Tìm thấy {len(df_loc)} đơn hàng.")
-                        
-                        # Tìm cột thời gian để sắp xếp
-                        col_time = None
-                        for col in df_loc.columns:
-                            if 'thời gian' in col.lower() or 'ngày' in col.lower() or 'time' in col.lower():
-                                col_time = col
-                                break
-                        if col_time:
-                            df_loc = df_loc.sort_values(col_time, ascending=False)
-                        
-                        # Xác định các cột muốn hiển thị (dựa trên tên gần đúng)
-                        map_hien_thi = {
-                            'Thời gian': col_time,
-                            'Họ tên': next((c for c in df_loc.columns if 'họ tên' in c.lower() or 'tên' in c.lower()), None),
-                            'Sản phẩm': next((c for c in df_loc.columns if 'sản phẩm' in c.lower() or 'sp' in c.lower()), None),
-                            'Số lượng': next((c for c in df_loc.columns if 'số lượng' in c.lower() or 'sl' in c.lower()), None),
-                            'Tổng tiền': next((c for c in df_loc.columns if 'tổng tiền' in c.lower() or 'tt' in c.lower() or 'tiền' in c.lower()), None),
-                            'Trạng thái': next((c for c in df_loc.columns if 'trạng thái' in c.lower() or 'tt' in c.lower() or 'status' in c.lower()), None)
-                        }
-                        
-                        # Lọc các cột tồn tại
-                        hien_thi_cols = [v for v in map_hien_thi.values() if v is not None and v in df_loc.columns]
-                        if not hien_thi_cols:
-                            st.warning("⚠️ Không có cột nào phù hợp để hiển thị.")
-                        else:
-                            df_hien_thi = df_loc[hien_thi_cols].copy()
-                            
-                            # Đổi tên cột về chuẩn (nếu cần)
-                            rename_dict = {}
-                            for ten_chuan, ten_thuc in map_hien_thi.items():
-                                if ten_thuc and ten_thuc in df_hien_thi.columns:
-                                    rename_dict[ten_thuc] = ten_chuan
-                            if rename_dict:
-                                df_hien_thi = df_hien_thi.rename(columns=rename_dict)
-                            
-                            # Định dạng cột Tổng tiền nếu có (giả sử giá trị là số hoặc chuỗi có thể làm sạch)
-                            if 'Tổng tiền' in df_hien_thi.columns:
-                                df_hien_thi['Tổng tiền'] = df_hien_thi['Tổng tiền'].apply(
-                                    lambda x: format_vnd(clean_price(x)) if pd.notna(x) else ""
-                                )
-                            
-                            st.dataframe(df_hien_thi, use_container_width=True, hide_index=True)
-                    else:
-                        st.warning("❌ Không tìm thấy đơn hàng nào với số điện thoại này.")
-            else:
-                st.info("ℹ️ Chưa có đơn hàng nào trong hệ thống.")
+        sdt_chuan = chuan_hoa_sdt(so_dien_thoai)
+        if sdt_chuan is None:
+            st.error("Số điện thoại không hợp lệ! Vui lòng nhập 10 số (có thể có số 0 ở đầu).")
         else:
-            st.error("🔌 Không thể kết nối đến dữ liệu đơn hàng.")
+            ws_don = ket_noi_sheet("DonHang")
+            if ws_don:
+                data = ws_don.get_all_records()
+                if data:
+                    df = pd.DataFrame(data)
+                    
+                    # Tìm cột số điện thoại
+                    col_sdt = None
+                    for col in df.columns:
+                        if 'sđt' in col.lower() or 'điện thoại' in col.lower() or 'sdt' in col.lower():
+                            col_sdt = col
+                            break
+                    if col_sdt is None:
+                        st.error("❌ Không tìm thấy cột số điện thoại trong dữ liệu.")
+                    else:
+                        # Chuẩn hóa cột SĐT trong dataframe
+                        df[col_sdt] = df[col_sdt].apply(chuan_hoa_sdt)
+                        # Lọc theo số đã chuẩn hóa
+                        df_loc = df[df[col_sdt] == sdt_chuan]
+                        
+                        if not df_loc.empty:
+                            st.success(f"✅ Tìm thấy {len(df_loc)} đơn hàng.")
+                            
+                            # Tìm cột thời gian để sắp xếp
+                            col_time = None
+                            for col in df_loc.columns:
+                                if 'thời gian' in col.lower() or 'ngày' in col.lower() or 'time' in col.lower():
+                                    col_time = col
+                                    break
+                            if col_time:
+                                df_loc = df_loc.sort_values(col_time, ascending=False)
+                            
+                            # Xác định các cột hiển thị
+                            map_hien_thi = {
+                                'Thời gian': col_time,
+                                'Họ tên': next((c for c in df_loc.columns if 'họ tên' in c.lower() or 'tên' in c.lower()), None),
+                                'Sản phẩm': next((c for c in df_loc.columns if 'sản phẩm' in c.lower() or 'sp' in c.lower()), None),
+                                'Số lượng': next((c for c in df_loc.columns if 'số lượng' in c.lower() or 'sl' in c.lower()), None),
+                                'Tổng tiền': next((c for c in df_loc.columns if 'tổng tiền' in c.lower() or 'tt' in c.lower() or 'tiền' in c.lower()), None),
+                                'Trạng thái': next((c for c in df_loc.columns if 'trạng thái' in c.lower() or 'tt' in c.lower() or 'status' in c.lower()), None)
+                            }
+                            
+                            hien_thi_cols = [v for v in map_hien_thi.values() if v is not None and v in df_loc.columns]
+                            if not hien_thi_cols:
+                                st.warning("⚠️ Không có cột nào phù hợp để hiển thị.")
+                            else:
+                                df_hien_thi = df_loc[hien_thi_cols].copy()
+                                
+                                # Đổi tên cột
+                                rename_dict = {}
+                                for ten_chuan, ten_thuc in map_hien_thi.items():
+                                    if ten_thuc and ten_thuc in df_hien_thi.columns:
+                                        rename_dict[ten_thuc] = ten_chuan
+                                if rename_dict:
+                                    df_hien_thi = df_hien_thi.rename(columns=rename_dict)
+                                
+                                # Định dạng tổng tiền
+                                if 'Tổng tiền' in df_hien_thi.columns:
+                                    df_hien_thi['Tổng tiền'] = df_hien_thi['Tổng tiền'].apply(
+                                        lambda x: format_vnd(clean_price(x)) if pd.notna(x) else ""
+                                    )
+                                
+                                st.dataframe(df_hien_thi, use_container_width=True, hide_index=True)
+                        else:
+                            st.warning("❌ Không tìm thấy đơn hàng nào với số điện thoại này.")
+                else:
+                    st.info("ℹ️ Chưa có đơn hàng nào trong hệ thống.")
+            else:
+                st.error("🔌 Không thể kết nối đến dữ liệu đơn hàng.")
     elif tra_cuu_btn:
         st.warning("⚠️ Vui lòng nhập số điện thoại.")
 
@@ -595,19 +624,16 @@ elif chon_menu == "📊 Quản Trị":
         
         with t1:
             df_sp = pd.DataFrame(ws_sp.get_all_records())
-            # Làm sạch giá để hiển thị
             df_sp_display = df_sp.copy()
             if "Giá" in df_sp_display.columns:
                 df_sp_display["Giá"] = df_sp_display["Giá"].apply(clean_price)
             df_edit = st.data_editor(df_sp_display, num_rows="dynamic", use_container_width=True)
             if st.button("LƯU KHO"):
-                # Lưu cột Giá dạng số (đã clean) lên sheet
                 ws_sp.clear()
                 ws_sp.update([df_edit.columns.values.tolist()] + df_edit.values.tolist())
                 st.success("Đã cập nhật kho!")
         
         with t2:
-            # Đọc dữ liệu đơn hàng từ sheet
             df_don_old = pd.DataFrame(ws_don.get_all_records())
             
             # Đảm bảo cột trạng thái tồn tại
@@ -617,16 +643,13 @@ elif chon_menu == "📊 Quản Trị":
                     col_trang_thai = col
                     break
             if col_trang_thai is None:
-                # Nếu không tìm thấy, tạo cột mới tên 'Trạng thái'
                 df_don_old['Trạng thái'] = 'Mới'
                 col_trang_thai = 'Trạng thái'
             else:
-                # Đổi tên cột thành 'Trạng thái' cho đồng bộ
                 if col_trang_thai != 'Trạng thái':
                     df_don_old.rename(columns={col_trang_thai: 'Trạng thái'}, inplace=True)
                     col_trang_thai = 'Trạng thái'
             
-            # Cấu hình cột Trạng thái dưới dạng selectbox
             column_config = {
                 "Trạng thái": st.column_config.SelectboxColumn(
                     "Trạng thái",
@@ -635,7 +658,6 @@ elif chon_menu == "📊 Quản Trị":
                 )
             }
             
-            # Hiển thị data editor với dropdown cho cột trạng thái
             df_don_new = st.data_editor(
                 df_don_old,
                 column_config=column_config,
@@ -644,20 +666,15 @@ elif chon_menu == "📊 Quản Trị":
                 key="don_hang_editor"
             )
             
-            # Xử lý cập nhật và hoàn kho khi nhấn nút
             if st.button("CẬP NHẬT ĐƠN & HOÀN KHO"):
-                # Lấy lại sheet sản phẩm để cập nhật tồn kho
                 ws_sp = ket_noi_sheet("SanPham")
                 
-                # Duyệt từng dòng để kiểm tra thay đổi trạng thái
                 for i in range(len(df_don_old)):
                     trang_thai_cu = str(df_don_old.iloc[i]['Trạng thái'])
                     trang_thai_moi = str(df_don_new.iloc[i]['Trạng thái'])
                     
-                    # Nếu chuyển từ trạng thái khác (không phải Hủy) sang Hủy thì hoàn kho
                     if trang_thai_cu != "Hủy" and trang_thai_moi == "Hủy":
                         chuoi_sp = str(df_don_new.iloc[i]['Sản phẩm'])
-                        # Tách các sản phẩm (định dạng "Tên sản phẩm x số lượng")
                         danh_sach_tach = chuoi_sp.split(", ")
                         
                         for item in danh_sach_tach:
@@ -667,15 +684,13 @@ elif chon_menu == "📊 Quản Trị":
                                 so_luong_hoan = int(match.group(2))
                                 
                                 try:
-                                    # Tìm dòng sản phẩm trong sheet SanPham
                                     cell = ws_sp.find(ten_sp)
-                                    ton_hien_tai = int(ws_sp.cell(cell.row, 6).value)  # Cột tồn kho là cột 6 (index 1-based)
+                                    ton_hien_tai = int(ws_sp.cell(cell.row, 6).value)
                                     ws_sp.update_cell(cell.row, 6, ton_hien_tai + so_luong_hoan)
                                     st.info(f"🔄 Đã hoàn {so_luong_hoan} đơn vị '{ten_sp}' vào kho.")
                                 except Exception as e:
                                     st.error(f"Lỗi khi hoàn kho cho {ten_sp}: {e}")
                 
-                # Cập nhật lại toàn bộ sheet DonHang với dữ liệu mới
                 ws_don.clear()
                 ws_don.update([df_don_new.columns.values.tolist()] + df_don_new.values.tolist())
                 st.success("✅ Đã cập nhật trạng thái đơn hàng và kho hàng!")
