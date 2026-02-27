@@ -279,7 +279,7 @@ with col3:
 st.markdown("---")  # Đường kẻ phân cách
 
 # =============================
-# 6. MENU NGANG (ĐẶT Ở GIỮA) - LOẠI BỎ NỀN TRẮNG
+# 6. MENU NGANG (ĐẶT Ở GIỮA) - LOẠI BỎ NỀN TRẮNG, CHỮ XANH DƯƠNG
 # =============================
 chon_menu = option_menu(
     menu_title=None,
@@ -302,7 +302,7 @@ chon_menu = option_menu(
             "margin": "0 5px",
             "padding": "10px 20px",
             "border-radius": "30px",
-            "color": "#333",
+            "color": "#0066cc",  # Đổi từ #333 thành xanh dương
             "background-color": "transparent"
         },
         "nav-link-selected": {
@@ -523,6 +523,7 @@ elif chon_menu == "📞 Thông Tin":
     with col_map:
         toa_do = pd.DataFrame({'lat': [13.8930853], 'lon': [109.1002733]})
         st.map(toa_do, zoom=14)
+
 
 
 
