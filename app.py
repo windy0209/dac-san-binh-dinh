@@ -344,13 +344,26 @@ if chon_menu == "🏠 Trang Chủ":
     if ws:
         data = ws.get_all_records()
         if data:
+            # Tạo DataFrame và làm sạch cột Giá
+            df_slider = pd.DataFrame(data)
+            
+            # Hàm làm sạch giá (loại bỏ ký tự không phải số)
+            def clean_price(price):
+                if pd.isna(price):
+                    return 0
+                cleaned = re.sub(r'[^\d]', '', str(price))
+                return int(cleaned) if cleaned else 0
+            
+            df_slider["Giá"] = df_slider["Giá"].apply(clean_price)
+            
             slider_content = ""
             for _ in range(2):
-                for row in data:
+                for _, row in df_slider.iterrows():
                     img = row["Hình ảnh"] if la_url_hop_le(row["Hình ảnh"]) else "https://via.placeholder.com/200"
-                    slider_content += f'<div class="slide-item"><img src="{img}"><p style="font-weight:600;margin:10px 0 0 0; color: #0066cc;">{row["Sản phẩm"]}</p><p class="gia-ban" style="color: #0066cc;">{row["Giá"]:,}đ</p></div>'
+                    # Định dạng giá với dấu chấm phân cách hàng nghìn (phù hợp hiển thị Việt Nam)
+                    gia_formatted = f"{row['Giá']:,}".replace(',', '.')
+                    slider_content += f'<div class="slide-item"><img src="{img}"><p style="font-weight:600;margin:10px 0 0 0; color: #0066cc;">{row["Sản phẩm"]}</p><p class="gia-ban" style="color: #0066cc;">{gia_formatted}đ</p></div>'
             st.markdown(f'<div class="slider-container"><div class="slide-track">{slider_content}</div></div>', unsafe_allow_html=True)
-
 # ---- CỬA HÀNG ----
 elif chon_menu == "🛍️ Cửa Hàng":
     st.markdown("<h2 style='text-align:center; color:#2e7d32;'>🌟 Danh Sách Sản Phẩm</h2>", unsafe_allow_html=True)
@@ -621,4 +634,5 @@ elif chon_menu == "📊 Quản Trị":
                     st.session_state.logo_url = moi
                     st.success("Đã đổi Logo!"); time.sleep(1); st.rerun()
                 except: st.error("Lỗi: Không tìm thấy dòng 'Logo' trong Sheet!")
+
 
