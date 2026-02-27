@@ -376,10 +376,11 @@ elif chon_menu == "📞 Thông Tin":
             <hr>
             <div style="text-align:center;">
                 <img src="https://raw.githubusercontent.com/windy0209/dac-san-binh-dinh/main/qrcode.png" width="180" style="border: 5px solid white; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
-                <p style="margin-top:10px; font-weight:600;">Quét Zalo - Nhận ngay ưu đãi!</p>
+                <p style="margin-top:10px; font-weight:600;">Quét QRCODE-Để đặt hàng dễ dàng hơn!</p>
             </div>
         </div>
         """, unsafe_allow_html=True)
     with col_map:
         toa_do = pd.DataFrame({'lat': [13.8930853], 'lon': [109.1002733]})
         st.map(toa_do, zoom=14)
+
