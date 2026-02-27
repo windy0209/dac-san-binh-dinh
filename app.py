@@ -506,12 +506,12 @@ elif chon_menu == "📞 Thông Tin":
         st.markdown(f"""
         <div style="background:white; padding:25px; border-radius:20px; box-shadow:0 10px 25px rgba(0,0,0,0.05);">
             <h3 style="color: #2e7d32; margin-top: 0;">🏡 Cửa Hàng Xứ Nẫu</h3>
-            <p><b>📍 Địa chỉ:</b> 96 Ngô Đức Đệ, Phường Bình Định, TX. An Nhơn, Bình Định</p>
-            <p><b>📞 Hotline:</b> 0932.642.376</p>
-            <p><b>📧 Email:</b> miendatvo86@gmail.com</p>
+            <p style="color: #0066cc;"><b>📍 Địa chỉ:</b> 96 Ngô Đức Đệ, Phường Bình Định, TX. An Nhơn, Bình Định</p>
+            <p style="color: #0066cc;"><b>📞 Hotline:</b> 0932.642.376</p>
+            <p style="color: #0066cc;"><b>📧 Email:</b> miendatvo86@gmail.com</p>
             <hr>
             <h4 style="color: #2e7d32;">⏰ Giờ Hoạt Động</h4>
-            <p>07:30 - 21:00 (Hàng ngày)</p>
+            <p style="color: #0066cc;">07:30 - 21:00 (Hàng ngày)</p>
         </div>
         """, unsafe_allow_html=True)
     with col_map:
