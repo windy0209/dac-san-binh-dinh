@@ -72,11 +72,42 @@ def tai_logo_tu_sheet():
 tai_logo_tu_sheet()
 
 # =============================
-# 4. CSS TÙY CHỈNH GIAO DIỆN (GIỮ NGUYÊN + BỔ SUNG CHO MENU NGANG)
+# 4. CSS TÙY CHỈNH GIAO DIỆN (KHÔNG CÒN SIDEBAR)
 # =============================
 st.markdown("""
 <style>
     .stApp { background-color: #f8fbf8; }
+    
+    /* Header ngang chứa logo và thông tin liên hệ */
+    .header-container {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: white;
+        padding: 10px 30px;
+        border-radius: 60px;
+        margin: 20px auto 10px auto;
+        max-width: 1300px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        border: 1px solid #e0e0e0;
+    }
+    .header-logo img {
+        height: 60px;
+        width: auto;
+    }
+    .header-info {
+        display: flex;
+        gap: 30px;
+        font-size: 1rem;
+    }
+    .header-info div {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+    .hotline { color: #d32f2f; font-weight: bold; }
+    .zalo { color: #0068ff; font-weight: bold; }
+    .qr-code img { height: 50px; width: auto; border-radius: 8px; }
     
     /* Slider Trang chủ */
     .slider-container { width: 100%; overflow: hidden; background: white; padding: 25px 0; border-radius: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); margin-top: 20px; }
@@ -111,46 +142,61 @@ st.markdown("""
         height: 100%;
     }
     
-    /* Sidebar */
-    .sidebar-content { display: flex; flex-direction: column; align-items: center; text-align: center; }
-    .hotline-sidebar { color: #d32f2f; font-weight: bold; font-size: 1.1rem; margin-bottom: 5px; }
-    .zalo-sidebar { color: #0068ff; font-weight: bold; font-size: 1.1rem; margin-bottom: 15px; }
-    
     /* Button & Input Styling */
     .stButton>button { background-color: #2e7d32; color: white; border-radius: 12px; font-weight: 600; width: 100%; border: none; }
     .stButton>button:hover { background-color: #f39c12; color: white; }
     div[data-testid="stNumberInput"] { margin-bottom: -10px; }
     
-    /* Menu ngang tùy chỉnh (căn giữa, bo góc, đẹp hơn) */
+    /* Menu ngang tùy chỉnh */
     .horizontal-menu {
         display: flex;
         justify-content: center;
         background: white;
         border-radius: 50px;
         padding: 10px 20px;
-        margin: 20px 0 10px 0;
+        margin: 0 auto 30px auto;
+        max-width: 800px;
         box-shadow: 0 5px 15px rgba(0,0,0,0.05);
         border: 1px solid #e0e0e0;
     }
-    /* Điều chỉnh khoảng cách giữa menu và sidebar */
+    /* Điều chỉnh khoảng cách chung */
     .block-container {
-        padding-top: 1rem;
+        padding-top: 0;
     }
 </style>
 """, unsafe_allow_html=True)
 
 # =============================
-# 5. MENU NGANG (ĐẶT TRÊN CÙNG)
+# 5. HEADER NGANG (LOGO, HOTLINE, ZALO, QR CODE)
 # =============================
-# Sử dụng option_menu với orientation="horizontal" và style riêng
+col1, col2, col3 = st.columns([1, 2, 1])
+with col1:
+    st.image(st.session_state.logo_url, width=120)
+with col2:
+    st.markdown("<h2 style='text-align: center; color: #2e7d32; margin: 0;'>XỨ NẪU STORE</h2>", unsafe_allow_html=True)
+    st.markdown("<p style='text-align: center; color: #666;'>Đặc sản Bình Định - Giao hàng toàn quốc</p>", unsafe_allow_html=True)
+with col3:
+    st.markdown("""
+    <div style='text-align: right;'>
+        <div style='color: #d32f2f; font-weight: bold;'>📞 0932.642.376</div>
+        <div style='color: #0068ff; font-weight: bold;'>💬 Zalo: 0932.642.376</div>
+        <img src='https://raw.githubusercontent.com/windy0209/dac-san-binh-dinh/main/qrcode.png' width='60' style='border-radius: 8px; margin-top: 5px;'>
+    </div>
+    """, unsafe_allow_html=True)
+
+st.markdown("---")  # Đường kẻ phân cách
+
+# =============================
+# 6. MENU NGANG (ĐẶT Ở GIỮA)
+# =============================
 chon_menu = option_menu(
-    menu_title=None,  # Ẩn tiêu đề menu
+    menu_title=None,
     options=["🏠 Trang Chủ", "🛍️ Cửa Hàng", "🛒 Giỏ Hàng", "📞 Thông Tin", "📊 Quản Trị"],
-    icons=["house", "shop", "cart", "telephone", "gear"],  # Icon tương ứng
+    icons=["house", "shop", "cart", "telephone", "gear"],
     default_index=0,
     orientation="horizontal",
     styles={
-        "container": {"padding": "0!important", "background-color": "white", "border-radius": "50px", "box-shadow": "0 5px 15px rgba(0,0,0,0.05)", "border": "1px solid #e0e0e0", "max-width": "800px", "margin": "0 auto 20px auto"},
+        "container": {"padding": "0!important", "background-color": "white", "border-radius": "50px", "box-shadow": "0 5px 15px rgba(0,0,0,0.05)", "border": "1px solid #e0e0e0", "max-width": "800px", "margin": "0 auto 30px auto"},
         "icon": {"color": "#2e7d32", "font-size": "1.2rem"},
         "nav-link": {"font-size": "1rem", "text-align": "center", "margin": "0 5px", "padding": "10px 20px", "border-radius": "30px", "color": "#333"},
         "nav-link-selected": {"background-color": "#2e7d32", "color": "white", "font-weight": "600"},
@@ -158,34 +204,9 @@ chon_menu = option_menu(
 )
 
 # =============================
-# 6. SIDEBAR (LOGO, HOTLINE, ZALO, QR CODE, ĐĂNG XUẤT)
-# =============================
-with st.sidebar:
-    st.markdown(f'<div class="sidebar-content"><img src="{st.session_state.logo_url}" width="120"></div>', unsafe_allow_html=True)
-    st.markdown("<h2 style='text-align: center; color: #2e7d32; margin-bottom: 5px;'>XỨ NẪU STORE</h2>", unsafe_allow_html=True)
-    
-    # Hotline và Zalo
-    st.markdown("""
-    <div style="text-align: center;">
-        <div class="hotline-sidebar">📞 Hotline: 0932.642.376</div>
-        <div class="zalo-sidebar">💬 Zalo: 0932.642.376</div>
-    </div>
-    """, unsafe_allow_html=True)
-    
-    if st.session_state.da_dang_nhap:
-        if st.button("🚪 Đăng xuất"):
-            st.session_state.da_dang_nhap = False
-            st.rerun()
-
-    # Mã QR
-    st.markdown("---")
-    st.markdown("<div style='text-align: center;'>", unsafe_allow_html=True)
-    st.image("https://raw.githubusercontent.com/windy0209/dac-san-binh-dinh/main/qrcode.png", caption="Quét mã để liên hệ", use_container_width=True)
-    st.markdown("</div>", unsafe_allow_html=True)
-
-# =============================
 # 7. HIỂN THỊ NỘI DUNG THEO MENU ĐÃ CHỌN
 # =============================
+
 # ---- TRANG CHỦ ----
 if chon_menu == "🏠 Trang Chủ":
     st.markdown("<h1 style='text-align:center;color:#2e7d32;'>🏯 Tinh Hoa Ẩm Thực Bình Định</h1>", unsafe_allow_html=True)
