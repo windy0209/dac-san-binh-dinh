@@ -439,7 +439,7 @@ elif chon_menu == "📊 Quản Trị":
     if not st.session_state.da_dang_nhap:
         col_l, col_m, col_r = st.columns([1,1.5,1])
         with col_m:
-            st.markdown("### 🔐 Đăng nhập Admin")
+            st.markdown("<h3 style='color: #0066cc;'>🔐 Đăng nhập quyền quản trị</h3>", unsafe_allow_html=True)
             tk = st.text_input("Tài khoản")
             mk = st.text_input("Mật khẩu", type="password")
             if st.button("ĐĂNG NHẬP"):
@@ -522,4 +522,5 @@ elif chon_menu == "📞 Thông Tin":
     with col_map:
         toa_do = pd.DataFrame({'lat': [13.8930853], 'lon': [109.1002733]})
         st.map(toa_do, zoom=14)
+
 
