@@ -292,11 +292,11 @@ st.markdown(f"""
 st.markdown("---")  # Đường kẻ phân cách
 
 # =============================
-# 6. MENU NGANG (ĐẶT Ở GIỮA) - NỀN TRONG SUỐT, CHỮ XANH DƯƠNG
+# 6. MENU NGANG (ĐÃ THÊM MỤC TRA CỨU ĐƠN HÀNG)
 # =============================
 chon_menu = option_menu(
     menu_title=None,
-    options=["🏠 Trang Chủ", "🛍️ Cửa Hàng", "🛒 Giỏ Hàng", "📞 Thông Tin", "📊 Quản Trị"], 
+    options=["🏠 Trang Chủ", "🛍️ Cửa Hàng", "🛒 Giỏ Hàng", "🔍 Tra Cứu Đơn Hàng", "📞 Thông Tin", "📊 Quản Trị"], 
     default_index=0,
     orientation="horizontal",
     styles={
@@ -305,7 +305,7 @@ chon_menu = option_menu(
             "background-color": "transparent",
             "border": "none",
             "box-shadow": "none",
-            "max-width": "800px",
+            "max-width": "1000px",  # Tăng lên một chút để chứa 6 mục
             "margin": "0 auto 30px auto"
         },
         "icon": {"color": "#2e7d32", "font-size": "1.2rem"},
@@ -409,7 +409,7 @@ elif chon_menu == "🛍️ Cửa Hàng":
                         st.markdown('</div>', unsafe_allow_html=True)
                         st.write("")
 
-# ---- GIỎ HÀNG (ĐÃ CHỈNH MÀU) ----
+# ---- GIỎ HÀNG ----
 elif chon_menu == "🛒 Giỏ Hàng":
     # Tiêu đề chính màu xanh lá
     st.markdown("<h1 style='color: #2e7d32;'>🛒 Giỏ Hàng</h1>", unsafe_allow_html=True)
@@ -448,6 +448,60 @@ elif chon_menu == "🛒 Giỏ Hàng":
                         ws_sp.update_cell(cell.row, 6, current_stock - sl)
                     st.session_state.gio_hang = {}
                     st.success("Đặt hàng thành công!"); st.balloons(); time.sleep(2); st.rerun()
+
+# ---- TRA CỨU ĐƠN HÀNG (MỚI) ----
+elif chon_menu == "🔍 Tra Cứu Đơn Hàng":
+    st.markdown("<h1 style='color: #2e7d32; text-align:center;'>🔍 Tra cứu đơn hàng</h1>", unsafe_allow_html=True)
+    st.markdown("<p style='color: #0066cc; text-align:center;'>Nhập số điện thoại để xem lịch sử đơn hàng của bạn.</p>", unsafe_allow_html=True)
+    
+    with st.form("tra_cuu_form"):
+        so_dien_thoai = st.text_input("📱 Số điện thoại", placeholder="VD: 0932642376")
+        tra_cuu_btn = st.form_submit_button("TRA CỨU")
+    
+    if tra_cuu_btn and so_dien_thoai:
+        ws_don = ket_noi_sheet("DonHang")
+        if ws_don:
+            data = ws_don.get_all_records()
+            if data:
+                df = pd.DataFrame(data)
+                # Lọc theo số điện thoại (cột SĐT)
+                df_loc = df[df['SĐT'].astype(str).str.strip() == so_dien_thoai.strip()]
+                
+                if not df_loc.empty:
+                    st.success(f"Tìm thấy {len(df_loc)} đơn hàng.")
+                    # Hiển thị theo thứ tự thời gian gần nhất
+                    df_loc = df_loc.sort_values('Thời gian', ascending=False)
+                    # Chọn các cột hiển thị
+                    df_hien_thi = df_loc[['Thời gian', 'Họ tên', 'Sản phẩm', 'Số lượng', 'Tổng tiền', 'Trạng thái']]
+                    st.dataframe(df_hien_thi, use_container_width=True, hide_index=True)
+                else:
+                    st.warning("Không tìm thấy đơn hàng nào với số điện thoại này.")
+            else:
+                st.info("Chưa có đơn hàng nào trong hệ thống.")
+        else:
+            st.error("Không thể kết nối đến dữ liệu đơn hàng.")
+    elif tra_cuu_btn:
+        st.warning("Vui lòng nhập số điện thoại.")
+
+# ---- THÔNG TIN ----
+elif chon_menu == "📞 Thông Tin":
+    st.markdown("<h1 style='text-align:center;color:#2e7d32;'>📍 Thông Tin Cửa Hàng</h1>", unsafe_allow_html=True)
+    col_info, col_map = st.columns([1, 1.2], gap="large")
+    with col_info:
+        st.markdown(f"""
+        <div style="background:white; padding:25px; border-radius:20px; box-shadow:0 10px 25px rgba(0,0,0,0.05);">
+            <h3 style="color: #2e7d32; margin-top: 0;">🏡 Cửa Hàng Xứ Nẫu</h3>
+            <p style="color: #0066cc;"><b>📍 Địa chỉ:</b> 96 Ngô Đức Đệ, Phường Bình Định, TX. An Nhơn, Bình Định</p>
+            <p style="color: #0066cc;"><b>📞 Hotline:</b> 0932.642.376</p>
+            <p style="color: #0066cc;"><b>📧 Email:</b> miendatvo86@gmail.com</p>
+            <hr>
+            <h4 style="color: #2e7d32;">⏰ Giờ Hoạt Động</h4>
+            <p style="color: #0066cc;">07:30 - 21:00 (Hàng ngày)</p>
+        </div>
+        """, unsafe_allow_html=True)
+    with col_map:
+        toa_do = pd.DataFrame({'lat': [13.8930853], 'lon': [109.1002733]})
+        st.map(toa_do, zoom=14)
 
 # ---- QUẢN TRỊ ----
 elif chon_menu == "📊 Quản Trị":
@@ -517,23 +571,3 @@ elif chon_menu == "📊 Quản Trị":
                     st.session_state.logo_url = moi
                     st.success("Đã đổi Logo!"); time.sleep(1); st.rerun()
                 except: st.error("Lỗi: Không tìm thấy dòng 'Logo' trong Sheet!")
-
-# ---- THÔNG TIN ----
-elif chon_menu == "📞 Thông Tin":
-    st.markdown("<h1 style='text-align:center;color:#2e7d32;'>📍 Thông Tin Cửa Hàng</h1>", unsafe_allow_html=True)
-    col_info, col_map = st.columns([1, 1.2], gap="large")
-    with col_info:
-        st.markdown(f"""
-        <div style="background:white; padding:25px; border-radius:20px; box-shadow:0 10px 25px rgba(0,0,0,0.05);">
-            <h3 style="color: #2e7d32; margin-top: 0;">🏡 Cửa Hàng Xứ Nẫu</h3>
-            <p style="color: #0066cc;"><b>📍 Địa chỉ:</b> 96 Ngô Đức Đệ, Phường Bình Định, TX. An Nhơn, Bình Định</p>
-            <p style="color: #0066cc;"><b>📞 Hotline:</b> 0932.642.376</p>
-            <p style="color: #0066cc;"><b>📧 Email:</b> miendatvo86@gmail.com</p>
-            <hr>
-            <h4 style="color: #2e7d32;">⏰ Giờ Hoạt Động</h4>
-            <p style="color: #0066cc;">07:30 - 21:00 (Hàng ngày)</p>
-        </div>
-        """, unsafe_allow_html=True)
-    with col_map:
-        toa_do = pd.DataFrame({'lat': [13.8930853], 'lon': [109.1002733]})
-        st.map(toa_do, zoom=14)
