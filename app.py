@@ -258,6 +258,24 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
+    /* Background cho header */
+    .header-container {
+        background-image: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url('https://raw.githubusercontent.com/windy0209/dac-san-binh-dinh/main/bg-header.png');
+        background-size: cover;
+        background-position: center;
+        background-blend-mode: overlay;
+        color: white; /* Đảm bảo chữ trên nền tối */
+    }
+    /* Tùy chỉnh lại màu chữ trong header để phù hợp với nền */
+    .header-container h2, .header-container p, .header-container div {
+        color: white !important;
+        text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
+    }
+    /* Điều chỉnh màu hotline, zalo nếu cần */
+    .hotline, .zalo {
+        color: white !important;
+    }
+
 # =============================
 # 5. HEADER NGANG (LOGO, HOTLINE, ZALO, QR CODE)
 # =============================
@@ -523,6 +541,7 @@ elif chon_menu == "📞 Thông Tin":
     with col_map:
         toa_do = pd.DataFrame({'lat': [13.8930853], 'lon': [109.1002733]})
         st.map(toa_do, zoom=14)
+
 
 
 
