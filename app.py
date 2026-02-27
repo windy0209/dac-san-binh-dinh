@@ -16,47 +16,7 @@ st.set_page_config(
     layout="wide",
     page_icon="https://raw.githubusercontent.com/windy0209/dac-san-binh-dinh/main/default_logo.png" 
 )
-# =============================
-# ẨN TOÀN BỘ THANH CÔNG CỤ STREAMLIT (Fork, GitHub, Menu, Logo)
-# =============================
-# =============================
-# ẨN TOÀN BỘ THANH CÔNG CỤ STREAMLIT
-# =============================
-st.markdown("""
-<style>
 
-/* Header trên cùng */
-header {visibility: hidden !important;}
-
-/* Toolbar */
-[data-testid="stToolbar"] {display: none !important;}
-
-/* Menu 3 chấm */
-button[kind="header"] {display: none !important;}
-
-/* Footer mặc định */
-footer {visibility: hidden !important;}
-
-/* Status widget / profile */
-[data-testid="stStatusWidget"] {display: none !important;}
-
-/* Decoration */
-[data-testid="stDecoration"] {display: none !important;}
-
-/* Link profile */
-a[href*="profile"] {display: none !important;}
-
-/* Link GitHub */
-a[href*="github"] {display: none !important;}
-
-/* 🔥 Hosted with Streamlit badge */
-[data-testid="stBadge"] {
-    visibility: hidden !important;
-    display: none !important;
-}
-
-</style>
-""", unsafe_allow_html=True)
 # Khởi tạo Session State
 if "da_dang_nhap" not in st.session_state:
     st.session_state.da_dang_nhap = False
@@ -404,8 +364,3 @@ elif chon_menu == "📞 Thông Tin":
     with col_map:
         toa_do = pd.DataFrame({'lat': [13.8930853], 'lon': [109.1002733]})
         st.map(toa_do, zoom=14)
-
-
-
-
-
