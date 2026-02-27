@@ -608,81 +608,81 @@ elif chon_menu == "📊 Quản Trị":
                 ws_sp.update([df_edit.columns.values.tolist()] + df_edit.values.tolist())
                 st.success("Đã cập nhật kho!")
        with t2:
-        # Đọc dữ liệu đơn hàng từ sheet
-        df_don_old = pd.DataFrame(ws_don.get_all_records())
-        
-        # Đảm bảo cột trạng thái tồn tại (nếu chưa có, tạo mới với giá trị mặc định 'Mới')
-        # Tìm cột gần giống 'trạng thái' trong tên các cột
-        col_trang_thai = None
-        for col in df_don_old.columns:
-            if 'trạng thái' in col.lower() or 'status' in col.lower():
-                col_trang_thai = col
-                break
-        if col_trang_thai is None:
-            # Nếu không tìm thấy, tạo cột mới tên 'Trạng thái'
-            df_don_old['Trạng thái'] = 'Mới'
-            col_trang_thai = 'Trạng thái'
-        else:
-            # Đổi tên cột thành 'Trạng thái' cho đồng bộ
-            if col_trang_thai != 'Trạng thái':
-                df_don_old.rename(columns={col_trang_thai: 'Trạng thái'}, inplace=True)
+            # Đọc dữ liệu đơn hàng từ sheet
+            df_don_old = pd.DataFrame(ws_don.get_all_records())
+            
+            # Đảm bảo cột trạng thái tồn tại (nếu chưa có, tạo mới với giá trị mặc định 'Mới')
+            # Tìm cột gần giống 'trạng thái' trong tên các cột
+            col_trang_thai = None
+            for col in df_don_old.columns:
+                if 'trạng thái' in col.lower() or 'status' in col.lower():
+                    col_trang_thai = col
+                    break
+            if col_trang_thai is None:
+                # Nếu không tìm thấy, tạo cột mới tên 'Trạng thái'
+                df_don_old['Trạng thái'] = 'Mới'
                 col_trang_thai = 'Trạng thái'
-        
-        # Cấu hình cột Trạng thái dưới dạng selectbox
-        column_config = {
-            "Trạng thái": st.column_config.SelectboxColumn(
-                "Trạng thái",
-                options=["Mới", "Nhận đơn", "Giao xong", "Hủy"],
-                required=True
+            else:
+                # Đổi tên cột thành 'Trạng thái' cho đồng bộ
+                if col_trang_thai != 'Trạng thái':
+                    df_don_old.rename(columns={col_trang_thai: 'Trạng thái'}, inplace=True)
+                    col_trang_thai = 'Trạng thái'
+            
+            # Cấu hình cột Trạng thái dưới dạng selectbox
+            column_config = {
+                "Trạng thái": st.column_config.SelectboxColumn(
+                    "Trạng thái",
+                    options=["Mới", "Nhận đơn", "Giao xong", "Hủy"],
+                    required=True
+                )
+            }
+            
+            # Hiển thị data editor với dropdown cho cột trạng thái
+            df_don_new = st.data_editor(
+                df_don_old,
+                column_config=column_config,
+                use_container_width=True,
+                num_rows="dynamic",
+                key="don_hang_editor"
             )
-        }
-        
-        # Hiển thị data editor với dropdown cho cột trạng thái
-        df_don_new = st.data_editor(
-            df_don_old,
-            column_config=column_config,
-            use_container_width=True,
-            num_rows="dynamic",
-            key="don_hang_editor"
-        )
-        
-        # Xử lý cập nhật và hoàn kho khi nhấn nút
-        if st.button("CẬP NHẬT ĐƠN & HOÀN KHO"):
-            # Lấy lại sheet sản phẩm để cập nhật tồn kho
-            ws_sp = ket_noi_sheet("SanPham")
             
-            # Duyệt từng dòng để kiểm tra thay đổi trạng thái
-            for i in range(len(df_don_old)):
-                trang_thai_cu = str(df_don_old.iloc[i]['Trạng thái'])
-                trang_thai_moi = str(df_don_new.iloc[i]['Trạng thái'])
+            # Xử lý cập nhật và hoàn kho khi nhấn nút
+            if st.button("CẬP NHẬT ĐƠN & HOÀN KHO"):
+                # Lấy lại sheet sản phẩm để cập nhật tồn kho
+                ws_sp = ket_noi_sheet("SanPham")
                 
-                # Nếu chuyển từ trạng thái khác (không phải Hủy) sang Hủy thì hoàn kho
-                if trang_thai_cu != "Hủy" and trang_thai_moi == "Hủy":
-                    chuoi_sp = str(df_don_new.iloc[i]['Sản phẩm'])
-                    # Tách các sản phẩm (định dạng "Tên sản phẩm x số lượng")
-                    danh_sach_tach = chuoi_sp.split(", ")
+                # Duyệt từng dòng để kiểm tra thay đổi trạng thái
+                for i in range(len(df_don_old)):
+                    trang_thai_cu = str(df_don_old.iloc[i]['Trạng thái'])
+                    trang_thai_moi = str(df_don_new.iloc[i]['Trạng thái'])
                     
-                    for item in danh_sach_tach:
-                        match = re.search(r"(.+)\s+x(\d+)", item)
-                        if match:
-                            ten_sp = match.group(1).strip()
-                            so_luong_hoan = int(match.group(2))
-                            
-                            try:
-                                # Tìm dòng sản phẩm trong sheet SanPham
-                                cell = ws_sp.find(ten_sp)
-                                ton_hien_tai = int(ws_sp.cell(cell.row, 6).value)  # Cột tồn kho là cột 6 (index 1-based)
-                                ws_sp.update_cell(cell.row, 6, ton_hien_tai + so_luong_hoan)
-                                st.info(f"🔄 Đã hoàn {so_luong_hoan} đơn vị '{ten_sp}' vào kho.")
-                            except Exception as e:
-                                st.error(f"Lỗi khi hoàn kho cho {ten_sp}: {e}")
-            
-            # Cập nhật lại toàn bộ sheet DonHang với dữ liệu mới
-            ws_don.clear()
-            ws_don.update([df_don_new.columns.values.tolist()] + df_don_new.values.tolist())
-            st.success("✅ Đã cập nhật trạng thái đơn hàng và kho hàng!")
-            time.sleep(1)
-            st.rerun()
+                    # Nếu chuyển từ trạng thái khác (không phải Hủy) sang Hủy thì hoàn kho
+                    if trang_thai_cu != "Hủy" and trang_thai_moi == "Hủy":
+                        chuoi_sp = str(df_don_new.iloc[i]['Sản phẩm'])
+                        # Tách các sản phẩm (định dạng "Tên sản phẩm x số lượng")
+                        danh_sach_tach = chuoi_sp.split(", ")
+                        
+                        for item in danh_sach_tach:
+                            match = re.search(r"(.+)\s+x(\d+)", item)
+                            if match:
+                                ten_sp = match.group(1).strip()
+                                so_luong_hoan = int(match.group(2))
+                                
+                                try:
+                                    # Tìm dòng sản phẩm trong sheet SanPham
+                                    cell = ws_sp.find(ten_sp)
+                                    ton_hien_tai = int(ws_sp.cell(cell.row, 6).value)  # Cột tồn kho là cột 6 (index 1-based)
+                                    ws_sp.update_cell(cell.row, 6, ton_hien_tai + so_luong_hoan)
+                                    st.info(f"🔄 Đã hoàn {so_luong_hoan} đơn vị '{ten_sp}' vào kho.")
+                                except Exception as e:
+                                    st.error(f"Lỗi khi hoàn kho cho {ten_sp}: {e}")
+                
+                # Cập nhật lại toàn bộ sheet DonHang với dữ liệu mới
+                ws_don.clear()
+                ws_don.update([df_don_new.columns.values.tolist()] + df_don_new.values.tolist())
+                st.success("✅ Đã cập nhật trạng thái đơn hàng và kho hàng!")
+                time.sleep(1)
+                st.rerun()
         with t3:
             st.subheader("Cài đặt Logo")
             ws_ch = ket_noi_sheet("CauHinh")
@@ -694,4 +694,5 @@ elif chon_menu == "📊 Quản Trị":
                     st.session_state.logo_url = moi
                     st.success("Đã đổi Logo!"); time.sleep(1); st.rerun()
                 except: st.error("Lỗi: Không tìm thấy dòng 'Logo' trong Sheet!")
+
 
