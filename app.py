@@ -327,7 +327,7 @@ chon_menu = option_menu(
 )
 
 # =============================
-# 7. HÀM LÀM SẠCH GIÁ (DÙNG CHUNG)
+# 7. HÀM LÀM SẠCH GIÁ VÀ ĐỊNH DẠNG (DÙNG CHUNG)
 # =============================
 def clean_price(price):
     if pd.isna(price):
@@ -576,7 +576,7 @@ elif chon_menu == "📞 Thông Tin":
         toa_do = pd.DataFrame({'lat': [13.8930853], 'lon': [109.1002733]})
         st.map(toa_do, zoom=14)
 
-# ---- QUẢN TRỊ ----
+# ---- QUẢN TRỊ (ĐÃ CẬP NHẬT DROPDOWN TRẠNG THÁI) ----
 elif chon_menu == "📊 Quản Trị":
     if not st.session_state.da_dang_nhap:
         col_l, col_m, col_r = st.columns([1,1.5,1])
@@ -595,24 +595,22 @@ elif chon_menu == "📊 Quản Trị":
         
         with t1:
             df_sp = pd.DataFrame(ws_sp.get_all_records())
-            # Có thể làm sạch giá để hiển thị đẹp, nhưng giữ nguyên dữ liệu gốc khi lưu
+            # Làm sạch giá để hiển thị
             df_sp_display = df_sp.copy()
             if "Giá" in df_sp_display.columns:
                 df_sp_display["Giá"] = df_sp_display["Giá"].apply(clean_price)
             df_edit = st.data_editor(df_sp_display, num_rows="dynamic", use_container_width=True)
             if st.button("LƯU KHO"):
-                # Cần đảm bảo lưu cột Giá dạng số (hoặc chuỗi) nhưng không format
+                # Lưu cột Giá dạng số (đã clean) lên sheet
                 ws_sp.clear()
-                # Chuyển cột Giá về dạng số (hoặc chuỗi gốc) trước khi lưu? Ở đây ta lưu trực tiếp từ df_edit (đã clean)
-                # Nhưng nếu clean thành số thì khi lưu sẽ là số, OK.
                 ws_sp.update([df_edit.columns.values.tolist()] + df_edit.values.tolist())
                 st.success("Đã cập nhật kho!")
-       with t2:
+        
+        with t2:
             # Đọc dữ liệu đơn hàng từ sheet
             df_don_old = pd.DataFrame(ws_don.get_all_records())
             
-            # Đảm bảo cột trạng thái tồn tại (nếu chưa có, tạo mới với giá trị mặc định 'Mới')
-            # Tìm cột gần giống 'trạng thái' trong tên các cột
+            # Đảm bảo cột trạng thái tồn tại
             col_trang_thai = None
             for col in df_don_old.columns:
                 if 'trạng thái' in col.lower() or 'status' in col.lower():
@@ -683,6 +681,7 @@ elif chon_menu == "📊 Quản Trị":
                 st.success("✅ Đã cập nhật trạng thái đơn hàng và kho hàng!")
                 time.sleep(1)
                 st.rerun()
+        
         with t3:
             st.subheader("Cài đặt Logo")
             ws_ch = ket_noi_sheet("CauHinh")
@@ -694,5 +693,3 @@ elif chon_menu == "📊 Quản Trị":
                     st.session_state.logo_url = moi
                     st.success("Đã đổi Logo!"); time.sleep(1); st.rerun()
                 except: st.error("Lỗi: Không tìm thấy dòng 'Logo' trong Sheet!")
-
-
