@@ -270,7 +270,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # =============================
-# 5. HEADER NGANG (LOGO, HOTLINE, ZALO, QR CODE) - DÙNG DIV THAY VÌ COLUMNS
+# 5. HEADER NGANG (LOGO, HOTLINE, ZALO, QR CODE)
 # =============================
 st.markdown(f"""
 <div class="header-container">
@@ -289,10 +289,10 @@ st.markdown(f"""
 </div>
 """, unsafe_allow_html=True)
 
-st.markdown("---")  # Đường kẻ phân cách
+st.markdown("---")
 
 # =============================
-# 6. MENU NGANG (ĐÃ THÊM MỤC TRA CỨU ĐƠN HÀNG)
+# 6. MENU NGANG (ĐÃ THÊM MỤC TRA CỨU)
 # =============================
 chon_menu = option_menu(
     menu_title=None,
@@ -305,7 +305,7 @@ chon_menu = option_menu(
             "background-color": "transparent",
             "border": "none",
             "box-shadow": "none",
-            "max-width": "1000px",  # Tăng lên một chút để chứa 6 mục
+            "max-width": "1000px",
             "margin": "0 auto 30px auto"
         },
         "icon": {"color": "#2e7d32", "font-size": "1.2rem"},
@@ -315,7 +315,7 @@ chon_menu = option_menu(
             "margin": "0 5px",
             "padding": "10px 20px",
             "border-radius": "30px",
-            "color": "#0066cc",  # Màu xanh dương cho chữ menu
+            "color": "#0066cc",
             "background-color": "transparent"
         },
         "nav-link-selected": {
@@ -327,7 +327,7 @@ chon_menu = option_menu(
 )
 
 # =============================
-# 7. HIỂN THỊ NỘI DUNG THEO MENU ĐÃ CHỌN
+# 7. HIỂN THỊ NỘI DUNG THEO MENU
 # =============================
 
 # ---- TRANG CHỦ ----
@@ -335,10 +335,9 @@ if chon_menu == "🏠 Trang Chủ":
     st.markdown("<h1 style='text-align:center;color:#2e7d32;'>🏯 Tinh Hoa Ẩm Thực Bình Định</h1>", unsafe_allow_html=True)
     c1, c2, c3 = st.columns(3)
     c1.success("🌿 **Sạch & Tươi**\n\n100% Tự nhiên.")
-    c2.success("🚚 **Giao Nhanh**\n\nToàn quốc.")  # Đổi từ warning sang success (xanh lá)
+    c2.success("🚚 **Giao Nhanh**\n\nToàn quốc.")
     c3.info("💝 **Quà Tặng**\n\nĐóng gói sang trọng.")
 
-    # Tiêu đề màu xanh lá
     st.markdown("<h3 style='color: #2e7d32;'>🔥 Đặc Sản Đang Bán Chạy</h3>", unsafe_allow_html=True)
     
     ws = ket_noi_sheet("SanPham")
@@ -349,7 +348,6 @@ if chon_menu == "🏠 Trang Chủ":
             for _ in range(2):
                 for row in data:
                     img = row["Hình ảnh"] if la_url_hop_le(row["Hình ảnh"]) else "https://via.placeholder.com/200"
-                    # Thêm style màu xanh dương cho tên sản phẩm và giá
                     slider_content += f'<div class="slide-item"><img src="{img}"><p style="font-weight:600;margin:10px 0 0 0; color: #0066cc;">{row["Sản phẩm"]}</p><p class="gia-ban" style="color: #0066cc;">{row["Giá"]:,}đ</p></div>'
             st.markdown(f'<div class="slider-container"><div class="slide-track">{slider_content}</div></div>', unsafe_allow_html=True)
 
@@ -365,7 +363,6 @@ elif chon_menu == "🛍️ Cửa Hàng":
         else:
             df_goc = pd.DataFrame(data)
 
-            # Bộ lọc tìm kiếm và giá
             with st.container():
                 col_search, col_filter = st.columns([2, 1])
                 with col_search:
@@ -394,7 +391,6 @@ elif chon_menu == "🛍️ Cửa Hàng":
                         st.markdown(f'<img src="{img}" style="border-radius: 15px; object-fit: cover; height: 180px; width: 100%; margin-bottom:12px;">', unsafe_allow_html=True)
                         
                         st.markdown(f'<div class="product-name" style="font-weight:700; height:50px; overflow:hidden;">{row["Sản phẩm"]}</div>', unsafe_allow_html=True)
-                        # Đổi màu giá từ cam sang xanh lá
                         st.markdown(f'<div class="gia-ban" style="color:#2e7d32; font-size:1.3rem; font-weight:800; margin-bottom:5px;">{row["Giá"]:,} VNĐ</div>', unsafe_allow_html=True)
                         st.markdown(f'<div style="color:#2e7d32; font-size:0.9rem; margin-bottom:15px; font-weight:500;">📦 Còn lại: {row["Tồn kho"]}</div>', unsafe_allow_html=True)
                         
@@ -411,7 +407,6 @@ elif chon_menu == "🛍️ Cửa Hàng":
 
 # ---- GIỎ HÀNG ----
 elif chon_menu == "🛒 Giỏ Hàng":
-    # Tiêu đề chính màu xanh lá
     st.markdown("<h1 style='color: #2e7d32;'>🛒 Giỏ Hàng</h1>", unsafe_allow_html=True)
     
     if not st.session_state.gio_hang:
@@ -427,10 +422,8 @@ elif chon_menu == "🛒 Giỏ Hàng":
                 thanh_tien = sp['Giá'] * sl
                 tong += thanh_tien
                 ds_order.append(f"{sp['Sản phẩm']} x{sl}")
-                # Dòng sản phẩm màu xanh dương
                 st.markdown(f"<p style='color: #0066cc; font-size: 1.1rem;'>✅ {sp['Sản phẩm']} x{sl} - {thanh_tien:,} VNĐ</p>", unsafe_allow_html=True)
         
-        # Tổng tiền màu xanh lá
         st.markdown(f"<h3 style='color: #2e7d32;'>Tổng tiền: {tong:,} VNĐ</h3>", unsafe_allow_html=True)
         
         with st.form("checkout"):
@@ -449,7 +442,7 @@ elif chon_menu == "🛒 Giỏ Hàng":
                     st.session_state.gio_hang = {}
                     st.success("Đặt hàng thành công!"); st.balloons(); time.sleep(2); st.rerun()
 
-# ---- TRA CỨU ĐƠN HÀNG (MỚI) ----
+# ---- TRA CỨU ĐƠN HÀNG (ĐÃ SỬA LỖI KEYERROR) ----
 elif chon_menu == "🔍 Tra Cứu Đơn Hàng":
     st.markdown("<h1 style='color: #2e7d32; text-align:center;'>🔍 Tra cứu đơn hàng</h1>", unsafe_allow_html=True)
     st.markdown("<p style='color: #0066cc; text-align:center;'>Nhập số điện thoại để xem lịch sử đơn hàng của bạn.</p>", unsafe_allow_html=True)
@@ -464,24 +457,65 @@ elif chon_menu == "🔍 Tra Cứu Đơn Hàng":
             data = ws_don.get_all_records()
             if data:
                 df = pd.DataFrame(data)
-                # Lọc theo số điện thoại (cột SĐT)
-                df_loc = df[df['SĐT'].astype(str).str.strip() == so_dien_thoai.strip()]
                 
-                if not df_loc.empty:
-                    st.success(f"Tìm thấy {len(df_loc)} đơn hàng.")
-                    # Hiển thị theo thứ tự thời gian gần nhất
-                    df_loc = df_loc.sort_values('Thời gian', ascending=False)
-                    # Chọn các cột hiển thị
-                    df_hien_thi = df_loc[['Thời gian', 'Họ tên', 'Sản phẩm', 'Số lượng', 'Tổng tiền', 'Trạng thái']]
-                    st.dataframe(df_hien_thi, use_container_width=True, hide_index=True)
+                # Tìm cột số điện thoại (có thể tên cột là 'SĐT', 'Điện thoại', 'SDT'...)
+                col_sdt = None
+                for col in df.columns:
+                    if 'sđt' in col.lower() or 'điện thoại' in col.lower() or 'sdt' in col.lower():
+                        col_sdt = col
+                        break
+                if col_sdt is None:
+                    st.error("❌ Không tìm thấy cột số điện thoại trong dữ liệu. Vui lòng kiểm tra lại tên cột trong sheet DonHang.")
                 else:
-                    st.warning("Không tìm thấy đơn hàng nào với số điện thoại này.")
+                    # Lọc theo số điện thoại (loại bỏ khoảng trắng thừa)
+                    df_loc = df[df[col_sdt].astype(str).str.strip() == so_dien_thoai.strip()]
+                    
+                    if not df_loc.empty:
+                        st.success(f"✅ Tìm thấy {len(df_loc)} đơn hàng.")
+                        
+                        # Tìm cột thời gian để sắp xếp
+                        col_time = None
+                        for col in df_loc.columns:
+                            if 'thời gian' in col.lower() or 'ngày' in col.lower() or 'time' in col.lower():
+                                col_time = col
+                                break
+                        if col_time:
+                            df_loc = df_loc.sort_values(col_time, ascending=False)
+                        
+                        # Xác định các cột muốn hiển thị (dựa trên tên gần đúng)
+                        map_hien_thi = {
+                            'Thời gian': col_time,
+                            'Họ tên': next((c for c in df_loc.columns if 'họ tên' in c.lower() or 'tên' in c.lower()), None),
+                            'Sản phẩm': next((c for c in df_loc.columns if 'sản phẩm' in c.lower() or 'sp' in c.lower()), None),
+                            'Số lượng': next((c for c in df_loc.columns if 'số lượng' in c.lower() or 'sl' in c.lower()), None),
+                            'Tổng tiền': next((c for c in df_loc.columns if 'tổng tiền' in c.lower() or 'tt' in c.lower() or 'tiền' in c.lower()), None),
+                            'Trạng thái': next((c for c in df_loc.columns if 'trạng thái' in c.lower() or 'tt' in c.lower() or 'status' in c.lower()), None)
+                        }
+                        
+                        # Lọc các cột tồn tại
+                        hien_thi_cols = [v for v in map_hien_thi.values() if v is not None and v in df_loc.columns]
+                        if not hien_thi_cols:
+                            st.warning("⚠️ Không có cột nào phù hợp để hiển thị.")
+                        else:
+                            df_hien_thi = df_loc[hien_thi_cols].copy()
+                            
+                            # Đổi tên cột về chuẩn (nếu cần)
+                            rename_dict = {}
+                            for ten_chuan, ten_thuc in map_hien_thi.items():
+                                if ten_thuc and ten_thuc in df_hien_thi.columns:
+                                    rename_dict[ten_thuc] = ten_chuan
+                            if rename_dict:
+                                df_hien_thi = df_hien_thi.rename(columns=rename_dict)
+                            
+                            st.dataframe(df_hien_thi, use_container_width=True, hide_index=True)
+                    else:
+                        st.warning("❌ Không tìm thấy đơn hàng nào với số điện thoại này.")
             else:
-                st.info("Chưa có đơn hàng nào trong hệ thống.")
+                st.info("ℹ️ Chưa có đơn hàng nào trong hệ thống.")
         else:
-            st.error("Không thể kết nối đến dữ liệu đơn hàng.")
+            st.error("🔌 Không thể kết nối đến dữ liệu đơn hàng.")
     elif tra_cuu_btn:
-        st.warning("Vui lòng nhập số điện thoại.")
+        st.warning("⚠️ Vui lòng nhập số điện thoại.")
 
 # ---- THÔNG TIN ----
 elif chon_menu == "📞 Thông Tin":
