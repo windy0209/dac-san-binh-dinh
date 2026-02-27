@@ -327,7 +327,20 @@ chon_menu = option_menu(
 )
 
 # =============================
-# 7. HIỂN THỊ NỘI DUNG THEO MENU
+# 7. HÀM LÀM SẠCH GIÁ (DÙNG CHUNG)
+# =============================
+def clean_price(price):
+    if pd.isna(price):
+        return 0
+    cleaned = re.sub(r'[^\d]', '', str(price))
+    return int(cleaned) if cleaned else 0
+
+def format_vnd(amount):
+    """Định dạng số thành tiền Việt: dấu chấm + VNĐ"""
+    return f"{amount:,}".replace(',', '.') + " VNĐ"
+
+# =============================
+# 8. HIỂN THỊ NỘI DUNG THEO MENU
 # =============================
 
 # ---- TRANG CHỦ ----
@@ -344,26 +357,18 @@ if chon_menu == "🏠 Trang Chủ":
     if ws:
         data = ws.get_all_records()
         if data:
-            # Tạo DataFrame và làm sạch cột Giá
             df_slider = pd.DataFrame(data)
-            
-            # Hàm làm sạch giá (loại bỏ ký tự không phải số)
-            def clean_price(price):
-                if pd.isna(price):
-                    return 0
-                cleaned = re.sub(r'[^\d]', '', str(price))
-                return int(cleaned) if cleaned else 0
-            
+            # Làm sạch giá
             df_slider["Giá"] = df_slider["Giá"].apply(clean_price)
             
             slider_content = ""
             for _ in range(2):
                 for _, row in df_slider.iterrows():
                     img = row["Hình ảnh"] if la_url_hop_le(row["Hình ảnh"]) else "https://via.placeholder.com/200"
-                    # Định dạng giá với dấu chấm phân cách hàng nghìn (phù hợp hiển thị Việt Nam)
-                    gia_formatted = f"{row['Giá']:,}".replace(',', '.')
-                    slider_content += f'<div class="slide-item"><img src="{img}"><p style="font-weight:600;margin:10px 0 0 0; color: #0066cc;">{row["Sản phẩm"]}</p><p class="gia-ban" style="color: #0066cc;">{gia_formatted}đ</p></div>'
+                    gia_formatted = format_vnd(row["Giá"])
+                    slider_content += f'<div class="slide-item"><img src="{img}"><p style="font-weight:600;margin:10px 0 0 0; color: #0066cc;">{row["Sản phẩm"]}</p><p class="gia-ban" style="color: #0066cc;">{gia_formatted}</p></div>'
             st.markdown(f'<div class="slider-container"><div class="slide-track">{slider_content}</div></div>', unsafe_allow_html=True)
+
 # ---- CỬA HÀNG ----
 elif chon_menu == "🛍️ Cửa Hàng":
     st.markdown("<h2 style='text-align:center; color:#2e7d32;'>🌟 Danh Sách Sản Phẩm</h2>", unsafe_allow_html=True)
@@ -375,15 +380,7 @@ elif chon_menu == "🛍️ Cửa Hàng":
             st.info("Hiện chưa có sản phẩm nào trong kho.")
         else:
             df_goc = pd.DataFrame(data)
-
-            # --- LÀM SẠCH CỘT GIÁ ---
-            def clean_price(price):
-                if pd.isna(price):
-                    return 0
-                # Loại bỏ tất cả ký tự không phải số (chỉ giữ lại số)
-                cleaned = re.sub(r'[^\d]', '', str(price))
-                return int(cleaned) if cleaned else 0
-
+            # Làm sạch cột Giá
             df_goc["Giá"] = df_goc["Giá"].apply(clean_price)
 
             # Bộ lọc tìm kiếm và giá
@@ -395,7 +392,7 @@ elif chon_menu == "🛍️ Cửa Hàng":
                     if not df_goc.empty and df_goc["Giá"].max() > 0:
                         gia_max = int(df_goc["Giá"].max())
                     else:
-                        gia_max = 1_000_000  # giá trị mặc định nếu không có
+                        gia_max = 1_000_000
                     khoang_gia = st.slider("💰 Lọc theo giá (VNĐ)", 0, gia_max, (0, gia_max), step=10000)
 
             df_loc = df_goc[
@@ -405,8 +402,6 @@ elif chon_menu == "🛍️ Cửa Hàng":
             ]
 
             st.divider()
-
-            # ... phần hiển thị sản phẩm giữ nguyên ...
 
             if df_loc.empty:
                 st.warning("Không tìm thấy sản phẩm phù hợp với yêu cầu của bạn.")
@@ -420,7 +415,9 @@ elif chon_menu == "🛍️ Cửa Hàng":
                         st.markdown(f'<img src="{img}" style="border-radius: 15px; object-fit: cover; height: 180px; width: 100%; margin-bottom:12px;">', unsafe_allow_html=True)
                         
                         st.markdown(f'<div class="product-name" style="font-weight:700; height:50px; overflow:hidden;">{row["Sản phẩm"]}</div>', unsafe_allow_html=True)
-                        st.markdown(f'<div class="gia-ban" style="color:#2e7d32; font-size:1.3rem; font-weight:800; margin-bottom:5px;">{row["Giá"]:,} VNĐ</div>', unsafe_allow_html=True)
+                        # Giá đã được làm sạch, định dạng VNĐ
+                        gia_formatted = format_vnd(row["Giá"])
+                        st.markdown(f'<div class="gia-ban" style="color:#2e7d32; font-size:1.3rem; font-weight:800; margin-bottom:5px;">{gia_formatted}</div>', unsafe_allow_html=True)
                         st.markdown(f'<div style="color:#2e7d32; font-size:0.9rem; margin-bottom:15px; font-weight:500;">📦 Còn lại: {row["Tồn kho"]}</div>', unsafe_allow_html=True)
                         
                         if int(row["Tồn kho"]) > 0:
@@ -443,6 +440,9 @@ elif chon_menu == "🛒 Giỏ Hàng":
     else:
         ws_sp = ket_noi_sheet("SanPham")
         df_sp = pd.DataFrame(ws_sp.get_all_records())
+        # Làm sạch giá (phòng trường hợp dữ liệu gốc chưa sạch)
+        df_sp["Giá"] = df_sp["Giá"].apply(clean_price)
+        
         tong, ds_order = 0, []
         for id_sp, sl in st.session_state.gio_hang.items():
             sp_rows = df_sp[df_sp['ID'].astype(str) == id_sp]
@@ -451,9 +451,11 @@ elif chon_menu == "🛒 Giỏ Hàng":
                 thanh_tien = sp['Giá'] * sl
                 tong += thanh_tien
                 ds_order.append(f"{sp['Sản phẩm']} x{sl}")
-                st.markdown(f"<p style='color: #0066cc; font-size: 1.1rem;'>✅ {sp['Sản phẩm']} x{sl} - {thanh_tien:,} VNĐ</p>", unsafe_allow_html=True)
+                thanh_tien_formatted = format_vnd(thanh_tien)
+                st.markdown(f"<p style='color: #0066cc; font-size: 1.1rem;'>✅ {sp['Sản phẩm']} x{sl} - {thanh_tien_formatted}</p>", unsafe_allow_html=True)
         
-        st.markdown(f"<h3 style='color: #2e7d32;'>Tổng tiền: {tong:,} VNĐ</h3>", unsafe_allow_html=True)
+        tong_formatted = format_vnd(tong)
+        st.markdown(f"<h3 style='color: #2e7d32;'>Tổng tiền: {tong_formatted}</h3>", unsafe_allow_html=True)
         
         with st.form("checkout"):
             t = st.text_input("Họ tên *")
@@ -462,7 +464,9 @@ elif chon_menu == "🛒 Giỏ Hàng":
             if st.form_submit_button("XÁC NHẬN ĐẶT HÀNG"):
                 if t and s and d:
                     ws_don = ket_noi_sheet("DonHang")
-                    ws_don.append_row([datetime.now().strftime("%d/%m/%Y %H:%M"), t, s, d, ", ".join(ds_order), sum(st.session_state.gio_hang.values()), f"{tong:,} VNĐ", "Mới"])
+                    # Lưu tổng tiền dạng số (không format) để dễ xử lý sau này, nhưng có thể lưu chuỗi đã format
+                    ws_don.append_row([datetime.now().strftime("%d/%m/%Y %H:%M"), t, s, d, ", ".join(ds_order), sum(st.session_state.gio_hang.values()), f"{tong} VNĐ", "Mới"])
+                    # Cập nhật tồn kho
                     for id_sp, sl in st.session_state.gio_hang.items():
                         sp_row = df_sp[df_sp['ID'].astype(str) == id_sp].iloc[0]
                         cell = ws_sp.find(str(sp_row['Sản phẩm']))
@@ -536,6 +540,12 @@ elif chon_menu == "🔍 Tra Cứu Đơn Hàng":
                             if rename_dict:
                                 df_hien_thi = df_hien_thi.rename(columns=rename_dict)
                             
+                            # Định dạng cột Tổng tiền nếu có (giả sử giá trị là số hoặc chuỗi có thể làm sạch)
+                            if 'Tổng tiền' in df_hien_thi.columns:
+                                df_hien_thi['Tổng tiền'] = df_hien_thi['Tổng tiền'].apply(
+                                    lambda x: format_vnd(clean_price(x)) if pd.notna(x) else ""
+                                )
+                            
                             st.dataframe(df_hien_thi, use_container_width=True, hide_index=True)
                     else:
                         st.warning("❌ Không tìm thấy đơn hàng nào với số điện thoại này.")
@@ -585,16 +595,21 @@ elif chon_menu == "📊 Quản Trị":
         
         with t1:
             df_sp = pd.DataFrame(ws_sp.get_all_records())
-            df_edit = st.data_editor(df_sp, num_rows="dynamic", use_container_width=True)
+            # Có thể làm sạch giá để hiển thị đẹp, nhưng giữ nguyên dữ liệu gốc khi lưu
+            df_sp_display = df_sp.copy()
+            if "Giá" in df_sp_display.columns:
+                df_sp_display["Giá"] = df_sp_display["Giá"].apply(clean_price)
+            df_edit = st.data_editor(df_sp_display, num_rows="dynamic", use_container_width=True)
             if st.button("LƯU KHO"):
+                # Cần đảm bảo lưu cột Giá dạng số (hoặc chuỗi) nhưng không format
                 ws_sp.clear()
+                # Chuyển cột Giá về dạng số (hoặc chuỗi gốc) trước khi lưu? Ở đây ta lưu trực tiếp từ df_edit (đã clean)
+                # Nhưng nếu clean thành số thì khi lưu sẽ là số, OK.
                 ws_sp.update([df_edit.columns.values.tolist()] + df_edit.values.tolist())
                 st.success("Đã cập nhật kho!")
         with t2:
             df_don_old = pd.DataFrame(ws_don.get_all_records())
-            ws_sp = ket_noi_sheet("SanPham")
-            df_sp = pd.DataFrame(ws_sp.get_all_records())
-            
+            # Không làm sạch đơn hàng ở đây để giữ nguyên dữ liệu
             df_don_new = st.data_editor(df_don_old, use_container_width=True)
             
             if st.button("CẬP NHẬT ĐƠN & HOÀN KHO"):
@@ -634,5 +649,3 @@ elif chon_menu == "📊 Quản Trị":
                     st.session_state.logo_url = moi
                     st.success("Đã đổi Logo!"); time.sleep(1); st.rerun()
                 except: st.error("Lỗi: Không tìm thấy dòng 'Logo' trong Sheet!")
-
-
