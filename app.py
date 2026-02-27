@@ -283,8 +283,7 @@ st.markdown("---")  # Đường kẻ phân cách
 # =============================
 chon_menu = option_menu(
     menu_title=None,
-    options=["🏠 Trang Chủ", "🛍️ Cửa Hàng", "🛒 Giỏ Hàng", "📞 Thông Tin", "📊 Quản Trị"],
-    icons=["house", "shop", "cart", "telephone", "gear"],
+    options=["🏠 Trang Chủ", "🛍️ Cửa Hàng", "🛒 Giỏ Hàng", "📞 Thông Tin", "📊 Quản Trị"], 
     default_index=0,
     orientation="horizontal",
     styles={
@@ -522,5 +521,6 @@ elif chon_menu == "📞 Thông Tin":
     with col_map:
         toa_do = pd.DataFrame({'lat': [13.8930853], 'lon': [109.1002733]})
         st.map(toa_do, zoom=14)
+
 
 
