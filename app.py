@@ -394,9 +394,11 @@ elif chon_menu == "🛍️ Cửa Hàng":
                         st.markdown('</div>', unsafe_allow_html=True)
                         st.write("")
 
-# ---- GIỎ HÀNG ----
+# ---- GIỎ HÀNG (ĐÃ CHỈNH MÀU) ----
 elif chon_menu == "🛒 Giỏ Hàng":
-    st.title("🛒 Giỏ Hàng")
+    # Tiêu đề chính màu xanh lá
+    st.markdown("<h1 style='color: #2e7d32;'>🛒 Giỏ Hàng</h1>", unsafe_allow_html=True)
+    
     if not st.session_state.gio_hang:
         st.warning("Giỏ hàng trống.")
     else:
@@ -410,9 +412,12 @@ elif chon_menu == "🛒 Giỏ Hàng":
                 thanh_tien = sp['Giá'] * sl
                 tong += thanh_tien
                 ds_order.append(f"{sp['Sản phẩm']} x{sl}")
-                st.write(f"✅ {sp['Sản phẩm']} x{sl} - {thanh_tien:,} VNĐ")
+                # Dòng sản phẩm màu xanh dương
+                st.markdown(f"<p style='color: #0066cc; font-size: 1.1rem;'>✅ {sp['Sản phẩm']} x{sl} - {thanh_tien:,} VNĐ</p>", unsafe_allow_html=True)
         
-        st.subheader(f"Tổng tiền: {tong:,} VNĐ")
+        # Tổng tiền màu xanh lá
+        st.markdown(f"<h3 style='color: #2e7d32;'>Tổng tiền: {tong:,} VNĐ</h3>", unsafe_allow_html=True)
+        
         with st.form("checkout"):
             t = st.text_input("Họ tên *")
             s = st.text_input("SĐT *")
