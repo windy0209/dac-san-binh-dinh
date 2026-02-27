@@ -72,7 +72,7 @@ def tai_logo_tu_sheet():
 tai_logo_tu_sheet()
 
 # =============================
-# 4. CSS TÙY CHỈNH GIAO DIỆN (TỐI ƯU MOBILE) + BACKGROUND HEADER
+# 4. CSS TÙY CHỈNH GIAO DIỆN (TỐI ƯU MOBILE + BACKGROUND HEADER)
 # =============================
 st.markdown("""
 <style>
@@ -87,35 +87,34 @@ st.markdown("""
         background-size: cover;
         background-position: center;
         background-blend-mode: overlay;
-        padding: 10px 30px;
+        padding: 20px 40px;  /* Tăng padding để cao hơn */
+        min-height: 180px;    /* Chiều cao tối thiểu */
         border-radius: 60px;
         margin: 20px auto 10px auto;
         max-width: 1300px;
         box-shadow: 0 5px 15px rgba(0,0,0,0.2);
         border: 1px solid rgba(255,255,255,0.2);
-        color: white; /* Đảm bảo chữ trên nền tối */
+        color: white;
     }
-    /* Tùy chỉnh lại màu chữ trong header để phù hợp với nền */
-    .header-container h2, .header-container p, .header-container div {
-        color: white !important;
-        text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
-    }
-    .header-logo img { height: 60px; width: auto; }
+    .header-logo img { height: 80px; width: auto; }  /* Logo lớn hơn */
     .header-info {
         display: flex;
         gap: 30px;
-        font-size: 1rem;
+        font-size: 1.1rem;
     }
     .header-info div {
         display: flex;
         align-items: center;
         gap: 5px;
     }
-    /* Điều chỉnh màu hotline, zalo nếu cần */
+    /* Điều chỉnh màu chữ trong header để nổi trên nền tối */
+    .header-container h2, .header-container p, .header-container div {
+        color: white !important;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+    }
     .hotline, .zalo {
         color: white !important;
     }
-    .qr-code img { height: 50px; width: auto; border-radius: 8px; }
     
     /* Slider Trang chủ */
     .slider-container {
@@ -205,7 +204,8 @@ st.markdown("""
         /* Header xếp dọc */
         .header-container {
             flex-direction: column;
-            padding: 15px;
+            padding: 20px;
+            min-height: auto;
             border-radius: 30px;
         }
         .header-logo img { height: 80px; }
@@ -270,21 +270,21 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # =============================
-# 5. HEADER NGANG (LOGO, HOTLINE, ZALO, QR CODE) - SỬ DỤNG CLASS header-container
+# 5. HEADER NGANG (LOGO, HOTLINE, ZALO, QR CODE) - DÙNG DIV THAY VÌ COLUMNS
 # =============================
 st.markdown(f"""
 <div class="header-container">
     <div class="header-logo">
-        <img src="{st.session_state.logo_url}" width="120">
+        <img src="{st.session_state.logo_url}" alt="Logo">
     </div>
     <div style="text-align: center;">
         <h2 style="margin: 0;">XỨ NẪU STORE</h2>
-        <p style="margin: 0;">Đặc sản Bình Định - Giao hàng toàn quốc</p>
+        <p style="margin: 5px 0 0 0;">Đặc sản Bình Định - Giao hàng toàn quốc</p>
     </div>
     <div style="text-align: right;">
-        <div class="hotline">📞 0932.642.376</div>
-        <div class="zalo">💬 Zalo: 0932.642.376</div>
-        <img src="https://raw.githubusercontent.com/windy0209/dac-san-binh-dinh/main/qrcode.png" width="60" style="border-radius: 8px; margin-top: 5px;">
+        <div style="font-weight: bold;">📞 0932.642.376</div>
+        <div style="font-weight: bold;">💬 Zalo: 0932.642.376</div>
+        <img src="https://raw.githubusercontent.com/windy0209/dac-san-binh-dinh/main/qrcode.png" width="70" style="border-radius: 8px; margin-top: 5px;">
     </div>
 </div>
 """, unsafe_allow_html=True)
@@ -409,7 +409,7 @@ elif chon_menu == "🛍️ Cửa Hàng":
                         st.markdown('</div>', unsafe_allow_html=True)
                         st.write("")
 
-# ---- GIỎ HÀNG ----
+# ---- GIỎ HÀNG (ĐÃ CHỈNH MÀU) ----
 elif chon_menu == "🛒 Giỏ Hàng":
     # Tiêu đề chính màu xanh lá
     st.markdown("<h1 style='color: #2e7d32;'>🛒 Giỏ Hàng</h1>", unsafe_allow_html=True)
