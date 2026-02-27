@@ -325,7 +325,9 @@ if chon_menu == "🏠 Trang Chủ":
     c2.success("🚚 **Giao Nhanh**\n\nToàn quốc.")  # Đổi từ warning sang success (xanh lá)
     c3.info("💝 **Quà Tặng**\n\nĐóng gói sang trọng.")
 
-    st.subheader("🔥 Đặc Sản Đang Bán Chạy")
+    # Tiêu đề màu xanh lá
+    st.markdown("<h3 style='color: #2e7d32;'>🔥 Đặc Sản Đang Bán Chạy</h3>", unsafe_allow_html=True)
+    
     ws = ket_noi_sheet("SanPham")
     if ws:
         data = ws.get_all_records()
@@ -334,9 +336,9 @@ if chon_menu == "🏠 Trang Chủ":
             for _ in range(2):
                 for row in data:
                     img = row["Hình ảnh"] if la_url_hop_le(row["Hình ảnh"]) else "https://via.placeholder.com/200"
-                    slider_content += f'<div class="slide-item"><img src="{img}"><p style="font-weight:600;margin:10px 0 0 0;">{row["Sản phẩm"]}</p><p class="gia-ban">{row["Giá"]:,}đ</p></div>'
+                    # Thêm style màu xanh dương cho tên sản phẩm và giá
+                    slider_content += f'<div class="slide-item"><img src="{img}"><p style="font-weight:600;margin:10px 0 0 0; color: #0066cc;">{row["Sản phẩm"]}</p><p class="gia-ban" style="color: #0066cc;">{row["Giá"]:,}đ</p></div>'
             st.markdown(f'<div class="slider-container"><div class="slide-track">{slider_content}</div></div>', unsafe_allow_html=True)
-
 # ---- CỬA HÀNG ----
 elif chon_menu == "🛍️ Cửa Hàng":
     st.markdown("<h2 style='text-align:center; color:#2e7d32;'>🌟 Danh Sách Sản Phẩm</h2>", unsafe_allow_html=True)
@@ -521,6 +523,7 @@ elif chon_menu == "📞 Thông Tin":
     with col_map:
         toa_do = pd.DataFrame({'lat': [13.8930853], 'lon': [109.1002733]})
         st.map(toa_do, zoom=14)
+
 
 
 
