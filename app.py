@@ -72,7 +72,7 @@ def tai_logo_tu_sheet():
 tai_logo_tu_sheet()
 
 # =============================
-# 4. CSS TÙY CHỈNH GIAO DIỆN (THÊM RESPONSIVE CHO MOBILE)
+# 4. CSS TÙY CHỈNH GIAO DIỆN (TỐI ƯU MOBILE)
 # =============================
 st.markdown("""
 <style>
@@ -192,7 +192,7 @@ st.markdown("""
     }
     .block-container { padding-top: 0; }
 
-    /* ===== RESPONSIVE CHO MOBILE ===== */
+    /* ===== RESPONSIVE CHO MOBILE (TỐI ƯU HIỂN THỊ MENU) ===== */
     @media only screen and (max-width: 768px) {
         /* Tăng kích thước chữ tổng thể */
         body, p, div, span, .stMarkdown, .stText, .stButton>button {
@@ -217,16 +217,34 @@ st.markdown("""
         }
         .header-info div { justify-content: center; }
         
-        /* Điều chỉnh menu dọc (trên mobile, menu có thể bị tràn, ta cho phép wrap) */
+        /* MENU NGANG: cho phép cuộn ngang nếu quá dài, thu nhỏ kích thước */
+        .stHorizontal {
+            max-width: 100% !important;
+            overflow-x: auto !important;
+            white-space: nowrap !important;
+            display: block !important;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none; /* Ẩn thanh cuộn trên Firefox */
+            padding: 5px 0;
+        }
+        .stHorizontal::-webkit-scrollbar {
+            display: none; /* Ẩn thanh cuộn trên Chrome/Safari */
+        }
+        .stHorizontal > div {
+            display: inline-block !important;
+            float: none !important;
+        }
         .nav-link {
             padding: 8px 12px !important;
             font-size: 0.9rem !important;
+            margin: 0 3px !important;
         }
-        /* Slider: giảm kích thước ảnh, tăng margin */
+        
+        /* Slider: giảm kích thước ảnh */
         .slide-item { width: 160px; margin: 0 10px; }
         .slide-item img { width: 150px; height: 120px; }
         
-        /* Sản phẩm: 2 cột thay vì 3 */
+        /* Sản phẩm: 2 cột */
         .row-widget.stHorizontal > div {
             min-width: 48%;
         }
@@ -246,6 +264,7 @@ st.markdown("""
         .product-name { font-size: 0.9rem; height: 35px; }
         .gia-ban { font-size: 1rem !important; }
         .stButton>button { font-size: 14px !important; }
+        .nav-link { padding: 6px 8px !important; font-size: 0.8rem !important; }
     }
 </style>
 """, unsafe_allow_html=True)
