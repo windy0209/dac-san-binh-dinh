@@ -146,7 +146,6 @@ st.markdown("""
 chon_menu = option_menu(
     menu_title=None,  # Ẩn tiêu đề menu
     options=["🏠 Trang Chủ", "🛍️ Cửa Hàng", "🛒 Giỏ Hàng", "📞 Thông Tin", "📊 Quản Trị"],
-    icons=["house", "shop", "cart", "telephone", "gear"],  # Icon tương ứng
     default_index=0,
     orientation="horizontal",
     styles={
@@ -384,3 +383,4 @@ elif chon_menu == "📞 Thông Tin":
     with col_map:
         toa_do = pd.DataFrame({'lat': [13.8930853], 'lon': [109.1002733]})
         st.map(toa_do, zoom=14)
+
