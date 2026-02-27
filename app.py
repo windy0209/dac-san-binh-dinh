@@ -16,7 +16,7 @@ st.set_page_config(
     page_icon="https://raw.githubusercontent.com/windy0209/dac-san-binh-dinh/main/default_logo.png"
 )
 
-# Ẩn thanh công cụ mặc định của Streamlit (hamburger menu, footer)
+# Ẩn thanh công cụ mặc định của Streamlit
 hide_streamlit_style = """
     <style>
     #MainMenu {visibility: hidden;}
@@ -72,13 +72,13 @@ def tai_logo_tu_sheet():
 tai_logo_tu_sheet()
 
 # =============================
-# 4. CSS TÙY CHỈNH GIAO DIỆN (KHÔNG CÒN SIDEBAR)
+# 4. CSS TÙY CHỈNH GIAO DIỆN (THÊM RESPONSIVE CHO MOBILE)
 # =============================
 st.markdown("""
 <style>
     .stApp { background-color: #f8fbf8; }
     
-    /* Header ngang chứa logo và thông tin liên hệ */
+    /* Header ngang */
     .header-container {
         display: flex;
         align-items: center;
@@ -91,10 +91,7 @@ st.markdown("""
         box-shadow: 0 5px 15px rgba(0,0,0,0.05);
         border: 1px solid #e0e0e0;
     }
-    .header-logo img {
-        height: 60px;
-        width: auto;
-    }
+    .header-logo img { height: 60px; width: auto; }
     .header-info {
         display: flex;
         gap: 30px;
@@ -110,11 +107,37 @@ st.markdown("""
     .qr-code img { height: 50px; width: auto; border-radius: 8px; }
     
     /* Slider Trang chủ */
-    .slider-container { width: 100%; overflow: hidden; background: white; padding: 25px 0; border-radius: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); margin-top: 20px; }
-    .slide-track { display: flex; width: max-content; animation: scroll 40s linear infinite; }
-    .slide-item { width: 230px; margin: 0 20px; text-align: center; flex-shrink: 0; }
-    .slide-item img { width: 220px; height: 170px; object-fit: cover; border-radius: 18px; box-shadow: 0 8px 15px rgba(0,0,0,0.1); }
-    @keyframes scroll { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+    .slider-container {
+        width: 100%;
+        overflow: hidden;
+        background: white;
+        padding: 25px 0;
+        border-radius: 25px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        margin-top: 20px;
+    }
+    .slide-track {
+        display: flex;
+        width: max-content;
+        animation: scroll 40s linear infinite;
+    }
+    .slide-item {
+        width: 230px;
+        margin: 0 20px;
+        text-align: center;
+        flex-shrink: 0;
+    }
+    .slide-item img {
+        width: 220px;
+        height: 170px;
+        object-fit: cover;
+        border-radius: 18px;
+        box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+    }
+    @keyframes scroll {
+        0% { transform: translateX(0); }
+        100% { transform: translateX(-50%); }
+    }
     
     /* Chiều cao cố định cho tên sản phẩm */
     .product-name {
@@ -143,11 +166,19 @@ st.markdown("""
     }
     
     /* Button & Input Styling */
-    .stButton>button { background-color: #2e7d32; color: white; border-radius: 12px; font-weight: 600; width: 100%; border: none; }
+    .stButton>button {
+        background-color: #2e7d32;
+        color: white;
+        border-radius: 12px;
+        font-weight: 600;
+        width: 100%;
+        border: none;
+        transition: 0.3s;
+    }
     .stButton>button:hover { background-color: #f39c12; color: white; }
     div[data-testid="stNumberInput"] { margin-bottom: -10px; }
     
-    /* Menu ngang tùy chỉnh */
+    /* Menu ngang */
     .horizontal-menu {
         display: flex;
         justify-content: center;
@@ -159,9 +190,62 @@ st.markdown("""
         box-shadow: 0 5px 15px rgba(0,0,0,0.05);
         border: 1px solid #e0e0e0;
     }
-    /* Điều chỉnh khoảng cách chung */
-    .block-container {
-        padding-top: 0;
+    .block-container { padding-top: 0; }
+
+    /* ===== RESPONSIVE CHO MOBILE ===== */
+    @media only screen and (max-width: 768px) {
+        /* Tăng kích thước chữ tổng thể */
+        body, p, div, span, .stMarkdown, .stText, .stButton>button {
+            font-size: 16px !important;
+        }
+        h1 { font-size: 28px !important; }
+        h2 { font-size: 24px !important; }
+        h3 { font-size: 20px !important; }
+        
+        /* Header xếp dọc */
+        .header-container {
+            flex-direction: column;
+            padding: 15px;
+            border-radius: 30px;
+        }
+        .header-logo img { height: 80px; }
+        .header-info {
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 10px;
+            text-align: center;
+        }
+        .header-info div { justify-content: center; }
+        
+        /* Điều chỉnh menu dọc (trên mobile, menu có thể bị tràn, ta cho phép wrap) */
+        .nav-link {
+            padding: 8px 12px !important;
+            font-size: 0.9rem !important;
+        }
+        /* Slider: giảm kích thước ảnh, tăng margin */
+        .slide-item { width: 160px; margin: 0 10px; }
+        .slide-item img { width: 150px; height: 120px; }
+        
+        /* Sản phẩm: 2 cột thay vì 3 */
+        .row-widget.stHorizontal > div {
+            min-width: 48%;
+        }
+        .product-card { padding: 10px; }
+        .product-name { font-size: 1rem; height: 40px; }
+        .gia-ban { font-size: 1.1rem !important; }
+        
+        /* Điều chỉnh cột thông tin */
+        .stColumns { gap: 10px; }
+    }
+
+    /* Màn hình rất nhỏ (dưới 480px) */
+    @media only screen and (max-width: 480px) {
+        .slide-item { width: 130px; }
+        .slide-item img { width: 120px; height: 100px; }
+        .product-card { padding: 8px; }
+        .product-name { font-size: 0.9rem; height: 35px; }
+        .gia-ban { font-size: 1rem !important; }
+        .stButton>button { font-size: 14px !important; }
     }
 </style>
 """, unsafe_allow_html=True)
