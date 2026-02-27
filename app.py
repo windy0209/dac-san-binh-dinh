@@ -363,12 +363,26 @@ elif chon_menu == "🛍️ Cửa Hàng":
         else:
             df_goc = pd.DataFrame(data)
 
+            # --- LÀM SẠCH CỘT GIÁ ---
+            def clean_price(price):
+                if pd.isna(price):
+                    return 0
+                # Loại bỏ tất cả ký tự không phải số (chỉ giữ lại số)
+                cleaned = re.sub(r'[^\d]', '', str(price))
+                return int(cleaned) if cleaned else 0
+
+            df_goc["Giá"] = df_goc["Giá"].apply(clean_price)
+
+            # Bộ lọc tìm kiếm và giá
             with st.container():
                 col_search, col_filter = st.columns([2, 1])
                 with col_search:
                     tu_khoa = st.text_input("🔍 Tìm kiếm sản phẩm...", placeholder="Nhập tên nem, chả, tré...")
                 with col_filter:
-                    gia_max = int(df_goc["Giá"].max())
+                    if not df_goc.empty and df_goc["Giá"].max() > 0:
+                        gia_max = int(df_goc["Giá"].max())
+                    else:
+                        gia_max = 1_000_000  # giá trị mặc định nếu không có
                     khoang_gia = st.slider("💰 Lọc theo giá (VNĐ)", 0, gia_max, (0, gia_max), step=10000)
 
             df_loc = df_goc[
@@ -378,6 +392,8 @@ elif chon_menu == "🛍️ Cửa Hàng":
             ]
 
             st.divider()
+
+            # ... phần hiển thị sản phẩm giữ nguyên ...
 
             if df_loc.empty:
                 st.warning("Không tìm thấy sản phẩm phù hợp với yêu cầu của bạn.")
@@ -605,3 +621,4 @@ elif chon_menu == "📊 Quản Trị":
                     st.session_state.logo_url = moi
                     st.success("Đã đổi Logo!"); time.sleep(1); st.rerun()
                 except: st.error("Lỗi: Không tìm thấy dòng 'Logo' trong Sheet!")
+
