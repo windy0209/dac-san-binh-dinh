@@ -178,21 +178,10 @@ st.markdown("""
     .stButton>button:hover { background-color: #f39c12; color: white; }
     div[data-testid="stNumberInput"] { margin-bottom: -10px; }
     
-    /* Menu ngang */
-    .horizontal-menu {
-        display: flex;
-        justify-content: center;
-        background: white;
-        border-radius: 50px;
-        padding: 10px 20px;
-        margin: 0 auto 30px auto;
-        max-width: 800px;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-        border: 1px solid #e0e0e0;
-    }
+    /* Điều chỉnh khoảng cách chung */
     .block-container { padding-top: 0; }
 
-    /* ===== RESPONSIVE CHO MOBILE (TỐI ƯU HIỂN THỊ MENU) ===== */
+    /* ===== RESPONSIVE CHO MOBILE ===== */
     @media only screen and (max-width: 768px) {
         /* Tăng kích thước chữ tổng thể */
         body, p, div, span, .stMarkdown, .stText, .stButton>button {
@@ -217,18 +206,18 @@ st.markdown("""
         }
         .header-info div { justify-content: center; }
         
-        /* MENU NGANG: cho phép cuộn ngang nếu quá dài, thu nhỏ kích thước */
+        /* MENU NGANG: cho phép cuộn ngang nếu quá dài */
         .stHorizontal {
             max-width: 100% !important;
             overflow-x: auto !important;
             white-space: nowrap !important;
             display: block !important;
             -webkit-overflow-scrolling: touch;
-            scrollbar-width: none; /* Ẩn thanh cuộn trên Firefox */
+            scrollbar-width: none;
             padding: 5px 0;
         }
         .stHorizontal::-webkit-scrollbar {
-            display: none; /* Ẩn thanh cuộn trên Chrome/Safari */
+            display: none;
         }
         .stHorizontal > div {
             display: inline-block !important;
@@ -290,7 +279,7 @@ with col3:
 st.markdown("---")  # Đường kẻ phân cách
 
 # =============================
-# 6. MENU NGANG (ĐẶT Ở GIỮA)
+# 6. MENU NGANG (ĐẶT Ở GIỮA) - ĐÃ LOẠI BỎ NỀN TRẮNG
 # =============================
 chon_menu = option_menu(
     menu_title=None,
@@ -299,10 +288,29 @@ chon_menu = option_menu(
     default_index=0,
     orientation="horizontal",
     styles={
-        "container": {"padding": "0!important", "background-color": "white", "border-radius": "50px", "box-shadow": "0 5px 15px rgba(0,0,0,0.05)", "border": "1px solid #e0e0e0", "max-width": "800px", "margin": "0 auto 30px auto"},
+        "container": {
+            "padding": "0!important",
+            "background-color": "transparent",  # Loại bỏ nền trắng
+            "border": "none",                   # Bỏ viền
+            "box-shadow": "none",                # Bỏ bóng
+            "max-width": "800px",
+            "margin": "0 auto 30px auto"
+        },
         "icon": {"color": "#2e7d32", "font-size": "1.2rem"},
-        "nav-link": {"font-size": "1rem", "text-align": "center", "margin": "0 5px", "padding": "10px 20px", "border-radius": "30px", "color": "#333"},
-        "nav-link-selected": {"background-color": "#2e7d32", "color": "white", "font-weight": "600"},
+        "nav-link": {
+            "font-size": "1rem",
+            "text-align": "center",
+            "margin": "0 5px",
+            "padding": "10px 20px",
+            "border-radius": "30px",
+            "color": "#333",
+            "background-color": "transparent"    # Đảm bảo nền trong suốt cho link
+        },
+        "nav-link-selected": {
+            "background-color": "#2e7d32",
+            "color": "white",
+            "font-weight": "600"
+        },
     }
 )
 
