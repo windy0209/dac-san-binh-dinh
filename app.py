@@ -359,9 +359,9 @@ def chuan_hoa_sdt(sdt):
 if chon_menu == "🏠 Trang Chủ":
     st.markdown("<h1 style='text-align:center;color:#2e7d32;'>🏯 Tinh Hoa Ẩm Thực Bình Định</h1>", unsafe_allow_html=True)
     c1, c2, c3 = st.columns(3)
-    c1.success("🌿 **Sạch & Tươi**\n\n100% Tự nhiên.")
-    c2.success("🚚 **Giao Nhanh**\n\nToàn quốc.")
-    c3.info("💝 **Quà Tặng**\n\nĐóng gói sang trọng.")
+    c1.success("🌿 **SẠCH & TƯƠI MỖI NGÀY**\n\n100% nguyên liệu tự nhiên – không chất bảo quản. Tươi mới như vừa thu hoạch, an tâm cho cả gia đình.")
+    c2.success("🚚 **GIAO NHANH TOÀN QUỐC**\n\nĐóng gói kỹ lưỡng – vận chuyển hỏa tốc. Nhận hàng nhanh, vẫn giữ trọn độ tươi ngon.")
+    c3.info("💝 **QUÀ TẶNG SANG TRỌNG**\n\nThiết kế tinh tế – sẵn sàng biếu tặng. Trao quà đẹp mắt, gửi trọn tâm ý.")
 
     st.markdown("<h3 style='color: #2e7d32;'>🔥 Đặc Sản Đang Bán Chạy</h3>", unsafe_allow_html=True)
     
@@ -708,3 +708,4 @@ elif chon_menu == "📊 Quản Trị":
                     st.session_state.logo_url = moi
                     st.success("Đã đổi Logo!"); time.sleep(1); st.rerun()
                 except: st.error("Lỗi: Không tìm thấy dòng 'Logo' trong Sheet!")
+
