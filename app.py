@@ -72,24 +72,33 @@ def tai_logo_tu_sheet():
 tai_logo_tu_sheet()
 
 # =============================
-# 4. CSS TÙY CHỈNH GIAO DIỆN (TỐI ƯU MOBILE)
+# 4. CSS TÙY CHỈNH GIAO DIỆN (TỐI ƯU MOBILE) + BACKGROUND HEADER
 # =============================
 st.markdown("""
 <style>
     .stApp { background-color: #f8fbf8; }
     
-    /* Header ngang */
+    /* Header ngang với background hình ảnh */
     .header-container {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        background: white;
+        background-image: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url('https://raw.githubusercontent.com/windy0209/dac-san-binh-dinh/main/bg-header.png');
+        background-size: cover;
+        background-position: center;
+        background-blend-mode: overlay;
         padding: 10px 30px;
         border-radius: 60px;
         margin: 20px auto 10px auto;
         max-width: 1300px;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-        border: 1px solid #e0e0e0;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        border: 1px solid rgba(255,255,255,0.2);
+        color: white; /* Đảm bảo chữ trên nền tối */
+    }
+    /* Tùy chỉnh lại màu chữ trong header để phù hợp với nền */
+    .header-container h2, .header-container p, .header-container div {
+        color: white !important;
+        text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
     }
     .header-logo img { height: 60px; width: auto; }
     .header-info {
@@ -102,8 +111,10 @@ st.markdown("""
         align-items: center;
         gap: 5px;
     }
-    .hotline { color: #d32f2f; font-weight: bold; }
-    .zalo { color: #0068ff; font-weight: bold; }
+    /* Điều chỉnh màu hotline, zalo nếu cần */
+    .hotline, .zalo {
+        color: white !important;
+    }
     .qr-code img { height: 50px; width: auto; border-radius: 8px; }
     
     /* Slider Trang chủ */
@@ -258,41 +269,25 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-    /* Background cho header */
-    .header-container {
-        background-image: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url('https://raw.githubusercontent.com/windy0209/dac-san-binh-dinh/main/bg-header.png');
-        background-size: cover;
-        background-position: center;
-        background-blend-mode: overlay;
-        color: white; /* Đảm bảo chữ trên nền tối */
-    }
-    /* Tùy chỉnh lại màu chữ trong header để phù hợp với nền */
-    .header-container h2, .header-container p, .header-container div {
-        color: white !important;
-        text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
-    }
-    /* Điều chỉnh màu hotline, zalo nếu cần */
-    .hotline, .zalo {
-        color: white !important;
-    }
-
 # =============================
-# 5. HEADER NGANG (LOGO, HOTLINE, ZALO, QR CODE)
+# 5. HEADER NGANG (LOGO, HOTLINE, ZALO, QR CODE) - SỬ DỤNG CLASS header-container
 # =============================
-col1, col2, col3 = st.columns([1, 2, 1])
-with col1:
-    st.image(st.session_state.logo_url, width=120)
-with col2:
-    st.markdown("<h2 style='text-align: center; color: #2e7d32; margin: 0;'>XỨ NẪU STORE</h2>", unsafe_allow_html=True)
-    st.markdown("<p style='text-align: center; color: #666;'>Đặc sản Bình Định - Giao hàng toàn quốc</p>", unsafe_allow_html=True)
-with col3:
-    st.markdown("""
-    <div style='text-align: right;'>
-        <div style='color: #d32f2f; font-weight: bold;'>📞 0932.642.376</div>
-        <div style='color: #0068ff; font-weight: bold;'>💬 Zalo: 0932.642.376</div>
-        <img src='https://raw.githubusercontent.com/windy0209/dac-san-binh-dinh/main/qrcode.png' width='60' style='border-radius: 8px; margin-top: 5px;'>
+st.markdown(f"""
+<div class="header-container">
+    <div class="header-logo">
+        <img src="{st.session_state.logo_url}" width="120">
     </div>
-    """, unsafe_allow_html=True)
+    <div style="text-align: center;">
+        <h2 style="margin: 0;">XỨ NẪU STORE</h2>
+        <p style="margin: 0;">Đặc sản Bình Định - Giao hàng toàn quốc</p>
+    </div>
+    <div style="text-align: right;">
+        <div class="hotline">📞 0932.642.376</div>
+        <div class="zalo">💬 Zalo: 0932.642.376</div>
+        <img src="https://raw.githubusercontent.com/windy0209/dac-san-binh-dinh/main/qrcode.png" width="60" style="border-radius: 8px; margin-top: 5px;">
+    </div>
+</div>
+""", unsafe_allow_html=True)
 
 st.markdown("---")  # Đường kẻ phân cách
 
@@ -357,6 +352,7 @@ if chon_menu == "🏠 Trang Chủ":
                     # Thêm style màu xanh dương cho tên sản phẩm và giá
                     slider_content += f'<div class="slide-item"><img src="{img}"><p style="font-weight:600;margin:10px 0 0 0; color: #0066cc;">{row["Sản phẩm"]}</p><p class="gia-ban" style="color: #0066cc;">{row["Giá"]:,}đ</p></div>'
             st.markdown(f'<div class="slider-container"><div class="slide-track">{slider_content}</div></div>', unsafe_allow_html=True)
+
 # ---- CỬA HÀNG ----
 elif chon_menu == "🛍️ Cửa Hàng":
     st.markdown("<h2 style='text-align:center; color:#2e7d32;'>🌟 Danh Sách Sản Phẩm</h2>", unsafe_allow_html=True)
@@ -413,7 +409,7 @@ elif chon_menu == "🛍️ Cửa Hàng":
                         st.markdown('</div>', unsafe_allow_html=True)
                         st.write("")
 
-# ---- GIỎ HÀNG (ĐÃ CHỈNH MÀU) ----
+# ---- GIỎ HÀNG ----
 elif chon_menu == "🛒 Giỏ Hàng":
     # Tiêu đề chính màu xanh lá
     st.markdown("<h1 style='color: #2e7d32;'>🛒 Giỏ Hàng</h1>", unsafe_allow_html=True)
@@ -541,10 +537,3 @@ elif chon_menu == "📞 Thông Tin":
     with col_map:
         toa_do = pd.DataFrame({'lat': [13.8930853], 'lon': [109.1002733]})
         st.map(toa_do, zoom=14)
-
-
-
-
-
-
-
