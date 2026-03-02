@@ -281,10 +281,9 @@ st.markdown(f"""
         <h2 style="margin: 0;">XỨ NẪU STORE</h2>
         <p style="margin: 5px 0 0 0;">Đặc sản Bình Định - Giao hàng toàn quốc</p>
     </div>
-    <div style="text-align: right;">
-        <div style="font-weight: bold;">📞 0932.642.376</div>
-        <div style="font-weight: bold;">💬 Zalo: 0932.642.376</div>
-        <img src="https://raw.githubusercontent.com/windy0209/dac-san-binh-dinh/main/qrcode.png" width="70" style="border-radius: 8px; margin-top: 5px;">
+    <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 8px;">
+    <a href="tel:0932642376" style="background-color: #2e7d32; color: white; padding: 8px 15px; border-radius: 30px; font-weight: bold; text-decoration: none;">📞 Gọi</a>
+    <a href="https://zalo.me/0932642376" target="_blank" style="background-color: #0084ff; color: white; padding: 8px 15px; border-radius: 30px; font-weight: bold; text-decoration: none;">💬 Zalo</a>
     </div>
 </div>
 """, unsafe_allow_html=True)
@@ -781,5 +780,6 @@ st.markdown("""
     </a>
 </div>
 """, unsafe_allow_html=True)
+
 
 
