@@ -284,7 +284,7 @@ st.markdown(f"""
     <div style="text-align: right;">
         <div style="font-weight: bold;">📞 0932.642.376</div>
         <div style="font-weight: bold;">💬 Zalo: 0932.642.376</div>
-        <img src="https://raw.githubusercontent.com/windy0209/dac-san-binh-dinh/main/qrcode.png" width="70" style="border-radius: 8px; margin-top: 5px;">
+        
     </div>
 </div>
 """, unsafe_allow_html=True)
@@ -781,3 +781,4 @@ st.markdown("""
     </a>
 </div>
 """, unsafe_allow_html=True)
+
