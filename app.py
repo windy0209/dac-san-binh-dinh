@@ -728,20 +728,31 @@ st.markdown("""
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-    background-color: #2e7d32; /* xanh lá */
+    padding: 12px 20px;
+    border-radius: 50px; /* bo tròn nhưng vẫn đủ rộng để chứa text */
+    background-color: #2e7d32;
     color: white;
-    font-size: 30px;
+    font-size: 18px;
+    font-weight: 600;
     box-shadow: 0 6px 15px rgba(0,0,0,0.3);
     transition: all 0.3s ease;
     text-decoration: none;
     border: 2px solid white;
+    gap: 10px;
+    min-width: 160px; /* đủ rộng cho text */
+}
+.floating-buttons a i {
+    font-size: 24px;
 }
 .floating-buttons a:hover {
-    transform: scale(1.15);
-    background-color: #f39c12; /* vàng cam khi hover */
+    transform: scale(1.05);
+    background-color: #f39c12;
+}
+/* Zalo logo custom (nếu muốn dùng ảnh thay icon) */
+.zalo-logo {
+    width: 28px;
+    height: 28px;
+    object-fit: contain;
 }
 @media (max-width: 768px) {
     .floating-buttons {
@@ -749,15 +760,24 @@ st.markdown("""
         right: 20px;
     }
     .floating-buttons a {
-        width: 55px;
-        height: 55px;
-        font-size: 26px;
+        padding: 8px 16px;
+        font-size: 16px;
+        min-width: 140px;
+    }
+    .floating-buttons a i {
+        font-size: 20px;
     }
 }
 </style>
 <div class="floating-buttons">
-    <a href="tel:0932642376" class="phone" title="Gọi ngay"><i class="fas fa-phone-alt"></i></a>
-    <a href="https://zalo.me/0932642376" class="zalo" target="_blank" title="Chat Zalo"><i class="fas fa-comment-dots"></i></a>
+    <a href="tel:0932642376" class="phone">
+        <i class="fas fa-phone-alt"></i> 0932.642.376
+    </a>
+    <a href="https://zalo.me/0932642376" class="zalo" target="_blank">
+        <!-- Dùng icon chat mặc định, hoặc thay bằng logo Zalo dạng ảnh -->
+        <i class="fas fa-comment-dots"></i> Chat Zalo
+        <!-- Nếu muốn dùng logo Zalo chính xác, bỏ comment dòng dưới và xóa dòng icon -->
+        <!-- <img src="https://upload.wikimedia.org/wikipedia/commons/9/91/Icon_of_Zalo.svg" class="zalo-logo"> Zalo -->
+    </a>
 </div>
 """, unsafe_allow_html=True)
-
