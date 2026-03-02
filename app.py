@@ -274,70 +274,122 @@ st.markdown("""
 # =============================
 st.markdown(f"""
 <style>
-    /* Font chữ đẹp hơn (Google Fonts) */
     @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap');
     
     .header-container {{
         font-family: 'Montserrat', sans-serif;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background-image: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url('https://raw.githubusercontent.com/windy0209/dac-san-binh-dinh/main/bg-header.png');
+        background-size: cover;
+        background-position: center;
+        padding: 20px 40px;
+        min-height: 180px;
+        border-radius: 60px;
+        margin: 20px auto 10px auto;
+        max-width: 1300px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        color: white;
     }}
     
-    /* Nút trong header */
+    .header-logo img {{
+        height: 80px;
+        width: auto;
+    }}
+    
+    .header-center {{
+        text-align: center;
+    }}
+    
+    .header-center h2 {{
+        margin: 0;
+        font-weight: 700;
+        text-shadow: 2px 2px 5px rgba(0,0,0,0.5);
+        font-size: 1.8rem;
+    }}
+    
+    .header-center p {{
+        margin: 5px 0 0 0;
+        font-size: 1rem;
+        opacity: 0.95;
+    }}
+    
+    .header-center .slogan {{
+        font-size: 0.9rem;
+        font-style: italic;
+        opacity: 0.9;
+        margin-top: 0;
+    }}
+    
+    .header-right {{
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+    }}
+    
+    .hotline-text {{
+        font-size: 1.2rem;
+        font-weight: 600;
+        margin-bottom: 10px;
+        text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
+        letter-spacing: 0.5px;
+    }}
+    
+    .btn-group {{
+        display: flex;
+        gap: 12px;
+    }}
+    
     .header-btn {{
         display: inline-block;
-        padding: 8px 18px;
+        padding: 8px 20px;
         border-radius: 40px;
         font-weight: 600;
         text-decoration: none;
         color: white;
         transition: all 0.3s ease;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        box-shadow: 0 4px 10px rgba(0,0,0,0.2);
         border: 1px solid rgba(255,255,255,0.3);
         font-size: 0.95rem;
     }}
+    
     .call-btn {{
         background: linear-gradient(145deg, #2e7d32, #1b5e20);
     }}
+    
     .call-btn:hover {{
         background: linear-gradient(145deg, #1b5e20, #2e7d32);
         transform: translateY(-2px);
         box-shadow: 0 8px 18px rgba(46,125,50,0.4);
     }}
+    
     .zalo-btn {{
         background: linear-gradient(145deg, #0084ff, #0066cc);
     }}
+    
     .zalo-btn:hover {{
         background: linear-gradient(145deg, #0066cc, #0084ff);
         transform: translateY(-2px);
         box-shadow: 0 8px 18px rgba(0,132,255,0.4);
     }}
     
-    /* Số điện thoại */
-    .hotline-text {{
-        font-size: 1.1rem;
-        font-weight: 600;
-        margin-bottom: 8px;
-        color: white;
-        text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
-        letter-spacing: 0.5px;
-    }}
-    
-    /* Responsive cho mobile */
     @media (max-width: 768px) {{
         .header-container {{
-            flex-wrap: wrap;
-            justify-content: center;
-            text-align: center;
+            flex-direction: column;
+            padding: 20px;
+            min-height: auto;
+            border-radius: 30px;
         }}
         .header-logo {{
             margin-bottom: 10px;
         }}
-        .header-info-right {{
-            align-items: center !important;
+        .header-right {{
+            align-items: center;
             margin-top: 15px;
         }}
-        .header-btn {{
-            padding: 6px 12px;
-            font-size: 0.9rem;
+        .btn-group {{
+            justify-content: center;
         }}
     }}
 </style>
@@ -345,24 +397,20 @@ st.markdown(f"""
 <div class="header-container">
     <!-- Logo bên trái -->
     <div class="header-logo">
-        <img src="{st.session_state.logo_url}" alt="Logo Xứ Nẫu" style="height: 80px; width: auto;">
+        <img src="{st.session_state.logo_url}" alt="Logo Xứ Nẫu">
     </div>
     
-    <!-- Thông tin trung tâm -->
-    <div style="text-align: center;">
-        <h2 style="margin: 0; font-weight: 700; text-shadow: 2px 2px 5px rgba(0,0,0,0.5);">XỨ NẪU STORE</h2>
-        <p style="margin: 5px 0 0 0; font-size: 1rem; opacity: 0.95; font-weight: 400;">
-            🌿 Đặc sản Bình Định – Giao hàng toàn quốc
-        </p>
-        <p style="margin: 0; font-size: 0.9rem; font-style: italic; opacity: 0.9;">Tinh hoa ẩm thực đất võ</p>
+    <!-- Phần giữa: tên store + slogan -->
+    <div class="header-center">
+        <h2>XỨ NẪU STORE</h2>
+        <p>🌿 Đặc sản Bình Định – Giao hàng toàn quốc</p>
+        <p class="slogan">Tinh hoa ẩm thực đất võ</p>
     </div>
     
-    <!-- Khu vực liên hệ bên phải -->
-    <div class="header-info-right" style="display: flex; flex-direction: column; align-items: flex-end;">
-        <div class="hotline-text">
-            📞 0932.642.376
-        </div>
-        <div style="display: flex; gap: 12px;">
+    <!-- Bên phải: số hotline + nút gọi/zalo -->
+    <div class="header-right">
+        <div class="hotline-text">📞 0932.642.376</div>
+        <div class="btn-group">
             <a href="tel:0932642376" class="header-btn call-btn">📞 Gọi ngay</a>
             <a href="https://zalo.me/0932642376" target="_blank" class="header-btn zalo-btn">💬 Chat Zalo</a>
         </div>
@@ -861,6 +909,7 @@ st.markdown("""
     </a>
 </div>
 """, unsafe_allow_html=True)
+
 
 
 
