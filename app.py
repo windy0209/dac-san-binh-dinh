@@ -270,12 +270,13 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # =============================
-# 5. HEADER NGANG (CẢI TIẾN CHUYÊN NGHIỆP)
+# 5. HEADER CHUYÊN NGHIỆP (KHÔNG LỖI)
 # =============================
 st.markdown(f"""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap');
     
+    /* Container chính */
     .header-container {{
         font-family: 'Montserrat', sans-serif;
         display: flex;
@@ -285,7 +286,7 @@ st.markdown(f"""
         background-size: cover;
         background-position: center;
         padding: 20px 40px;
-        min-height: 180px;
+        min-height: 160px;
         border-radius: 60px;
         margin: 20px auto 10px auto;
         max-width: 1300px;
@@ -293,87 +294,87 @@ st.markdown(f"""
         color: white;
     }}
     
+    /* Logo */
     .header-logo img {{
         height: 80px;
         width: auto;
     }}
     
+    /* Phần giữa: Tên store + slogan */
     .header-center {{
         text-align: center;
     }}
-    
     .header-center h2 {{
         margin: 0;
         font-weight: 700;
         text-shadow: 2px 2px 5px rgba(0,0,0,0.5);
-        font-size: 1.8rem;
+        font-size: 2rem;
+        letter-spacing: 1px;
     }}
-    
     .header-center p {{
-        margin: 5px 0 0 0;
-        font-size: 1rem;
-        opacity: 0.95;
+        margin: 5px 0 0;
+        font-size: 1.1rem;
+        font-weight: 400;
+        text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
     }}
-    
     .header-center .slogan {{
-        font-size: 0.9rem;
+        font-size: 0.95rem;
         font-style: italic;
-        opacity: 0.9;
-        margin-top: 0;
+        opacity: 0.95;
+        margin-top: 3px;
     }}
     
+    /* Phần bên phải: hotline + nút */
     .header-right {{
         display: flex;
         flex-direction: column;
         align-items: flex-end;
     }}
-    
     .hotline-text {{
-        font-size: 1.2rem;
-        font-weight: 600;
-        margin-bottom: 10px;
-        text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
-        letter-spacing: 0.5px;
+        font-size: 1.3rem;
+        font-weight: 700;
+        margin-bottom: 8px;
+        text-shadow: 1px 1px 4px rgba(0,0,0,0.5);
+        background: rgba(0,0,0,0.2);
+        padding: 5px 15px;
+        border-radius: 40px;
+        backdrop-filter: blur(2px);
     }}
-    
     .btn-group {{
         display: flex;
         gap: 12px;
     }}
-    
     .header-btn {{
         display: inline-block;
-        padding: 8px 20px;
+        padding: 8px 22px;
         border-radius: 40px;
         font-weight: 600;
         text-decoration: none;
         color: white;
-        transition: all 0.3s ease;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        transition: 0.3s;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
         border: 1px solid rgba(255,255,255,0.3);
-        font-size: 0.95rem;
+        font-size: 1rem;
+        backdrop-filter: blur(4px);
     }}
-    
     .call-btn {{
         background: linear-gradient(145deg, #2e7d32, #1b5e20);
     }}
-    
     .call-btn:hover {{
         background: linear-gradient(145deg, #1b5e20, #2e7d32);
-        transform: translateY(-2px);
-        box-shadow: 0 8px 18px rgba(46,125,50,0.4);
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(46,125,50,0.5);
     }}
-    
     .zalo-btn {{
         background: linear-gradient(145deg, #0084ff, #0066cc);
     }}
-    
     .zalo-btn:hover {{
         background: linear-gradient(145deg, #0066cc, #0084ff);
-        transform: translateY(-2px);
-        box-shadow: 0 8px 18px rgba(0,132,255,0.4);
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(0,132,255,0.5);
     }}
     
+    /* Responsive */
     @media (max-width: 768px) {{
         .header-container {{
             flex-direction: column;
@@ -384,30 +385,41 @@ st.markdown(f"""
         .header-logo {{
             margin-bottom: 10px;
         }}
+        .header-center h2 {{
+            font-size: 1.6rem;
+        }}
+        .header-center p {{
+            font-size: 1rem;
+        }}
         .header-right {{
             align-items: center;
             margin-top: 15px;
+            width: 100%;
         }}
         .btn-group {{
             justify-content: center;
         }}
+        .hotline-text {{
+            font-size: 1.2rem;
+        }}
     }}
 </style>
 
+<!-- HEADER -->
 <div class="header-container">
     <!-- Logo bên trái -->
     <div class="header-logo">
         <img src="{st.session_state.logo_url}" alt="Logo Xứ Nẫu">
     </div>
-    
-    <!-- Phần giữa: tên store + slogan -->
+
+    <!-- Phần giữa: Tên store và slogan (đã sửa theo ý bạn) -->
     <div class="header-center">
         <h2>XỨ NẪU STORE</h2>
         <p>🌿 Đặc sản Bình Định – Giao hàng toàn quốc</p>
-        <p class="slogan">Tinh hoa ẩm thực đất võ</p>
+        <div class="slogan">✨ Tinh hoa ẩm thực đất võ ✨</div>
     </div>
-    
-    <!-- Bên phải: số hotline + nút gọi/zalo -->
+
+    <!-- Bên phải: hotline + nút -->
     <div class="header-right">
         <div class="hotline-text">📞 0932.642.376</div>
         <div class="btn-group">
@@ -909,6 +921,7 @@ st.markdown("""
     </a>
 </div>
 """, unsafe_allow_html=True)
+
 
 
 
