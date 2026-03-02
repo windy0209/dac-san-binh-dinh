@@ -709,3 +709,55 @@ elif chon_menu == "📊 Quản Trị":
                     st.success("Đã đổi Logo!"); time.sleep(1); st.rerun()
                 except: st.error("Lỗi: Không tìm thấy dòng 'Logo' trong Sheet!")
 
+# =============================
+# 9. FLOATING BUTTONS (GỌI & ZALO)
+# =============================
+st.markdown("""
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<style>
+.floating-buttons {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+.floating-buttons a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background-color: #2e7d32; /* xanh lá */
+    color: white;
+    font-size: 30px;
+    box-shadow: 0 6px 15px rgba(0,0,0,0.3);
+    transition: all 0.3s ease;
+    text-decoration: none;
+    border: 2px solid white;
+}
+.floating-buttons a:hover {
+    transform: scale(1.15);
+    background-color: #f39c12; /* vàng cam khi hover */
+}
+@media (max-width: 768px) {
+    .floating-buttons {
+        bottom: 20px;
+        right: 20px;
+    }
+    .floating-buttons a {
+        width: 55px;
+        height: 55px;
+        font-size: 26px;
+    }
+}
+</style>
+<div class="floating-buttons">
+    <a href="tel:0932642376" class="phone" title="Gọi ngay"><i class="fas fa-phone-alt"></i></a>
+    <a href="https://zalo.me/0932642376" class="zalo" target="_blank" title="Chat Zalo"><i class="fas fa-comment-dots"></i></a>
+</div>
+""", unsafe_allow_html=True)
+
