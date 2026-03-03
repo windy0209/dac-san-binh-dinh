@@ -639,10 +639,10 @@ elif chon_menu == "🛒 Giỏ Hàng":
                 ho_ten = st.text_input("Họ tên *")
                 so_dt = st.text_input("Số điện thoại *", placeholder="VD: 0932642376")
                 
-                # --- Địa chỉ với dropdown (có fallback nhập tay) ---
+                # --- Địa chỉ với dropdown (đơn giản hóa) ---
                 st.subheader("🏠 Địa chỉ nhận hàng")
                 
-                # Dữ liệu mẫu (có thể thay bằng file JSON sau)
+                # Dữ liệu mẫu
                 tinh_thanh_list = ["-- Chọn tỉnh/thành --", "Hồ Chí Minh", "Hà Nội", "Bình Định", "Đà Nẵng"]
                 quan_huyen_dict = {
                     "Hồ Chí Minh": ["-- Chọn quận/huyện --", "Quận 1", "Quận 2", "Quận 3", "Quận 4", "Quận 5", "Quận 6", "Quận 7", "Quận 8", "Quận 9", "Quận 10", "Quận 11", "Quận 12", "Bình Tân", "Bình Thạnh", "Gò Vấp", "Phú Nhuận", "Tân Bình", "Tân Phú", "Thủ Đức", "Củ Chi", "Hóc Môn", "Bình Chánh", "Nhà Bè", "Cần Giờ"],
@@ -651,7 +651,7 @@ elif chon_menu == "🛒 Giỏ Hàng":
                     "Đà Nẵng": ["-- Chọn quận/huyện --", "Hải Châu", "Thanh Khê", "Sơn Trà", "Ngũ Hành Sơn", "Liên Chiểu", "Cẩm Lệ", "Hòa Vang"]
                 }
                 
-                # Dictionary phường/xã chỉ có dữ liệu cho một số quận (có thể bổ sung sau)
+                    # Dictionary phường/xã chỉ có dữ liệu cho một số quận (có thể bổ sung sau)
                 phuong_xa_dict = {
                     "Quận 1": ["-- Chọn phường/xã --", "Phường Bến Nghé", "Phường Bến Thành", "Phường Cầu Kho", "Phường Cầu Ông Lãnh", "Phường Cô Giang", "Phường Đa Kao", "Phường Nguyễn Cư Trinh", "Phường Nguyễn Thái Bình", "Phường Phạm Ngũ Lão", "Phường Tân Định"],
                     "Quận 2": ["-- Chọn phường/xã --", "Phường An Khánh", "Phường An Lợi Đông", "Phường An Phú", "Phường Bình An", "Phường Bình Khánh", "Phường Bình Trưng Đông", "Phường Bình Trưng Tây", "Phường Cát Lái", "Phường Thạnh Mỹ Lợi", "Phường Thảo Điền"],
@@ -681,46 +681,40 @@ elif chon_menu == "🛒 Giỏ Hàng":
                 with col1:
                     tinh = st.selectbox("Tỉnh/Thành phố *", options=tinh_thanh_list, index=0)
                 with col2:
-                    # Xử lý quận/huyện
-                    if tinh != "-- Chọn tỉnh/thành --":
-                        # Lấy danh sách quận/huyện cho tỉnh đã chọn, nếu không có thì dùng danh sách rỗng
-                        quan_options = quan_huyen_dict.get(tinh, [])
-                        if quan_options:
-                            # Nếu có dữ liệu, hiển thị selectbox
-                            huyen = st.selectbox("Quận/Huyện *", options=quan_options, index=0)
-                            huyen_text = huyen if huyen != "-- Chọn quận/huyện --" else ""
-                        else:
-                            # Nếu không có dữ liệu, cho nhập tay
-                            st.caption(f"Không có dữ liệu quận/huyện cho {tinh}, vui lòng nhập tay")
-                            huyen_text = st.text_input("Quận/Huyện *", placeholder="Nhập tên quận/huyện")
+                    # Luôn tạo selectbox cho quận/huyện, disable nếu chưa chọn tỉnh hoặc không có dữ liệu
+                    if tinh != "-- Chọn tỉnh/thành --" and tinh in quan_huyen_dict:
+                        quan_options = quan_huyen_dict[tinh]
+                        huyen = st.selectbox("Quận/Huyện *", options=quan_options, index=0)
+                        huyen_text = huyen if huyen != "-- Chọn quận/huyện --" else ""
                     else:
-                        # Chưa chọn tỉnh, disable
+                        # Nếu chưa chọn tỉnh hoặc không có dữ liệu, hiển thị selectbox rỗng và disable
                         st.selectbox("Quận/Huyện *", options=["-- Chọn quận/huyện --"], index=0, disabled=True)
                         huyen_text = ""
+                        if tinh != "-- Chọn tỉnh/thành --" and tinh not in quan_huyen_dict:
+                            st.caption(f"Không có dữ liệu quận/huyện cho {tinh}, vui lòng nhập tay bên dưới")
+                            # Cho phép nhập tay
+                            huyen_text = st.text_input("Nhập tên quận/huyện", key="huyen_tay")
                 
                 col3, col4 = st.columns(2)
                 with col3:
-                    # Xử lý phường/xã
-                    if tinh != "-- Chọn tỉnh/thành --" and huyen_text and huyen_text != "-- Chọn quận/huyện --":
-                        # Kiểm tra xem quận đã chọn có trong dictionary phường/xã không
-                        if huyen_text in phuong_xa_dict:
-                            xa_options = phuong_xa_dict[huyen_text]
-                            xa = st.selectbox("Phường/Xã *", options=xa_options, index=0)
-                            xa_text = xa if xa != "-- Chọn phường/xã --" else ""
-                        else:
-                            st.caption(f"Không có dữ liệu phường/xã cho {huyen_text}, vui lòng nhập tay")
-                            xa_text = st.text_input("Phường/Xã *", placeholder="Nhập tên phường/xã")
+                    # Xử lý phường/xã tương tự
+                    if huyen_text and huyen_text != "-- Chọn quận/huyện --" and huyen_text in phuong_xa_dict:
+                        xa_options = phuong_xa_dict[huyen_text]
+                        xa = st.selectbox("Phường/Xã *", options=xa_options, index=0)
+                        xa_text = xa if xa != "-- Chọn phường/xã --" else ""
                     else:
-                        # Chưa chọn đủ, disable
                         st.selectbox("Phường/Xã *", options=["-- Chọn phường/xã --"], index=0, disabled=True)
                         xa_text = ""
+                        if huyen_text and huyen_text != "-- Chọn quận/huyện --" and huyen_text not in phuong_xa_dict:
+                            st.caption(f"Không có dữ liệu phường/xã cho {huyen_text}, vui lòng nhập tay")
+                            xa_text = st.text_input("Nhập tên phường/xã", key="xa_tay")
                 
                 with col4:
                     so_nha = st.text_input("Số nhà, tên đường *", placeholder="VD: 123 Nguyễn Huệ")
                 
-                # Ghép địa chỉ hoàn chỉnh
+                # Ghép địa chỉ
                 dia_chi_day_du = ""
-                if tinh != "-- Chọn tỉnh/thành --" and huyen_text and huyen_text != "-- Chọn quận/huyện --" and xa_text and so_nha.strip():
+                if tinh != "-- Chọn tỉnh/thành --" and huyen_text and xa_text and so_nha.strip():
                     dia_chi_day_du = f"{so_nha.strip()}, {xa_text}, {huyen_text}, {tinh}"
                 
                 st.subheader("🚚 Vận chuyển")
@@ -1056,3 +1050,4 @@ st.markdown("""
     </a>
 </div>
 """, unsafe_allow_html=True)
+
