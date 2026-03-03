@@ -650,7 +650,8 @@ elif chon_menu == "🛒 Giỏ Hàng":
             # --- Đọc dữ liệu địa chỉ từ GitHub ---
             @st.cache_data
             def load_dia_chi():
-                url = "https://raw.githubusercontent.com/windy0209/dac-san-binh-dinh/main/dia_chi.json"
+                # url = "https://raw.githubusercontent.com/windy0209/dac-san-binh-dinh/main/dia_chi.json"
+                  url = "https://raw.githubusercontent.com/windy0209/dac-san-binh-dinh/main/dia_chi.json"
                 try:
                     response = requests.get(url)
                     response.raise_for_status()
@@ -1120,6 +1121,7 @@ st.markdown("""
     </a>
 </div>
 """, unsafe_allow_html=True)
+
 
 
 
