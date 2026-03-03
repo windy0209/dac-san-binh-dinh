@@ -6,6 +6,7 @@ from datetime import datetime
 import pandas as pd
 import time
 import re
+import random
 
 # =============================
 # 1. CẤU HÌNH TRANG & ẨN TOOLBAR
@@ -37,6 +38,17 @@ if "gio_hang" not in st.session_state:
 
 if "logo_url" not in st.session_state:
     st.session_state.logo_url = "https://raw.githubusercontent.com/windy0209/dac-san-binh-dinh/main/logo2.png"
+
+# Các state mới cho hiển thị đơn hàng sau khi đặt
+if "hien_thi_don_hang" not in st.session_state:
+    st.session_state.hien_thi_don_hang = False
+
+if "don_hang_vua_dat" not in st.session_state:
+    st.session_state.don_hang_vua_dat = {}
+
+# Quản lý tab hiện tại
+if "tab_index" not in st.session_state:
+    st.session_state.tab_index = 0
 
 # =============================
 # 3. KẾT NỐI GOOGLE SHEETS
@@ -87,8 +99,8 @@ st.markdown("""
         background-size: cover;
         background-position: center;
         background-blend-mode: overlay;
-        padding: 20px 40px;  /* Tăng padding để cao hơn */
-        min-height: 180px;    /* Chiều cao tối thiểu */
+        padding: 20px 40px;
+        min-height: 180px;
         border-radius: 60px;
         margin: 20px auto 10px auto;
         max-width: 1300px;
@@ -96,7 +108,7 @@ st.markdown("""
         border: 1px solid rgba(255,255,255,0.2);
         color: white;
     }
-    .header-logo img { height: 80px; width: auto; }  /* Logo lớn hơn */
+    .header-logo img { height: 80px; width: auto; }
     .header-info {
         display: flex;
         gap: 30px;
@@ -107,7 +119,6 @@ st.markdown("""
         align-items: center;
         gap: 5px;
     }
-    /* Điều chỉnh màu chữ trong header để nổi trên nền tối */
     .header-container h2, .header-container p, .header-container div {
         color: white !important;
         text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
@@ -191,9 +202,72 @@ st.markdown("""
     /* Điều chỉnh khoảng cách chung */
     .block-container { padding-top: 0; }
 
+    /* Card thông tin đơn hàng (giống hình) */
+    .don-hang-card {
+        background: white;
+        border-radius: 25px;
+        padding: 30px;
+        box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+        max-width: 700px;
+        margin: 0 auto;
+        border: 1px solid #e0f2e0;
+    }
+    .don-hang-header {
+        text-align: center;
+        margin-bottom: 25px;
+    }
+    .don-hang-header h2 {
+        color: #2e7d32;
+        margin-bottom: 5px;
+    }
+    .don-hang-info {
+        background: #f0f8f0;
+        border-radius: 15px;
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+    .info-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 8px 0;
+        border-bottom: 1px dashed #c8e6c9;
+    }
+    .info-row:last-child {
+        border-bottom: none;
+    }
+    .info-label {
+        font-weight: 600;
+        color: #2e7d32;
+    }
+    .info-value {
+        color: #0066cc;
+        font-weight: 500;
+    }
+    table.don-hang-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 20px 0;
+    }
+    table.don-hang-table th {
+        background: #2e7d32;
+        color: white;
+        padding: 12px;
+        text-align: left;
+    }
+    table.don-hang-table td {
+        padding: 12px;
+        border-bottom: 1px solid #e0f2e0;
+    }
+    table.don-hang-table tr:last-child td {
+        border-bottom: none;
+    }
+    .total-row {
+        font-weight: 700;
+        background: #f0f8f0;
+    }
+    
     /* ===== RESPONSIVE CHO MOBILE ===== */
     @media only screen and (max-width: 768px) {
-        /* Tăng kích thước chữ tổng thể */
         body, p, div, span, .stMarkdown, .stText, .stButton>button {
             font-size: 16px !important;
         }
@@ -201,7 +275,6 @@ st.markdown("""
         h2 { font-size: 24px !important; }
         h3 { font-size: 20px !important; }
         
-        /* Header xếp dọc */
         .header-container {
             flex-direction: column;
             padding: 20px;
@@ -217,7 +290,6 @@ st.markdown("""
         }
         .header-info div { justify-content: center; }
         
-        /* MENU NGANG: cho phép cuộn ngang nếu quá dài */
         .stHorizontal {
             max-width: 100% !important;
             overflow-x: auto !important;
@@ -240,11 +312,9 @@ st.markdown("""
             margin: 0 3px !important;
         }
         
-        /* Slider: giảm kích thước ảnh */
         .slide-item { width: 160px; margin: 0 10px; }
         .slide-item img { width: 150px; height: 120px; }
         
-        /* Sản phẩm: 2 cột */
         .row-widget.stHorizontal > div {
             min-width: 48%;
         }
@@ -252,11 +322,10 @@ st.markdown("""
         .product-name { font-size: 1rem; height: 40px; }
         .gia-ban { font-size: 1.1rem !important; }
         
-        /* Điều chỉnh cột thông tin */
         .stColumns { gap: 10px; }
+        .don-hang-card { padding: 20px; }
     }
 
-    /* Màn hình rất nhỏ (dưới 480px) */
     @media only screen and (max-width: 480px) {
         .slide-item { width: 130px; }
         .slide-item img { width: 120px; height: 100px; }
@@ -289,13 +358,15 @@ st.markdown(f"""
 """, unsafe_allow_html=True)
 
 st.markdown("---")
+
 # =============================
-# 6. MENU NGANG (ĐÃ THÊM MỤC TRA CỨU)
+# 6. MENU NGANG (CÓ ĐIỀU KHIỂN TAB INDEX)
 # =============================
+tabs = ["🏠 Trang Chủ", "🛍️ Cửa Hàng", "🛒 Giỏ Hàng", "🔍 Tra Cứu Đơn Hàng", "📞 Thông Tin", "📊 Quản Trị"]
 chon_menu = option_menu(
     menu_title=None,
-    options=["🏠 Trang Chủ", "🛍️ Cửa Hàng", "🛒 Giỏ Hàng", "🔍 Tra Cứu Đơn Hàng", "📞 Thông Tin", "📊 Quản Trị"], 
-    default_index=0,
+    options=tabs,
+    default_index=st.session_state.tab_index,
     orientation="horizontal",
     styles={
         "container": {
@@ -324,6 +395,13 @@ chon_menu = option_menu(
     }
 )
 
+# Cập nhật tab_index nếu người dùng chọn menu khác
+if chon_menu != tabs[st.session_state.tab_index]:
+    st.session_state.tab_index = tabs.index(chon_menu)
+    # Nếu chuyển tab khác, tắt hiển thị đơn hàng (nếu đang hiển thị)
+    st.session_state.hien_thi_don_hang = False
+    st.rerun()
+
 # =============================
 # 7. HÀM LÀM SẠCH GIÁ, ĐỊNH DẠNG VÀ CHUẨN HÓA SĐT
 # =============================
@@ -350,11 +428,74 @@ def chuan_hoa_sdt(sdt):
         return None
 
 # =============================
-# 8. HIỂN THỊ NỘI DUNG THEO MENU
+# 8. HÀM HIỂN THỊ THÔNG TIN ĐƠN HÀNG (GIỐNG HÌNH)
+# =============================
+def hien_thi_thong_tin_don_hang():
+    don = st.session_state.don_hang_vua_dat
+    st.markdown(f"""
+    <div class="don-hang-card">
+        <div class="don-hang-header">
+            <h2>🎉 CẢM ƠN BẠN. ĐƠN HÀNG CỦA BẠN ĐÃ ĐƯỢC NHẬN.</h2>
+        </div>
+        <div class="don-hang-info">
+            <div class="info-row">
+                <span class="info-label">MÃ ĐƠN HÀNG:</span>
+                <span class="info-value">{don['ma_don']}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">NGÀY:</span>
+                <span class="info-value">{don['ngay']}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">TỔNG CỘNG:</span>
+                <span class="info-value">{format_vnd(don['tong_thanh_toan'])}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">PHƯƠNG THỨC THANH TOÁN:</span>
+                <span class="info-value">{don['phuong_thuc_tt']}</span>
+            </div>
+        </div>
+        <h3 style="color: #2e7d32;">Chi Tiết Đơn Hàng</h3>
+        <table class="don-hang-table">
+            <thead>
+                <tr><th>Sản phẩm</th><th>Số lượng</th><th>Đơn giá</th><th>Thành tiền</th></tr>
+            </thead>
+            <tbody>
+    """, unsafe_allow_html=True)
+    
+    for sp in don['san_pham']:
+        st.markdown(f"""
+        <tr>
+            <td>{sp['ten']}</td>
+            <td>{sp['so_luong']}</td>
+            <td>{format_vnd(sp['don_gia'])}</td>
+            <td>{format_vnd(sp['thanh_tien'])}</td>
+        </tr>
+        """, unsafe_allow_html=True)
+    
+    st.markdown(f"""
+            </tbody>
+            <tfoot>
+                <tr class="total-row"><td colspan="3" style="text-align:right;">Tổng tiền hàng:</td><td>{format_vnd(don['tong_hang'])}</td></tr>
+                <tr class="total-row"><td colspan="3" style="text-align:right;">Phí ship:</td><td>{format_vnd(don['phi_ship'])}</td></tr>
+                <tr class="total-row"><td colspan="3" style="text-align:right;">Tổng thanh toán:</td><td>{format_vnd(don['tong_thanh_toan'])}</td></tr>
+            </tfoot>
+        </table>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    if st.button("⬅ Tiếp tục mua sắm"):
+        st.session_state.hien_thi_don_hang = False
+        st.session_state.tab_index = 0  # Về trang chủ
+        st.rerun()
+
+# =============================
+# 9. HIỂN THỊ NỘI DUNG THEO MENU
 # =============================
 
 # ---- TRANG CHỦ ----
 if chon_menu == "🏠 Trang Chủ":
+    # ... (giữ nguyên code Trang Chủ)
     st.markdown("<h1 style='text-align:center;color:#2e7d32;'>🏯 Tinh Hoa Ẩm Thực Bình Định</h1>", unsafe_allow_html=True)
     c1, c2, c3 = st.columns(3)
     c1.success("🌿 **SẠCH & TƯƠI MỖI NGÀY**\n\n100% nguyên liệu tự nhiên – không chất bảo quản. Tươi mới như vừa thu hoạch, an tâm cho cả gia đình.")
@@ -368,7 +509,6 @@ if chon_menu == "🏠 Trang Chủ":
         data = ws.get_all_records()
         if data:
             df_slider = pd.DataFrame(data)
-            # Làm sạch giá
             df_slider["Giá"] = df_slider["Giá"].apply(clean_price)
             
             slider_content = ""
@@ -381,6 +521,7 @@ if chon_menu == "🏠 Trang Chủ":
 
 # ---- CỬA HÀNG ----
 elif chon_menu == "🛍️ Cửa Hàng":
+    # ... (giữ nguyên code Cửa Hàng)
     st.markdown("<h2 style='text-align:center; color:#2e7d32;'>🌟 Danh Sách Sản Phẩm</h2>", unsafe_allow_html=True)
     
     ws = ket_noi_sheet("SanPham")
@@ -390,10 +531,8 @@ elif chon_menu == "🛍️ Cửa Hàng":
             st.info("Hiện chưa có sản phẩm nào trong kho.")
         else:
             df_goc = pd.DataFrame(data)
-            # Làm sạch cột Giá
             df_goc["Giá"] = df_goc["Giá"].apply(clean_price)
 
-            # Bộ lọc tìm kiếm và giá
             with st.container():
                 col_search, col_filter = st.columns([2, 1])
                 with col_search:
@@ -425,7 +564,6 @@ elif chon_menu == "🛍️ Cửa Hàng":
                         st.markdown(f'<img src="{img}" style="border-radius: 15px; object-fit: cover; height: 180px; width: 100%; margin-bottom:12px;">', unsafe_allow_html=True)
                         
                         st.markdown(f'<div class="product-name" style="font-weight:700; height:50px; overflow:hidden;">{row["Sản phẩm"]}</div>', unsafe_allow_html=True)
-                        # Giá đã được làm sạch, định dạng VNĐ
                         gia_formatted = format_vnd(row["Giá"])
                         st.markdown(f'<div class="gia-ban" style="color:#2e7d32; font-size:1.3rem; font-weight:800; margin-bottom:5px;">{gia_formatted}</div>', unsafe_allow_html=True)
                         st.markdown(f'<div style="color:#2e7d32; font-size:0.9rem; margin-bottom:15px; font-weight:500;">📦 Còn lại: {row["Tồn kho"]}</div>', unsafe_allow_html=True)
@@ -441,64 +579,136 @@ elif chon_menu == "🛍️ Cửa Hàng":
                         st.markdown('</div>', unsafe_allow_html=True)
                         st.write("")
 
-# ---- GIỎ HÀNG (ĐÃ SỬA LỖI SĐT) ----
+# ---- GIỎ HÀNG (ĐÃ SỬA LỖI SĐT + BỔ SUNG CÁC TRƯỜNG MỚI) ----
 elif chon_menu == "🛒 Giỏ Hàng":
-    st.markdown("<h1 style='color: #2e7d32;'>🛒 Giỏ Hàng</h1>", unsafe_allow_html=True)
-    
-    if not st.session_state.gio_hang:
-        st.markdown("<p style='color: #0066cc; font-size: 1.1rem;'>⚠️ Giỏ hàng trống.</p>", unsafe_allow_html=True)
+    # Nếu đang hiển thị đơn hàng vừa đặt, ưu tiên hiển thị thông tin
+    if st.session_state.hien_thi_don_hang:
+        hien_thi_thong_tin_don_hang()
     else:
-        ws_sp = ket_noi_sheet("SanPham")
-        df_sp = pd.DataFrame(ws_sp.get_all_records())
-        df_sp["Giá"] = df_sp["Giá"].apply(clean_price)
+        st.markdown("<h1 style='color: #2e7d32;'>🛒 Giỏ Hàng</h1>", unsafe_allow_html=True)
         
-        tong, ds_order = 0, []
-        for id_sp, sl in st.session_state.gio_hang.items():
-            sp_rows = df_sp[df_sp['ID'].astype(str) == id_sp]
-            if not sp_rows.empty:
-                sp = sp_rows.iloc[0]
-                thanh_tien = sp['Giá'] * sl
-                tong += thanh_tien
-                ds_order.append(f"{sp['Sản phẩm']} x{sl}")
-                thanh_tien_formatted = format_vnd(thanh_tien)
-                st.markdown(f"<p style='color: #0066cc; font-size: 1.1rem;'>✅ {sp['Sản phẩm']} x{sl} - {thanh_tien_formatted}</p>", unsafe_allow_html=True)
-        
-        tong_formatted = format_vnd(tong)
-        st.markdown(f"<h3 style='color: #2e7d32;'>Tổng tiền: {tong_formatted}</h3>", unsafe_allow_html=True)
-        
-        with st.form("checkout"):
-            t = st.text_input("Họ tên *")
-            s = st.text_input("SĐT *", placeholder="VD: 0932642376")
-            d = st.text_area("Địa chỉ *")
-            if st.form_submit_button("XÁC NHẬN ĐẶT HÀNG"):
-                if t and s and d:
-                    # Chuẩn hóa số điện thoại
-                    sdt_chuan = chuan_hoa_sdt(s)
-                    if sdt_chuan is None:
-                        st.error("Số điện thoại không hợp lệ! Vui lòng nhập 10 số (có thể có số 0 ở đầu).")
+        if not st.session_state.gio_hang:
+            st.markdown("<p style='color: #0066cc; font-size: 1.1rem;'>⚠️ Giỏ hàng trống.</p>", unsafe_allow_html=True)
+        else:
+            ws_sp = ket_noi_sheet("SanPham")
+            df_sp = pd.DataFrame(ws_sp.get_all_records())
+            df_sp["Giá"] = df_sp["Giá"].apply(clean_price)
+            
+            # Tính tổng và hiển thị danh sách sản phẩm
+            tong = 0
+            ds_san_pham = []  # Lưu chi tiết để dùng sau
+            for id_sp, sl in st.session_state.gio_hang.items():
+                sp_rows = df_sp[df_sp['ID'].astype(str) == id_sp]
+                if not sp_rows.empty:
+                    sp = sp_rows.iloc[0]
+                    thanh_tien = sp['Giá'] * sl
+                    tong += thanh_tien
+                    ds_san_pham.append({
+                        'id': id_sp,
+                        'ten': sp['Sản phẩm'],
+                        'so_luong': sl,
+                        'don_gia': sp['Giá'],
+                        'thanh_tien': thanh_tien
+                    })
+                    st.markdown(f"<p style='color: #0066cc; font-size: 1.1rem;'>✅ {sp['Sản phẩm']} x{sl} - {format_vnd(thanh_tien)}</p>", unsafe_allow_html=True)
+            
+            # Form thanh toán với các trường mới
+            with st.form("checkout"):
+                st.subheader("📋 Thông tin giao hàng")
+                ho_ten = st.text_input("Họ tên *")
+                so_dt = st.text_input("Số điện thoại *", placeholder="VD: 0932642376")
+                dia_chi = st.text_area("Địa chỉ *")
+                
+                st.subheader("🚚 Vận chuyển")
+                khu_vuc = st.radio(
+                    "Khu vực giao hàng",
+                    ["Hồ Chí Minh (+30,000 VNĐ phí ship)", "Tỉnh/Thành khác (liên hệ)"],
+                    index=0
+                )
+                phi_ship = 30000 if "Hồ Chí Minh" in khu_vuc else 0
+                
+                khung_gio = st.selectbox(
+                    "Khung giờ giao hàng (dự kiến)",
+                    ["8:00 - 11:00", "11:00 - 13:00", "13:00 - 16:00", "16:00 - 19:00", "19:00 - 21:00"]
+                )
+                
+                st.subheader("💳 Thanh toán")
+                phuong_thuc = st.radio(
+                    "Phương thức thanh toán",
+                    ["Tiền mặt khi nhận hàng", "Chuyển khoản ngân hàng", "Ví Momo", "Thẻ tín dụng"],
+                    index=0
+                )
+                
+                ghi_chu = st.text_area("Ghi chú (không bắt buộc)", placeholder="Ghi chú về đơn hàng, ví dụ: gọi trước khi giao...")
+                
+                # Hiển thị tổng tiền
+                st.markdown("---")
+                col1, col2, col3 = st.columns(3)
+                col1.metric("Tổng tiền hàng", format_vnd(tong))
+                col2.metric("Phí ship", format_vnd(phi_ship))
+                col3.metric("Tổng thanh toán", format_vnd(tong + phi_ship))
+                
+                submitted = st.form_submit_button("XÁC NHẬN ĐẶT HÀNG")
+                
+                if submitted:
+                    if not ho_ten or not so_dt or not dia_chi:
+                        st.error("Vui lòng điền đầy đủ họ tên, SĐT và địa chỉ.")
                     else:
-                        ws_don = ket_noi_sheet("DonHang")
-                        ws_don.append_row([
-                            datetime.now().strftime("%d/%m/%Y %H:%M"),
-                            t,
-                            sdt_chuan,  # lưu số đã chuẩn hóa
-                            d,
-                            ", ".join(ds_order),
-                            sum(st.session_state.gio_hang.values()),
-                            f"{tong} VNĐ",
-                            "Mới"
-                        ])
-                        # Cập nhật tồn kho
-                        for id_sp, sl in st.session_state.gio_hang.items():
-                            sp_row = df_sp[df_sp['ID'].astype(str) == id_sp].iloc[0]
-                            cell = ws_sp.find(str(sp_row['Sản phẩm']))
-                            current_stock = int(ws_sp.cell(cell.row, 6).value)
-                            ws_sp.update_cell(cell.row, 6, current_stock - sl)
-                        st.session_state.gio_hang = {}
-                        st.success("Đặt hàng thành công!"); st.balloons(); time.sleep(2); st.rerun()
+                        sdt_chuan = chuan_hoa_sdt(so_dt)
+                        if sdt_chuan is None:
+                            st.error("Số điện thoại không hợp lệ! Vui lòng nhập 10 số (có thể có số 0 ở đầu).")
+                        else:
+                            # Tạo mã đơn hàng
+                            ma_don = "DH" + datetime.now().strftime("%y%m%d%H%M%S") + str(random.randint(10, 99))
+                            ngay_dat = datetime.now().strftime("%d/%m/%Y %H:%M")
+                            
+                            # Chuẩn bị dữ liệu đơn hàng
+                            san_pham_str = ", ".join([f"{sp['ten']} x{sp['so_luong']}" for sp in ds_san_pham])
+                            tong_sl = sum([sp['so_luong'] for sp in ds_san_pham])
+                            
+                            # Ghi vào sheet DonHang (cần đảm bảo sheet có đủ cột)
+                            ws_don = ket_noi_sheet("DonHang")
+                            # Thứ tự cột: Mã đơn, Thời gian, Họ tên, SĐT, Địa chỉ, Sản phẩm, Tổng số lượng, Tổng tiền hàng, Phí ship, Tổng thanh toán, Phương thức thanh toán, Khung giờ, Ghi chú, Trạng thái
+                            ws_don.append_row([
+                                ma_don,
+                                ngay_dat,
+                                ho_ten,
+                                sdt_chuan,
+                                dia_chi,
+                                san_pham_str,
+                                tong_sl,
+                                tong,
+                                phi_ship,
+                                tong + phi_ship,
+                                phuong_thuc,
+                                khung_gio,
+                                ghi_chu,
+                                "Mới"
+                            ])
+                            
+                            # Cập nhật tồn kho
+                            for sp in ds_san_pham:
+                                cell = ws_sp.find(str(sp['ten']))
+                                current_stock = int(ws_sp.cell(cell.row, 6).value)  # Cột tồn kho
+                                ws_sp.update_cell(cell.row, 6, current_stock - sp['so_luong'])
+                            
+                            # Lưu thông tin đơn hàng vào session state để hiển thị
+                            st.session_state.don_hang_vua_dat = {
+                                'ma_don': ma_don,
+                                'ngay': datetime.now().strftime("%d/%m/%Y"),
+                                'tong_hang': tong,
+                                'phi_ship': phi_ship,
+                                'tong_thanh_toan': tong + phi_ship,
+                                'phuong_thuc_tt': phuong_thuc,
+                                'san_pham': ds_san_pham
+                            }
+                            st.session_state.hien_thi_don_hang = True
+                            st.session_state.gio_hang = {}  # Xóa giỏ hàng
+                            st.rerun()
 
 # ---- TRA CỨU ĐƠN HÀNG (ĐÃ SỬA LỖI SĐT) ----
 elif chon_menu == "🔍 Tra Cứu Đơn Hàng":
+    # ... (giữ nguyên code Tra Cứu, nhưng cập nhật hiển thị thêm các cột mới nếu có)
     st.markdown("<h1 style='color: #2e7d32; text-align:center;'>🔍 Tra cứu đơn hàng</h1>", unsafe_allow_html=True)
     st.markdown("<p style='color: #0066cc; text-align:center;'>Nhập số điện thoại để xem lịch sử đơn hàng của bạn.</p>", unsafe_allow_html=True)
     
@@ -534,45 +744,22 @@ elif chon_menu == "🔍 Tra Cứu Đơn Hàng":
                         if not df_loc.empty:
                             st.success(f"✅ Tìm thấy {len(df_loc)} đơn hàng.")
                             
-                            # Tìm cột thời gian để sắp xếp
-                            col_time = None
-                            for col in df_loc.columns:
-                                if 'thời gian' in col.lower() or 'ngày' in col.lower() or 'time' in col.lower():
-                                    col_time = col
-                                    break
+                            # Sắp xếp theo thời gian giảm dần
+                            col_time = next((c for c in df_loc.columns if 'thời gian' in c.lower() or 'ngày' in c.lower()), None)
                             if col_time:
                                 df_loc = df_loc.sort_values(col_time, ascending=False)
                             
-                            # Xác định các cột hiển thị
-                            map_hien_thi = {
-                                'Thời gian': col_time,
-                                'Họ tên': next((c for c in df_loc.columns if 'họ tên' in c.lower() or 'tên' in c.lower()), None),
-                                'Sản phẩm': next((c for c in df_loc.columns if 'sản phẩm' in c.lower() or 'sp' in c.lower()), None),
-                                'Số lượng': next((c for c in df_loc.columns if 'số lượng' in c.lower() or 'sl' in c.lower()), None),
-                                'Tổng tiền': next((c for c in df_loc.columns if 'tổng tiền' in c.lower() or 'tt' in c.lower() or 'tiền' in c.lower()), None),
-                                'Trạng thái': next((c for c in df_loc.columns if 'trạng thái' in c.lower() or 'tt' in c.lower() or 'status' in c.lower()), None)
-                            }
+                            # Chọn các cột hiển thị (có thể thêm nhiều cột mới)
+                            cols_hien_thi = ['Mã đơn', 'Thời gian', 'Họ tên', 'Sản phẩm', 'Tổng thanh toán', 'Phương thức thanh toán', 'Trạng thái']
+                            cols_ton_tai = [c for c in cols_hien_thi if c in df_loc.columns]
                             
-                            hien_thi_cols = [v for v in map_hien_thi.values() if v is not None and v in df_loc.columns]
-                            if not hien_thi_cols:
-                                st.warning("⚠️ Không có cột nào phù hợp để hiển thị.")
+                            if not cols_ton_tai:
+                                st.warning("Không có cột nào phù hợp để hiển thị.")
                             else:
-                                df_hien_thi = df_loc[hien_thi_cols].copy()
-                                
-                                # Đổi tên cột
-                                rename_dict = {}
-                                for ten_chuan, ten_thuc in map_hien_thi.items():
-                                    if ten_thuc and ten_thuc in df_hien_thi.columns:
-                                        rename_dict[ten_thuc] = ten_chuan
-                                if rename_dict:
-                                    df_hien_thi = df_hien_thi.rename(columns=rename_dict)
-                                
-                                # Định dạng tổng tiền
-                                if 'Tổng tiền' in df_hien_thi.columns:
-                                    df_hien_thi['Tổng tiền'] = df_hien_thi['Tổng tiền'].apply(
-                                        lambda x: format_vnd(clean_price(x)) if pd.notna(x) else ""
-                                    )
-                                
+                                df_hien_thi = df_loc[cols_ton_tai].copy()
+                                # Định dạng tổng tiền nếu có
+                                if 'Tổng thanh toán' in df_hien_thi.columns:
+                                    df_hien_thi['Tổng thanh toán'] = df_hien_thi['Tổng thanh toán'].apply(lambda x: format_vnd(clean_price(x)))
                                 st.dataframe(df_hien_thi, use_container_width=True, hide_index=True)
                         else:
                             st.warning("❌ Không tìm thấy đơn hàng nào với số điện thoại này.")
@@ -585,6 +772,7 @@ elif chon_menu == "🔍 Tra Cứu Đơn Hàng":
 
 # ---- THÔNG TIN ----
 elif chon_menu == "📞 Thông Tin":
+    # ... (giữ nguyên code Thông Tin)
     st.markdown("<h1 style='text-align:center;color:#2e7d32;'>📍 Thông Tin Cửa Hàng</h1>", unsafe_allow_html=True)
     col_info, col_map = st.columns([1, 1.2], gap="large")
     with col_info:
@@ -603,7 +791,7 @@ elif chon_menu == "📞 Thông Tin":
         toa_do = pd.DataFrame({'lat': [13.8930853], 'lon': [109.1002733]})
         st.map(toa_do, zoom=14)
 
-# ---- QUẢN TRỊ (ĐÃ CẬP NHẬT DROPDOWN TRẠNG THÁI) ----
+# ---- QUẢN TRỊ (ĐÃ CẬP NHẬT DROPDOWN TRẠNG THÁI + CỘT MỚI) ----
 elif chon_menu == "📊 Quản Trị":
     if not st.session_state.da_dang_nhap:
         col_l, col_m, col_r = st.columns([1,1.5,1])
@@ -635,19 +823,10 @@ elif chon_menu == "📊 Quản Trị":
             df_don_old = pd.DataFrame(ws_don.get_all_records())
             
             # Đảm bảo cột trạng thái tồn tại
-            col_trang_thai = None
-            for col in df_don_old.columns:
-                if 'trạng thái' in col.lower() or 'status' in col.lower():
-                    col_trang_thai = col
-                    break
-            if col_trang_thai is None:
+            if 'Trạng thái' not in df_don_old.columns:
                 df_don_old['Trạng thái'] = 'Mới'
-                col_trang_thai = 'Trạng thái'
-            else:
-                if col_trang_thai != 'Trạng thái':
-                    df_don_old.rename(columns={col_trang_thai: 'Trạng thái'}, inplace=True)
-                    col_trang_thai = 'Trạng thái'
             
+            # Cấu hình cột selectbox cho trạng thái
             column_config = {
                 "Trạng thái": st.column_config.SelectboxColumn(
                     "Trạng thái",
@@ -708,7 +887,7 @@ elif chon_menu == "📊 Quản Trị":
                 except: st.error("Lỗi: Không tìm thấy dòng 'Logo' trong Sheet!")
 
 # =============================
-# 9. FLOATING BUTTONS (GỌI & ZALO)
+# 10. FLOATING BUTTONS (GỌI & ZALO)
 # =============================
 st.markdown("""
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
@@ -727,7 +906,7 @@ st.markdown("""
     align-items: center;
     justify-content: center;
     padding: 12px 20px;
-    border-radius: 50px; /* bo tròn nhưng vẫn đủ rộng để chứa text */
+    border-radius: 50px;
     background-color: #2e7d32;
     color: white;
     font-size: 18px;
@@ -737,7 +916,7 @@ st.markdown("""
     text-decoration: none;
     border: 2px solid white;
     gap: 10px;
-    min-width: 160px; /* đủ rộng cho text */
+    min-width: 160px;
 }
 .floating-buttons a i {
     font-size: 24px;
@@ -746,7 +925,6 @@ st.markdown("""
     transform: scale(1.05);
     background-color: #f39c12;
 }
-/* Zalo logo custom (nếu muốn dùng ảnh thay icon) */
 .zalo-logo {
     width: 28px;
     height: 28px;
@@ -772,17 +950,7 @@ st.markdown("""
         <i class="fas fa-phone-alt"></i> 0932.642.376
     </a>
     <a href="https://zalo.me/0932642376" class="zalo" target="_blank">
-        <!-- Dùng icon chat mặc định, hoặc thay bằng logo Zalo dạng ảnh -->
         <i class="fas fa-comment-dots"></i> Chat Zalo
-        <!-- Nếu muốn dùng logo Zalo chính xác, bỏ comment dòng dưới và xóa dòng icon -->
-        <!-- <img src="https://upload.wikimedia.org/wikipedia/commons/9/91/Icon_of_Zalo.svg" class="zalo-logo"> Zalo -->
     </a>
 </div>
 """, unsafe_allow_html=True)
-
-
-
-
-
-
-
