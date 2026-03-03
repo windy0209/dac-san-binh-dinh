@@ -1,6 +1,6 @@
 [
   {
-    "name": "Hồ Chí Minh",
+    "name": "Tp.Hồ Chí Minh",
     "quan_huyen": [
       {
         "name": "Quận 1",
@@ -19,7 +19,7 @@
     ]
   },
   {
-    "name": "Hà Nội",
+    "name": "Tp.Hà Nội",
     "quan_huyen": [
       {
         "name": "Ba Đình",
