@@ -624,7 +624,7 @@ elif chon_menu == "🛒 Giỏ Hàng":
                 sp_rows = df_sp[df_sp['ID'].astype(str) == id_sp]
                 if not sp_rows.empty:
                     sp = sp_rows.iloc[0]
-                    don_gia = int(sp['Giá'])  # Ép kiểu int
+                    don_gia = int(sp['Giá'])
                     thanh_tien = don_gia * sl
                     tong += thanh_tien
                     ds_san_pham.append({
@@ -652,7 +652,6 @@ elif chon_menu == "🛒 Giỏ Hàng":
                     st.error("Dữ liệu từ GitHub không đúng định dạng JSON.")
                     return None
 
-            # Gọi hàm lấy dữ liệu (ĐÃ SỬA INDENT)
             dia_chi_data = load_dia_chi()
             
             # Nếu có file JSON thì lấy danh sách tỉnh từ đó, nếu không thì dùng danh sách mặc định
@@ -663,10 +662,8 @@ elif chon_menu == "🛒 Giỏ Hàng":
                 phuong_xa_map = {}
                 for tinh in dia_chi_data:
                     tinh_name = tinh['name']
-                    # Lấy danh sách quận/huyện, thêm option mặc định
                     qh_list = ["-- Chọn quận/huyện --"] + [qh['name'] for qh in tinh.get('quan_huyen', [])]
                     quan_huyen_map[tinh_name] = qh_list
-                    # Xây dựng mapping quận/huyện -> phường/xã
                     for qh in tinh.get('quan_huyen', []):
                         qh_name = qh['name']
                         px_list = ["-- Chọn phường/xã --"] + [px['name'] for px in qh.get('phuong_xa', [])]
@@ -692,70 +689,111 @@ elif chon_menu == "🛒 Giỏ Hàng":
             # Form thanh toán với các trường mới
             with st.form("checkout"):
                 st.subheader("📋 Thông tin giao hàng")
-                ho_ten = st.text_input("Họ tên *")
-                so_dt = st.text_input("Số điện thoại *", placeholder="VD: 0932642376")
+                ho_ten = st.text_input("Họ tên *", key="ho_ten")
+                so_dt = st.text_input("Số điện thoại *", placeholder="VD: 0932642376", key="so_dt")
                 
                 st.subheader("🏠 Địa chỉ nhận hàng")
                 
                 col1, col2 = st.columns(2)
                 with col1:
-                    tinh = st.selectbox("Tỉnh/Thành phố *", options=tinh_list, index=0)
+                    # Tỉnh / Thành phố
+                    tinh_index = tinh_list.index(st.session_state.dia_chi_tinh) if st.session_state.dia_chi_tinh in tinh_list else 0
+                    st.selectbox(
+                        "Tỉnh/Thành phố *",
+                        options=tinh_list,
+                        index=tinh_index,
+                        key="dia_chi_tinh",
+                        on_change=cap_nhat_tinh
+                    )
+                
                 with col2:
+                    tinh_hien_tai = st.session_state.dia_chi_tinh
                     # Xử lý quận/huyện
-                    if tinh != "-- Chọn tỉnh/thành --" and tinh in quan_huyen_map:
-                        quan_options = quan_huyen_map[tinh]
-                        huyen = st.selectbox("Quận/Huyện *", options=quan_options, index=0)
-                        huyen_text = huyen if huyen != "-- Chọn quận/huyện --" else ""
+                    if tinh_hien_tai != "-- Chọn tỉnh/thành --" and tinh_hien_tai in quan_huyen_map:
+                        quan_options = quan_huyen_map[tinh_hien_tai]
+                        huyen_index = quan_options.index(st.session_state.dia_chi_huyen) if st.session_state.dia_chi_huyen in quan_options else 0
+                        st.selectbox(
+                            "Quận/Huyện *",
+                            options=quan_options,
+                            index=huyen_index,
+                            key="dia_chi_huyen",
+                            on_change=cap_nhat_huyen
+                        )
+                        huyen_text = st.session_state.dia_chi_huyen if st.session_state.dia_chi_huyen != "-- Chọn quận/huyện --" else ""
                     else:
+                        # Nếu không có dữ liệu quận/huyện, cho nhập tay
                         st.selectbox("Quận/Huyện *", options=["-- Chọn quận/huyện --"], index=0, disabled=True)
-                        huyen_text = ""
-                        if tinh != "-- Chọn tỉnh/thành --":
-                            st.caption(f"Không có dữ liệu quận/huyện cho {tinh}, vui lòng nhập tay")
-                            huyen_text = st.text_input("Nhập tên quận/huyện", key="huyen_tay")
+                        huyen_tay = st.text_input(
+                            "Nhập tên quận/huyện",
+                            value=st.session_state.dia_chi_huyen_tay,
+                            key="dia_chi_huyen_tay",
+                            on_change=cap_nhat_huyen_tay
+                        )
+                        huyen_text = huyen_tay
                 
                 col3, col4 = st.columns(2)
                 with col3:
                     # Xử lý phường/xã
                     if huyen_text and huyen_text != "-- Chọn quận/huyện --" and huyen_text in phuong_xa_map:
                         xa_options = phuong_xa_map[huyen_text]
-                        xa = st.selectbox("Phường/Xã *", options=xa_options, index=0)
-                        xa_text = xa if xa != "-- Chọn phường/xã --" else ""
+                        xa_index = xa_options.index(st.session_state.dia_chi_xa) if st.session_state.dia_chi_xa in xa_options else 0
+                        st.selectbox(
+                            "Phường/Xã *",
+                            options=xa_options,
+                            index=xa_index,
+                            key="dia_chi_xa"
+                        )
+                        xa_text = st.session_state.dia_chi_xa if st.session_state.dia_chi_xa != "-- Chọn phường/xã --" else ""
                     else:
                         st.selectbox("Phường/Xã *", options=["-- Chọn phường/xã --"], index=0, disabled=True)
-                        xa_text = ""
-                        if huyen_text and huyen_text != "-- Chọn quận/huyện --":
-                            st.caption(f"Không có dữ liệu phường/xã cho {huyen_text}, vui lòng nhập tay")
-                            xa_text = st.text_input("Nhập tên phường/xã", key="xa_tay")
+                        xa_text = st.text_input(
+                            "Nhập tên phường/xã",
+                            value=st.session_state.dia_chi_xa_tay,
+                            key="dia_chi_xa_tay"
+                        )
                 
                 with col4:
-                    so_nha = st.text_input("Số nhà, tên đường *", placeholder="VD: 123 Nguyễn Huệ")
+                    so_nha = st.text_input("Số nhà, tên đường *", placeholder="VD: 123 Nguyễn Huệ", key="so_nha")
                 
-                # Ghép địa chỉ hoàn chỉnh
-                dia_chi_day_du = ""
-                if tinh != "-- Chọn tỉnh/thành --" and huyen_text and xa_text and so_nha.strip():
-                    dia_chi_day_du = f"{so_nha.strip()}, {xa_text}, {huyen_text}, {tinh}"
+                # Ghép địa chỉ hoàn chỉnh (lấy từ session state để đảm bảo đồng bộ)
+                tinh = st.session_state.dia_chi_tinh
+                # Xác định huyện và xã thực tế (từ select hoặc nhập tay)
+                if tinh in quan_huyen_map:
+                    huyen_thuc = st.session_state.dia_chi_huyen if st.session_state.dia_chi_huyen != "-- Chọn quận/huyện --" else ""
+                else:
+                    huyen_thuc = st.session_state.dia_chi_huyen_tay
+                
+                if huyen_thuc in phuong_xa_map:
+                    xa_thuc = st.session_state.dia_chi_xa if st.session_state.dia_chi_xa != "-- Chọn phường/xã --" else ""
+                else:
+                    xa_thuc = st.session_state.dia_chi_xa_tay
+                
+                dia_chi_day_du = f"{so_nha}, {xa_thuc}, {huyen_thuc}, {tinh}".strip(", ")
                 
                 st.subheader("🚚 Vận chuyển")
                 khu_vuc = st.radio(
                     "Khu vực giao hàng",
                     ["Hồ Chí Minh (+30,000 VNĐ phí ship)", "Tỉnh/Thành khác (liên hệ)"],
-                    index=0
+                    index=0,
+                    key="khu_vuc"
                 )
                 phi_ship = 30000 if "Hồ Chí Minh" in khu_vuc else 0
                 
                 khung_gio = st.selectbox(
                     "Khung giờ giao hàng (dự kiến)",
-                    ["8:00 - 11:00", "11:00 - 13:00", "13:00 - 16:00", "16:00 - 19:00", "19:00 - 21:00"]
+                    ["8:00 - 11:00", "11:00 - 13:00", "13:00 - 16:00", "16:00 - 19:00", "19:00 - 21:00"],
+                    key="khung_gio"
                 )
                 
                 st.subheader("💳 Thanh toán")
                 phuong_thuc = st.radio(
                     "Phương thức thanh toán",
                     ["Tiền mặt khi nhận hàng", "Chuyển khoản ngân hàng", "Ví Momo", "Thẻ tín dụng"],
-                    index=0
+                    index=0,
+                    key="phuong_thuc"
                 )
                 
-                ghi_chu = st.text_area("Ghi chú (không bắt buộc)", placeholder="Ghi chú về đơn hàng, ví dụ: gọi trước khi giao...")
+                ghi_chu = st.text_area("Ghi chú (không bắt buộc)", placeholder="Ghi chú về đơn hàng...", key="ghi_chu")
                 
                 # Hiển thị tổng tiền
                 st.markdown("---")
@@ -767,7 +805,7 @@ elif chon_menu == "🛒 Giỏ Hàng":
                 submitted = st.form_submit_button("XÁC NHẬN ĐẶT HÀNG")
                 
                 if submitted:
-                    if not ho_ten or not so_dt or not dia_chi_day_du:
+                    if not ho_ten or not so_dt or not dia_chi_day_du or not so_nha:
                         st.error("Vui lòng điền đầy đủ họ tên, SĐT và địa chỉ (chọn tỉnh, nhập huyện/xã và số nhà).")
                     else:
                         sdt_chuan = chuan_hoa_sdt(so_dt)
@@ -782,9 +820,8 @@ elif chon_menu == "🛒 Giỏ Hàng":
                             san_pham_str = ", ".join([f"{sp['ten']} x{sp['so_luong']}" for sp in ds_san_pham])
                             tong_sl = sum(sp['so_luong'] for sp in ds_san_pham)
                             
-                            # Ghi vào sheet DonHang (cần đảm bảo sheet có đủ cột)
+                            # Ghi vào sheet DonHang
                             ws_don = ket_noi_sheet("DonHang")
-                            # Ép kiểu int cho tất cả giá trị số để tránh lỗi JSON serialize
                             ws_don.append_row([
                                 ma_don,
                                 ngay_dat,
@@ -1067,6 +1104,7 @@ st.markdown("""
     </a>
 </div>
 """, unsafe_allow_html=True)
+
 
 
 
