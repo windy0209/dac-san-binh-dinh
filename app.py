@@ -604,6 +604,18 @@ elif chon_menu == "🛍️ Cửa Hàng":
 
 # ---- GIỎ HÀNG (ĐÃ SỬA LỖI SĐT + BỔ SUNG CÁC TRƯỜNG MỚI + ÉP KIỂU INT + ĐỌC ĐỊA CHỈ TỪ GITHUB) ----
 elif chon_menu == "🛒 Giỏ Hàng":
+    # --- ĐẢM BẢO CÁC BIẾN SESSION STATE ĐÃ TỒN TẠI ---
+    if "dia_chi_tinh" not in st.session_state:
+        st.session_state.dia_chi_tinh = "-- Chọn tỉnh/thành --"
+    if "dia_chi_huyen" not in st.session_state:
+        st.session_state.dia_chi_huyen = "-- Chọn quận/huyện --"
+    if "dia_chi_xa" not in st.session_state:
+        st.session_state.dia_chi_xa = "-- Chọn phường/xã --"
+    if "dia_chi_huyen_tay" not in st.session_state:
+        st.session_state.dia_chi_huyen_tay = ""
+    if "dia_chi_xa_tay" not in st.session_state:
+        st.session_state.dia_chi_xa_tay = ""
+    
     # Nếu đang hiển thị đơn hàng vừa đặt, ưu tiên hiển thị thông tin
     if st.session_state.hien_thi_don_hang:
         hien_thi_thong_tin_don_hang()
@@ -617,9 +629,8 @@ elif chon_menu == "🛒 Giỏ Hàng":
             df_sp = pd.DataFrame(ws_sp.get_all_records())
             df_sp["Giá"] = df_sp["Giá"].apply(clean_price)
             
-            # Tính tổng và hiển thị danh sách sản phẩm
             tong = 0
-            ds_san_pham = []  # Lưu chi tiết để dùng sau
+            ds_san_pham = []
             for id_sp, sl in st.session_state.gio_hang.items():
                 sp_rows = df_sp[df_sp['ID'].astype(str) == id_sp]
                 if not sp_rows.empty:
@@ -636,7 +647,7 @@ elif chon_menu == "🛒 Giỏ Hàng":
                     })
                     st.markdown(f"<p style='color: #0066cc; font-size: 1.1rem;'>✅ {sp['Sản phẩm']} x{sl} - {format_vnd(thanh_tien)}</p>", unsafe_allow_html=True)
             
-            # --- Đọc dữ liệu địa chỉ từ GitHub bằng requests ---
+            # Đọc dữ liệu địa chỉ từ GitHub
             @st.cache_data
             def load_dia_chi():
                 url = "https://raw.githubusercontent.com/windy0209/dac-san-binh-dinh/main/dia_chi.json"
@@ -645,19 +656,14 @@ elif chon_menu == "🛒 Giỏ Hàng":
                     response.raise_for_status()
                     data = response.json()
                     return data
-                except requests.exceptions.RequestException as e:
+                except Exception as e:
                     st.warning(f"Không thể tải file từ GitHub: {e}. Sẽ dùng danh sách tỉnh dự phòng.")
-                    return None
-                except json.JSONDecodeError:
-                    st.error("Dữ liệu từ GitHub không đúng định dạng JSON.")
                     return None
 
             dia_chi_data = load_dia_chi()
             
-            # Nếu có file JSON thì lấy danh sách tỉnh từ đó, nếu không thì dùng danh sách mặc định
             if dia_chi_data:
                 tinh_list = ["-- Chọn tỉnh/thành --"] + [item['name'] for item in dia_chi_data]
-                # Tạo mapping từ tên tỉnh -> danh sách quận/huyện
                 quan_huyen_map = {}
                 phuong_xa_map = {}
                 for tinh in dia_chi_data:
@@ -669,7 +675,6 @@ elif chon_menu == "🛒 Giỏ Hàng":
                         px_list = ["-- Chọn phường/xã --"] + [px['name'] for px in qh.get('phuong_xa', [])]
                         phuong_xa_map[qh_name] = px_list
             else:
-                # Danh sách 63 tỉnh/thành dự phòng
                 tinh_list = [
                     "-- Chọn tỉnh/thành --",
                     "An Giang", "Bà Rịa - Vũng Tàu", "Bạc Liêu", "Bắc Giang", "Bắc Kạn", "Bắc Ninh",
@@ -686,7 +691,25 @@ elif chon_menu == "🛒 Giỏ Hàng":
                 quan_huyen_map = {}
                 phuong_xa_map = {}
             
-            # Form thanh toán với các trường mới
+            # Callback functions (định nghĩa trước khi dùng)
+            def cap_nhat_tinh():
+                st.session_state.dia_chi_huyen = "-- Chọn quận/huyện --"
+                st.session_state.dia_chi_xa = "-- Chọn phường/xã --"
+                st.session_state.dia_chi_huyen_tay = ""
+                st.session_state.dia_chi_xa_tay = ""
+                st.rerun()
+            
+            def cap_nhat_huyen():
+                st.session_state.dia_chi_xa = "-- Chọn phường/xã --"
+                st.session_state.dia_chi_xa_tay = ""
+                st.rerun()
+            
+            def cap_nhat_huyen_tay():
+                st.session_state.dia_chi_xa = "-- Chọn phường/xã --"
+                st.session_state.dia_chi_xa_tay = ""
+                st.rerun()
+            
+            # Form thanh toán
             with st.form("checkout"):
                 st.subheader("📋 Thông tin giao hàng")
                 ho_ten = st.text_input("Họ tên *", key="ho_ten")
@@ -696,7 +719,6 @@ elif chon_menu == "🛒 Giỏ Hàng":
                 
                 col1, col2 = st.columns(2)
                 with col1:
-                    # Tỉnh / Thành phố
                     tinh_index = tinh_list.index(st.session_state.dia_chi_tinh) if st.session_state.dia_chi_tinh in tinh_list else 0
                     st.selectbox(
                         "Tỉnh/Thành phố *",
@@ -708,7 +730,6 @@ elif chon_menu == "🛒 Giỏ Hàng":
                 
                 with col2:
                     tinh_hien_tai = st.session_state.dia_chi_tinh
-                    # Xử lý quận/huyện
                     if tinh_hien_tai != "-- Chọn tỉnh/thành --" and tinh_hien_tai in quan_huyen_map:
                         quan_options = quan_huyen_map[tinh_hien_tai]
                         huyen_index = quan_options.index(st.session_state.dia_chi_huyen) if st.session_state.dia_chi_huyen in quan_options else 0
@@ -721,7 +742,6 @@ elif chon_menu == "🛒 Giỏ Hàng":
                         )
                         huyen_text = st.session_state.dia_chi_huyen if st.session_state.dia_chi_huyen != "-- Chọn quận/huyện --" else ""
                     else:
-                        # Nếu không có dữ liệu quận/huyện, cho nhập tay
                         st.selectbox("Quận/Huyện *", options=["-- Chọn quận/huyện --"], index=0, disabled=True)
                         huyen_tay = st.text_input(
                             "Nhập tên quận/huyện",
@@ -733,7 +753,6 @@ elif chon_menu == "🛒 Giỏ Hàng":
                 
                 col3, col4 = st.columns(2)
                 with col3:
-                    # Xử lý phường/xã
                     if huyen_text and huyen_text != "-- Chọn quận/huyện --" and huyen_text in phuong_xa_map:
                         xa_options = phuong_xa_map[huyen_text]
                         xa_index = xa_options.index(st.session_state.dia_chi_xa) if st.session_state.dia_chi_xa in xa_options else 0
@@ -755,9 +774,8 @@ elif chon_menu == "🛒 Giỏ Hàng":
                 with col4:
                     so_nha = st.text_input("Số nhà, tên đường *", placeholder="VD: 123 Nguyễn Huệ", key="so_nha")
                 
-                # Ghép địa chỉ hoàn chỉnh (lấy từ session state để đảm bảo đồng bộ)
+                # Ghép địa chỉ hoàn chỉnh
                 tinh = st.session_state.dia_chi_tinh
-                # Xác định huyện và xã thực tế (từ select hoặc nhập tay)
                 if tinh in quan_huyen_map:
                     huyen_thuc = st.session_state.dia_chi_huyen if st.session_state.dia_chi_huyen != "-- Chọn quận/huyện --" else ""
                 else:
@@ -795,7 +813,6 @@ elif chon_menu == "🛒 Giỏ Hàng":
                 
                 ghi_chu = st.text_area("Ghi chú (không bắt buộc)", placeholder="Ghi chú về đơn hàng...", key="ghi_chu")
                 
-                # Hiển thị tổng tiền
                 st.markdown("---")
                 col1, col2, col3 = st.columns(3)
                 col1.metric("Tổng tiền hàng", format_vnd(tong))
@@ -812,15 +829,12 @@ elif chon_menu == "🛒 Giỏ Hàng":
                         if sdt_chuan is None:
                             st.error("Số điện thoại không hợp lệ! Vui lòng nhập 10 số (có thể có số 0 ở đầu).")
                         else:
-                            # Tạo mã đơn hàng
                             ma_don = "DH" + datetime.now().strftime("%y%m%d%H%M%S") + str(random.randint(10, 99))
                             ngay_dat = datetime.now().strftime("%d/%m/%Y %H:%M")
                             
-                            # Chuẩn bị dữ liệu đơn hàng
                             san_pham_str = ", ".join([f"{sp['ten']} x{sp['so_luong']}" for sp in ds_san_pham])
                             tong_sl = sum(sp['so_luong'] for sp in ds_san_pham)
                             
-                            # Ghi vào sheet DonHang
                             ws_don = ket_noi_sheet("DonHang")
                             ws_don.append_row([
                                 ma_don,
@@ -839,13 +853,11 @@ elif chon_menu == "🛒 Giỏ Hàng":
                                 "Mới"
                             ])
                             
-                            # Cập nhật tồn kho
                             for sp in ds_san_pham:
                                 cell = ws_sp.find(str(sp['ten']))
-                                current_stock = int(ws_sp.cell(cell.row, 6).value)  # Cột tồn kho (cột 6)
+                                current_stock = int(ws_sp.cell(cell.row, 6).value)
                                 ws_sp.update_cell(cell.row, 6, current_stock - sp['so_luong'])
                             
-                            # Lưu thông tin đơn hàng vào session state để hiển thị
                             st.session_state.don_hang_vua_dat = {
                                 'ma_don': ma_don,
                                 'ngay': datetime.now().strftime("%d/%m/%Y"),
@@ -856,7 +868,7 @@ elif chon_menu == "🛒 Giỏ Hàng":
                                 'san_pham': ds_san_pham
                             }
                             st.session_state.hien_thi_don_hang = True
-                            st.session_state.gio_hang = {}  # Xóa giỏ hàng
+                            st.session_state.gio_hang = {}
                             st.rerun()
 # ---- TRA CỨU ĐƠN HÀNG ----
 elif chon_menu == "🔍 Tra Cứu Đơn Hàng":
@@ -1104,6 +1116,7 @@ st.markdown("""
     </a>
 </div>
 """, unsafe_allow_html=True)
+
 
 
 
