@@ -602,7 +602,7 @@ elif chon_menu == "🛍️ Cửa Hàng":
                         st.markdown('</div>', unsafe_allow_html=True)
                         st.write("")
 
-# ---- GIỎ HÀNG (ĐÃ SỬA LỖI SĐT + BỔ SUNG CÁC TRƯỜNG MỚI + ÉP KIỂU INT + ĐỌC ĐỊA CHỈ TỪ JSON) ----
+# ---- GIỎ HÀNG (ĐÃ SỬA LỖI SĐT + BỔ SUNG CÁC TRƯỜNG MỚI + ÉP KIỂU INT + ĐỌC ĐỊA CHỈ TỪ GITHUB) ----
 elif chon_menu == "🛒 Giỏ Hàng":
     # Nếu đang hiển thị đơn hàng vừa đặt, ưu tiên hiển thị thông tin
     if st.session_state.hien_thi_don_hang:
@@ -636,14 +636,13 @@ elif chon_menu == "🛒 Giỏ Hàng":
                     })
                     st.markdown(f"<p style='color: #0066cc; font-size: 1.1rem;'>✅ {sp['Sản phẩm']} x{sl} - {format_vnd(thanh_tien)}</p>", unsafe_allow_html=True)
             
-            # --- Đọc dữ liệu địa chỉ từ file JSON (đã sửa đường dẫn) ---
+            # --- Đọc dữ liệu địa chỉ từ GitHub bằng requests ---
             @st.cache_data
             def load_dia_chi():
-                # URL raw của file dia_chi.json trên GitHub (thay bằng link thật của bạn)
                 url = "https://raw.githubusercontent.com/windy0209/dac-san-binh-dinh/main/dia_chi.json"
                 try:
                     response = requests.get(url)
-                    response.raise_for_status()  # Kiểm tra lỗi HTTP
+                    response.raise_for_status()
                     data = response.json()
                     return data
                 except requests.exceptions.RequestException as e:
@@ -652,8 +651,10 @@ elif chon_menu == "🛒 Giỏ Hàng":
                 except json.JSONDecodeError:
                     st.error("Dữ liệu từ GitHub không đúng định dạng JSON.")
                     return None
-                        dia_chi_data = load_dia_chi()
-                        
+
+            # Gọi hàm lấy dữ liệu (ĐÃ SỬA INDENT)
+            dia_chi_data = load_dia_chi()
+            
             # Nếu có file JSON thì lấy danh sách tỉnh từ đó, nếu không thì dùng danh sách mặc định
             if dia_chi_data:
                 tinh_list = ["-- Chọn tỉnh/thành --"] + [item['name'] for item in dia_chi_data]
@@ -804,7 +805,7 @@ elif chon_menu == "🛒 Giỏ Hàng":
                             # Cập nhật tồn kho
                             for sp in ds_san_pham:
                                 cell = ws_sp.find(str(sp['ten']))
-                                current_stock = int(ws_sp.cell(cell.row, 6).value)  # Cột tồn kho
+                                current_stock = int(ws_sp.cell(cell.row, 6).value)  # Cột tồn kho (cột 6)
                                 ws_sp.update_cell(cell.row, 6, current_stock - sp['so_luong'])
                             
                             # Lưu thông tin đơn hàng vào session state để hiển thị
@@ -1066,5 +1067,6 @@ st.markdown("""
     </a>
 </div>
 """, unsafe_allow_html=True)
+
 
 
