@@ -615,7 +615,7 @@ elif chon_menu == "🛒 Giỏ Hàng":
         st.session_state.dia_chi_huyen_tay = ""
     if "dia_chi_xa_tay" not in st.session_state:
         st.session_state.dia_chi_xa_tay = ""
-    
+
     # Nếu đang hiển thị đơn hàng vừa đặt, ưu tiên hiển thị thông tin
     if st.session_state.hien_thi_don_hang:
         hien_thi_thong_tin_don_hang()
@@ -647,7 +647,7 @@ elif chon_menu == "🛒 Giỏ Hàng":
                     })
                     st.markdown(f"<p style='color: #0066cc; font-size: 1.1rem;'>✅ {sp['Sản phẩm']} x{sl} - {format_vnd(thanh_tien)}</p>", unsafe_allow_html=True)
             
-            # Đọc dữ liệu địa chỉ từ GitHub
+            # --- Đọc dữ liệu địa chỉ từ GitHub ---
             @st.cache_data
             def load_dia_chi():
                 url = "https://raw.githubusercontent.com/windy0209/dac-san-binh-dinh/main/dia_chi.json"
@@ -690,117 +690,120 @@ elif chon_menu == "🛒 Giỏ Hàng":
                 ]
                 quan_huyen_map = {}
                 phuong_xa_map = {}
-            
-            # Callback functions (định nghĩa trước khi dùng)
+
+            # --- CÁC CALLBACK (đặt ngoài form) ---
             def cap_nhat_tinh():
                 st.session_state.dia_chi_huyen = "-- Chọn quận/huyện --"
                 st.session_state.dia_chi_xa = "-- Chọn phường/xã --"
                 st.session_state.dia_chi_huyen_tay = ""
                 st.session_state.dia_chi_xa_tay = ""
                 st.rerun()
-            
+
             def cap_nhat_huyen():
                 st.session_state.dia_chi_xa = "-- Chọn phường/xã --"
                 st.session_state.dia_chi_xa_tay = ""
                 st.rerun()
-            
+
             def cap_nhat_huyen_tay():
                 st.session_state.dia_chi_xa = "-- Chọn phường/xã --"
                 st.session_state.dia_chi_xa_tay = ""
                 st.rerun()
+
+            # --- PHẦN CHỌN ĐỊA CHỈ (NGOÀI FORM) ---
+            st.subheader("🏠 Địa chỉ nhận hàng")
             
-            # Form thanh toán
-            with st.form("checkout"):
-                st.subheader("📋 Thông tin giao hàng")
-                ho_ten = st.text_input("Họ tên *", key="ho_ten")
-                so_dt = st.text_input("Số điện thoại *", placeholder="VD: 0932642376", key="so_dt")
-                
-                st.subheader("🏠 Địa chỉ nhận hàng")
-                
-                col1, col2 = st.columns(2)
-                with col1:
-                    tinh_index = tinh_list.index(st.session_state.dia_chi_tinh) if st.session_state.dia_chi_tinh in tinh_list else 0
+            # Hàng 1: Tỉnh và Quận/Huyện
+            col1, col2 = st.columns(2)
+            with col1:
+                tinh_index = tinh_list.index(st.session_state.dia_chi_tinh) if st.session_state.dia_chi_tinh in tinh_list else 0
+                st.selectbox(
+                    "Tỉnh/Thành phố *",
+                    options=tinh_list,
+                    index=tinh_index,
+                    key="dia_chi_tinh",
+                    on_change=cap_nhat_tinh
+                )
+            
+            with col2:
+                tinh_hien_tai = st.session_state.dia_chi_tinh
+                if tinh_hien_tai != "-- Chọn tỉnh/thành --" and tinh_hien_tai in quan_huyen_map:
+                    quan_options = quan_huyen_map[tinh_hien_tai]
+                    huyen_index = quan_options.index(st.session_state.dia_chi_huyen) if st.session_state.dia_chi_huyen in quan_options else 0
                     st.selectbox(
-                        "Tỉnh/Thành phố *",
-                        options=tinh_list,
-                        index=tinh_index,
-                        key="dia_chi_tinh",
-                        on_change=cap_nhat_tinh
+                        "Quận/Huyện *",
+                        options=quan_options,
+                        index=huyen_index,
+                        key="dia_chi_huyen",
+                        on_change=cap_nhat_huyen
                     )
-                
-                with col2:
-                    tinh_hien_tai = st.session_state.dia_chi_tinh
-                    if tinh_hien_tai != "-- Chọn tỉnh/thành --" and tinh_hien_tai in quan_huyen_map:
-                        quan_options = quan_huyen_map[tinh_hien_tai]
-                        huyen_index = quan_options.index(st.session_state.dia_chi_huyen) if st.session_state.dia_chi_huyen in quan_options else 0
-                        st.selectbox(
-                            "Quận/Huyện *",
-                            options=quan_options,
-                            index=huyen_index,
-                            key="dia_chi_huyen",
-                            on_change=cap_nhat_huyen
-                        )
-                        huyen_text = st.session_state.dia_chi_huyen if st.session_state.dia_chi_huyen != "-- Chọn quận/huyện --" else ""
-                    else:
-                        st.selectbox("Quận/Huyện *", options=["-- Chọn quận/huyện --"], index=0, disabled=True)
-                        huyen_tay = st.text_input(
-                            "Nhập tên quận/huyện",
-                            value=st.session_state.dia_chi_huyen_tay,
-                            key="dia_chi_huyen_tay",
-                            on_change=cap_nhat_huyen_tay
-                        )
-                        huyen_text = huyen_tay
-                
-                col3, col4 = st.columns(2)
-                with col3:
-                    if huyen_text and huyen_text != "-- Chọn quận/huyện --" and huyen_text in phuong_xa_map:
-                        xa_options = phuong_xa_map[huyen_text]
-                        xa_index = xa_options.index(st.session_state.dia_chi_xa) if st.session_state.dia_chi_xa in xa_options else 0
-                        st.selectbox(
-                            "Phường/Xã *",
-                            options=xa_options,
-                            index=xa_index,
-                            key="dia_chi_xa"
-                        )
-                        xa_text = st.session_state.dia_chi_xa if st.session_state.dia_chi_xa != "-- Chọn phường/xã --" else ""
-                    else:
-                        st.selectbox("Phường/Xã *", options=["-- Chọn phường/xã --"], index=0, disabled=True)
-                        xa_text = st.text_input(
-                            "Nhập tên phường/xã",
-                            value=st.session_state.dia_chi_xa_tay,
-                            key="dia_chi_xa_tay"
-                        )
-                
-                with col4:
-                    so_nha = st.text_input("Số nhà, tên đường *", placeholder="VD: 123 Nguyễn Huệ", key="so_nha")
-                
-                # Ghép địa chỉ hoàn chỉnh
-                tinh = st.session_state.dia_chi_tinh
-                if tinh in quan_huyen_map:
-                    huyen_thuc = st.session_state.dia_chi_huyen if st.session_state.dia_chi_huyen != "-- Chọn quận/huyện --" else ""
+                    huyen_text = st.session_state.dia_chi_huyen if st.session_state.dia_chi_huyen != "-- Chọn quận/huyện --" else ""
                 else:
-                    huyen_thuc = st.session_state.dia_chi_huyen_tay
-                
-                if huyen_thuc in phuong_xa_map:
-                    xa_thuc = st.session_state.dia_chi_xa if st.session_state.dia_chi_xa != "-- Chọn phường/xã --" else ""
+                    st.selectbox("Quận/Huyện *", options=["-- Chọn quận/huyện --"], index=0, disabled=True)
+                    huyen_tay = st.text_input(
+                        "Nhập tên quận/huyện",
+                        value=st.session_state.dia_chi_huyen_tay,
+                        key="dia_chi_huyen_tay",
+                        on_change=cap_nhat_huyen_tay
+                    )
+                    huyen_text = huyen_tay
+            
+            # Hàng 2: Phường/Xã và Số nhà
+            col3, col4 = st.columns(2)
+            with col3:
+                if huyen_text and huyen_text != "-- Chọn quận/huyện --" and huyen_text in phuong_xa_map:
+                    xa_options = phuong_xa_map[huyen_text]
+                    xa_index = xa_options.index(st.session_state.dia_chi_xa) if st.session_state.dia_chi_xa in xa_options else 0
+                    st.selectbox(
+                        "Phường/Xã *",
+                        options=xa_options,
+                        index=xa_index,
+                        key="dia_chi_xa"
+                    )
+                    xa_text = st.session_state.dia_chi_xa if st.session_state.dia_chi_xa != "-- Chọn phường/xã --" else ""
                 else:
-                    xa_thuc = st.session_state.dia_chi_xa_tay
-                
-                dia_chi_day_du = f"{so_nha}, {xa_thuc}, {huyen_thuc}, {tinh}".strip(", ")
+                    st.selectbox("Phường/Xã *", options=["-- Chọn phường/xã --"], index=0, disabled=True)
+                    xa_text = st.text_input(
+                        "Nhập tên phường/xã",
+                        value=st.session_state.dia_chi_xa_tay,
+                        key="dia_chi_xa_tay"
+                    )
+            
+            with col4:
+                so_nha = st.text_input("Số nhà, tên đường *", placeholder="VD: 123 Nguyễn Huệ", key="so_nha")
+            
+            # Xác định địa chỉ hoàn chỉnh từ session state (dùng sau khi submit)
+            tinh = st.session_state.dia_chi_tinh
+            if tinh in quan_huyen_map:
+                huyen_thuc = st.session_state.dia_chi_huyen if st.session_state.dia_chi_huyen != "-- Chọn quận/huyện --" else ""
+            else:
+                huyen_thuc = st.session_state.dia_chi_huyen_tay
+
+            if huyen_thuc in phuong_xa_map:
+                xa_thuc = st.session_state.dia_chi_xa if st.session_state.dia_chi_xa != "-- Chọn phường/xã --" else ""
+            else:
+                xa_thuc = st.session_state.dia_chi_xa_tay
+
+            dia_chi_day_du = f"{so_nha}, {xa_thuc}, {huyen_thuc}, {tinh}".strip(", ")
+            
+            # --- FORM THANH TOÁN (chỉ chứa các trường còn lại và nút submit) ---
+            with st.form("checkout_form"):
+                st.subheader("📋 Thông tin giao hàng")
+                ho_ten = st.text_input("Họ tên *", key="ho_ten_form")
+                so_dt = st.text_input("Số điện thoại *", placeholder="VD: 0932642376", key="so_dt_form")
                 
                 st.subheader("🚚 Vận chuyển")
                 khu_vuc = st.radio(
                     "Khu vực giao hàng",
                     ["Hồ Chí Minh (+30,000 VNĐ phí ship)", "Tỉnh/Thành khác (liên hệ)"],
                     index=0,
-                    key="khu_vuc"
+                    key="khu_vuc_form"
                 )
                 phi_ship = 30000 if "Hồ Chí Minh" in khu_vuc else 0
                 
                 khung_gio = st.selectbox(
                     "Khung giờ giao hàng (dự kiến)",
                     ["8:00 - 11:00", "11:00 - 13:00", "13:00 - 16:00", "16:00 - 19:00", "19:00 - 21:00"],
-                    key="khung_gio"
+                    key="khung_gio_form"
                 )
                 
                 st.subheader("💳 Thanh toán")
@@ -808,10 +811,10 @@ elif chon_menu == "🛒 Giỏ Hàng":
                     "Phương thức thanh toán",
                     ["Tiền mặt khi nhận hàng", "Chuyển khoản ngân hàng", "Ví Momo", "Thẻ tín dụng"],
                     index=0,
-                    key="phuong_thuc"
+                    key="phuong_thuc_form"
                 )
                 
-                ghi_chu = st.text_area("Ghi chú (không bắt buộc)", placeholder="Ghi chú về đơn hàng...", key="ghi_chu")
+                ghi_chu = st.text_area("Ghi chú (không bắt buộc)", placeholder="Ghi chú về đơn hàng...", key="ghi_chu_form")
                 
                 st.markdown("---")
                 col1, col2, col3 = st.columns(3)
@@ -822,6 +825,7 @@ elif chon_menu == "🛒 Giỏ Hàng":
                 submitted = st.form_submit_button("XÁC NHẬN ĐẶT HÀNG")
                 
                 if submitted:
+                    # Kiểm tra dữ liệu từ các trường trong form và địa chỉ đã chọn
                     if not ho_ten or not so_dt or not dia_chi_day_du or not so_nha:
                         st.error("Vui lòng điền đầy đủ họ tên, SĐT và địa chỉ (chọn tỉnh, nhập huyện/xã và số nhà).")
                     else:
@@ -1116,6 +1120,7 @@ st.markdown("""
     </a>
 </div>
 """, unsafe_allow_html=True)
+
 
 
 
