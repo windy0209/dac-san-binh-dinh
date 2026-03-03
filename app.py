@@ -428,11 +428,25 @@ def chuan_hoa_sdt(sdt):
         return None
 
 # =============================
-# 8. HÀM HIỂN THỊ THÔNG TIN ĐƠN HÀNG (GIỐNG HÌNH)
+# 8. HÀM HIỂN THỊ THÔNG TIN ĐƠN HÀNG (GIỐNG HÌNH) - ĐÃ SỬA LỖI
 # =============================
 def hien_thi_thong_tin_don_hang():
     don = st.session_state.don_hang_vua_dat
-    st.markdown(f"""
+    
+    # Tạo các dòng sản phẩm
+    rows_html = ""
+    for sp in don['san_pham']:
+        rows_html += f"""
+        <tr>
+            <td>{sp['ten']}</td>
+            <td>{sp['so_luong']}</td>
+            <td>{format_vnd(sp['don_gia'])}</td>
+            <td>{format_vnd(sp['thanh_tien'])}</td>
+        </tr>
+        """
+    
+    # Toàn bộ HTML
+    html = f"""
     <div class="don-hang-card">
         <div class="don-hang-header">
             <h2>🎉 CẢM ƠN BẠN. ĐƠN HÀNG CỦA BẠN ĐÃ ĐƯỢC NHẬN.</h2>
@@ -461,19 +475,7 @@ def hien_thi_thong_tin_don_hang():
                 <tr><th>Sản phẩm</th><th>Số lượng</th><th>Đơn giá</th><th>Thành tiền</th></tr>
             </thead>
             <tbody>
-    """, unsafe_allow_html=True)
-    
-    for sp in don['san_pham']:
-        st.markdown(f"""
-        <tr>
-            <td>{sp['ten']}</td>
-            <td>{sp['so_luong']}</td>
-            <td>{format_vnd(sp['don_gia'])}</td>
-            <td>{format_vnd(sp['thanh_tien'])}</td>
-        </tr>
-        """, unsafe_allow_html=True)
-    
-    st.markdown(f"""
+                {rows_html}
             </tbody>
             <tfoot>
                 <tr class="total-row"><td colspan="3" style="text-align:right;">Tổng tiền hàng:</td><td>{format_vnd(don['tong_hang'])}</td></tr>
@@ -482,7 +484,9 @@ def hien_thi_thong_tin_don_hang():
             </tfoot>
         </table>
     </div>
-    """, unsafe_allow_html=True)
+    """
+    
+    st.markdown(html, unsafe_allow_html=True)
     
     if st.button("⬅ Tiếp tục mua sắm"):
         st.session_state.hien_thi_don_hang = False
@@ -495,7 +499,6 @@ def hien_thi_thong_tin_don_hang():
 
 # ---- TRANG CHỦ ----
 if chon_menu == "🏠 Trang Chủ":
-    # ... (giữ nguyên code Trang Chủ)
     st.markdown("<h1 style='text-align:center;color:#2e7d32;'>🏯 Tinh Hoa Ẩm Thực Bình Định</h1>", unsafe_allow_html=True)
     c1, c2, c3 = st.columns(3)
     c1.success("🌿 **SẠCH & TƯƠI MỖI NGÀY**\n\n100% nguyên liệu tự nhiên – không chất bảo quản. Tươi mới như vừa thu hoạch, an tâm cho cả gia đình.")
@@ -521,7 +524,6 @@ if chon_menu == "🏠 Trang Chủ":
 
 # ---- CỬA HÀNG ----
 elif chon_menu == "🛍️ Cửa Hàng":
-    # ... (giữ nguyên code Cửa Hàng)
     st.markdown("<h2 style='text-align:center; color:#2e7d32;'>🌟 Danh Sách Sản Phẩm</h2>", unsafe_allow_html=True)
     
     ws = ket_noi_sheet("SanPham")
@@ -579,7 +581,7 @@ elif chon_menu == "🛍️ Cửa Hàng":
                         st.markdown('</div>', unsafe_allow_html=True)
                         st.write("")
 
-# ---- GIỎ HÀNG (ĐÃ SỬA LỖI SĐT + BỔ SUNG CÁC TRƯỜNG MỚI) ----
+# ---- GIỎ HÀNG (ĐÃ SỬA LỖI SĐT + BỔ SUNG CÁC TRƯỜNG MỚI + ÉP KIỂU INT) ----
 elif chon_menu == "🛒 Giỏ Hàng":
     # Nếu đang hiển thị đơn hàng vừa đặt, ưu tiên hiển thị thông tin
     if st.session_state.hien_thi_don_hang:
@@ -706,10 +708,9 @@ elif chon_menu == "🛒 Giỏ Hàng":
                             st.session_state.hien_thi_don_hang = True
                             st.session_state.gio_hang = {}  # Xóa giỏ hàng
                             st.rerun()
-                            
-# ---- TRA CỨU ĐƠN HÀNG (ĐÃ SỬA LỖI SĐT) ----
+
+# ---- TRA CỨU ĐƠN HÀNG ----
 elif chon_menu == "🔍 Tra Cứu Đơn Hàng":
-    # ... (giữ nguyên code Tra Cứu, nhưng cập nhật hiển thị thêm các cột mới nếu có)
     st.markdown("<h1 style='color: #2e7d32; text-align:center;'>🔍 Tra cứu đơn hàng</h1>", unsafe_allow_html=True)
     st.markdown("<p style='color: #0066cc; text-align:center;'>Nhập số điện thoại để xem lịch sử đơn hàng của bạn.</p>", unsafe_allow_html=True)
     
@@ -773,7 +774,6 @@ elif chon_menu == "🔍 Tra Cứu Đơn Hàng":
 
 # ---- THÔNG TIN ----
 elif chon_menu == "📞 Thông Tin":
-    # ... (giữ nguyên code Thông Tin)
     st.markdown("<h1 style='text-align:center;color:#2e7d32;'>📍 Thông Tin Cửa Hàng</h1>", unsafe_allow_html=True)
     col_info, col_map = st.columns([1, 1.2], gap="large")
     with col_info:
@@ -792,7 +792,7 @@ elif chon_menu == "📞 Thông Tin":
         toa_do = pd.DataFrame({'lat': [13.8930853], 'lon': [109.1002733]})
         st.map(toa_do, zoom=14)
 
-# ---- QUẢN TRỊ (ĐÃ CẬP NHẬT DROPDOWN TRẠNG THÁI + CỘT MỚI) ----
+# ---- QUẢN TRỊ ----
 elif chon_menu == "📊 Quản Trị":
     if not st.session_state.da_dang_nhap:
         col_l, col_m, col_r = st.columns([1,1.5,1])
@@ -955,4 +955,3 @@ st.markdown("""
     </a>
 </div>
 """, unsafe_allow_html=True)
-
