@@ -7,6 +7,7 @@ import pandas as pd
 import time
 import re
 import random
+import html
 
 # =============================
 # 1. CẤU HÌNH TRANG & ẨN TOOLBAR
@@ -432,21 +433,21 @@ def chuan_hoa_sdt(sdt):
 # =============================
 def hien_thi_thong_tin_don_hang():
     don = st.session_state.don_hang_vua_dat
-    
-    # Tạo các dòng sản phẩm
+
+    # Tạo các dòng sản phẩm, mỗi dòng là một chuỗi HTML hoàn chỉnh, có escape tên sản phẩm
     rows_html = ""
     for sp in don['san_pham']:
-        rows_html += f"""
-        <tr>
-            <td>{sp['ten']}</td>
-            <td>{sp['so_luong']}</td>
-            <td>{format_vnd(sp['don_gia'])}</td>
-            <td>{format_vnd(sp['thanh_tien'])}</td>
-        </tr>
-        """
-    
-    # Toàn bộ HTML
-    html = f"""
+        rows_html += (
+            "<tr>"
+            f"<td>{html.escape(sp['ten'])}</td>"
+            f"<td>{sp['so_luong']}</td>"
+            f"<td>{format_vnd(sp['don_gia'])}</td>"
+            f"<td>{format_vnd(sp['thanh_tien'])}</td>"
+            "</tr>"
+        )
+
+    # Toàn bộ nội dung HTML của card đơn hàng
+    html_content = f"""
     <div class="don-hang-card">
         <div class="don-hang-header">
             <h2>🎉 CẢM ƠN BẠN. ĐƠN HÀNG CỦA BẠN ĐÃ ĐƯỢC NHẬN.</h2>
@@ -454,11 +455,11 @@ def hien_thi_thong_tin_don_hang():
         <div class="don-hang-info">
             <div class="info-row">
                 <span class="info-label">MÃ ĐƠN HÀNG:</span>
-                <span class="info-value">{don['ma_don']}</span>
+                <span class="info-value">{html.escape(don['ma_don'])}</span>
             </div>
             <div class="info-row">
                 <span class="info-label">NGÀY:</span>
-                <span class="info-value">{don['ngay']}</span>
+                <span class="info-value">{html.escape(don['ngay'])}</span>
             </div>
             <div class="info-row">
                 <span class="info-label">TỔNG CỘNG:</span>
@@ -466,7 +467,7 @@ def hien_thi_thong_tin_don_hang():
             </div>
             <div class="info-row">
                 <span class="info-label">PHƯƠNG THỨC THANH TOÁN:</span>
-                <span class="info-value">{don['phuong_thuc_tt']}</span>
+                <span class="info-value">{html.escape(don['phuong_thuc_tt'])}</span>
             </div>
         </div>
         <h3 style="color: #2e7d32;">Chi Tiết Đơn Hàng</h3>
@@ -478,16 +479,25 @@ def hien_thi_thong_tin_don_hang():
                 {rows_html}
             </tbody>
             <tfoot>
-                <tr class="total-row"><td colspan="3" style="text-align:right;">Tổng tiền hàng:</td><td>{format_vnd(don['tong_hang'])}</td></tr>
-                <tr class="total-row"><td colspan="3" style="text-align:right;">Phí ship:</td><td>{format_vnd(don['phi_ship'])}</td></tr>
-                <tr class="total-row"><td colspan="3" style="text-align:right;">Tổng thanh toán:</td><td>{format_vnd(don['tong_thanh_toan'])}</td></tr>
+                <tr class="total-row">
+                    <td colspan="3" style="text-align:right;">Tổng tiền hàng:</td>
+                    <td>{format_vnd(don['tong_hang'])}</td>
+                </tr>
+                <tr class="total-row">
+                    <td colspan="3" style="text-align:right;">Phí ship:</td>
+                    <td>{format_vnd(don['phi_ship'])}</td>
+                </tr>
+                <tr class="total-row">
+                    <td colspan="3" style="text-align:right;">Tổng thanh toán:</td>
+                    <td>{format_vnd(don['tong_thanh_toan'])}</td>
+                </tr>
             </tfoot>
         </table>
     </div>
     """
-    
-    st.markdown(html, unsafe_allow_html=True)
-    
+
+    st.markdown(html_content, unsafe_allow_html=True)
+
     if st.button("⬅ Tiếp tục mua sắm"):
         st.session_state.hien_thi_don_hang = False
         st.session_state.tab_index = 0  # Về trang chủ
@@ -955,3 +965,4 @@ st.markdown("""
     </a>
 </div>
 """, unsafe_allow_html=True)
+
