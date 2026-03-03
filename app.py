@@ -9,6 +9,7 @@ import re
 import random
 import html
 import json
+import os  # <-- THÊM: để xử lý đường dẫn file
 
 # =============================
 # 1. CẤU HÌNH TRANG & ẨN TOOLBAR
@@ -634,14 +635,20 @@ elif chon_menu == "🛒 Giỏ Hàng":
                     })
                     st.markdown(f"<p style='color: #0066cc; font-size: 1.1rem;'>✅ {sp['Sản phẩm']} x{sl} - {format_vnd(thanh_tien)}</p>", unsafe_allow_html=True)
             
-            # --- Đọc dữ liệu địa chỉ từ file JSON ---
+            # --- Đọc dữ liệu địa chỉ từ file JSON (đã sửa đường dẫn) ---
             @st.cache_data
             def load_dia_chi():
+                # SỬA: Dùng đường dẫn tuyệt đối dựa trên thư mục chứa file app.py
+                file_path = os.path.join(os.path.dirname(__file__), 'dia_chi.json')
                 try:
-                    with open('dia_chi.json', 'r', encoding='utf-8') as f:
+                    with open(file_path, 'r', encoding='utf-8') as f:
                         data = json.load(f)
                     return data
                 except FileNotFoundError:
+                    st.warning(f"Không tìm thấy file dia_chi.json tại {file_path}. Sẽ dùng danh sách tỉnh dự phòng và cho phép nhập tay.")
+                    return None
+                except json.JSONDecodeError:
+                    st.error("File dia_chi.json bị lỗi định dạng. Vui lòng kiểm tra lại.")
                     return None
 
             dia_chi_data = load_dia_chi()
@@ -654,10 +661,14 @@ elif chon_menu == "🛒 Giỏ Hàng":
                 phuong_xa_map = {}
                 for tinh in dia_chi_data:
                     tinh_name = tinh['name']
-                    quan_huyen_map[tinh_name] = ["-- Chọn quận/huyện --"] + [qh['name'] for qh in tinh.get('quan_huyen', [])]
+                    # Lấy danh sách quận/huyện, thêm option mặc định
+                    qh_list = ["-- Chọn quận/huyện --"] + [qh['name'] for qh in tinh.get('quan_huyen', [])]
+                    quan_huyen_map[tinh_name] = qh_list
+                    # Xây dựng mapping quận/huyện -> phường/xã
                     for qh in tinh.get('quan_huyen', []):
                         qh_name = qh['name']
-                        phuong_xa_map[qh_name] = ["-- Chọn phường/xã --"] + [px['name'] for px in qh.get('phuong_xa', [])]
+                        px_list = ["-- Chọn phường/xã --"] + [px['name'] for px in qh.get('phuong_xa', [])]
+                        phuong_xa_map[qh_name] = px_list
             else:
                 # Danh sách 63 tỉnh/thành dự phòng
                 tinh_list = [
@@ -1054,8 +1065,3 @@ st.markdown("""
     </a>
 </div>
 """, unsafe_allow_html=True)
-
-
-
-
-
