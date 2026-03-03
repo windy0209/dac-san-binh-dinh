@@ -598,7 +598,8 @@ elif chon_menu == "🛍️ Cửa Hàng":
                         
                         st.markdown('</div>', unsafe_allow_html=True)
                         st.write("")
-# ---- GIỎ HÀNG (ĐÃ SỬA LỖI SĐT + BỔ SUNG CÁC TRƯỜNG MỚI + ÉP KIỂU INT + DROPDOWN ĐỊA CHỈ) ----
+
+# ---- GIỎ HÀNG (ĐÃ SỬA LỖI SĐT + BỔ SUNG CÁC TRƯỜNG MỚI + ÉP KIỂU INT + DROPDOWN ĐỊA CHỈ CÓ FALLBACK) ----
 elif chon_menu == "🛒 Giỏ Hàng":
     # Nếu đang hiển thị đơn hàng vừa đặt, ưu tiên hiển thị thông tin
     if st.session_state.hien_thi_don_hang:
@@ -638,71 +639,89 @@ elif chon_menu == "🛒 Giỏ Hàng":
                 ho_ten = st.text_input("Họ tên *")
                 so_dt = st.text_input("Số điện thoại *", placeholder="VD: 0932642376")
                 
-                                # --- Địa chỉ với dropdown ---
                 # --- Địa chỉ với dropdown (có fallback nhập tay) ---
-st.subheader("🏠 Địa chỉ nhận hàng")
-
-# Dữ liệu mẫu (có thể mở rộng sau)
-tinh_thanh_list = ["-- Chọn tỉnh/thành --", "Hồ Chí Minh", "Hà Nội", "Bình Định", "Đà Nẵng"]
-quan_huyen_dict = {
-    "Hồ Chí Minh": ["-- Chọn quận/huyện --", "Quận 1", "Quận 2", "Quận 3", "Quận 4", "Quận 5", "Quận 6", "Quận 7", "Quận 8", "Quận 9", "Quận 10", "Quận 11", "Quận 12", "Bình Tân", "Bình Thạnh", "Gò Vấp", "Phú Nhuận", "Tân Bình", "Tân Phú", "Thủ Đức", "Củ Chi", "Hóc Môn", "Bình Chánh", "Nhà Bè", "Cần Giờ"],
-    "Hà Nội": ["-- Chọn quận/huyện --", "Ba Đình", "Hoàn Kiếm", "Hai Bà Trưng", "Đống Đa", "Tây Hồ", "Cầu Giấy", "Thanh Xuân", "Hoàng Mai", "Long Biên", "Bắc Từ Liêm", "Nam Từ Liêm", "Hà Đông", "Sơn Tây", "Ba Vì", "Chương Mỹ", "Đan Phượng", "Đông Anh", "Gia Lâm", "Hoài Đức", "Mê Linh", "Mỹ Đức", "Phú Xuyên", "Phúc Thọ", "Quốc Oai", "Sóc Sơn", "Thạch Thất", "Thanh Oai", "Thanh Trì", "Thường Tín", "Ứng Hòa"],
-    "Bình Định": ["-- Chọn quận/huyện --", "Quy Nhơn", "An Nhơn", "Hoài Nhơn", "Tuy Phước", "Phù Cát", "Phù Mỹ", "Vĩnh Thạnh", "Tây Sơn", "Vân Canh", "An Lão", "Hoài Ân"],
-    "Đà Nẵng": ["-- Chọn quận/huyện --", "Hải Châu", "Thanh Khê", "Sơn Trà", "Ngũ Hành Sơn", "Liên Chiểu", "Cẩm Lệ", "Hòa Vang"]
-}
-
-phuong_xa_dict = {
-    "Quận 1": ["-- Chọn phường/xã --", "Phường Bến Nghé", "Phường Bến Thành", "Phường Cầu Kho", "Phường Cầu Ông Lãnh", "Phường Cô Giang", "Phường Đa Kao", "Phường Nguyễn Cư Trinh", "Phường Nguyễn Thái Bình", "Phường Phạm Ngũ Lão", "Phường Tân Định"],
-    "Quận 2": ["-- Chọn phường/xã --", "Phường An Khánh", "Phường An Lợi Đông", "Phường An Phú", "Phường Bình An", "Phường Bình Khánh", "Phường Bình Trưng Đông", "Phường Bình Trưng Tây", "Phường Cát Lái", "Phường Thạnh Mỹ Lợi", "Phường Thảo Điền"],
-    "Quận 3": ["-- Chọn phường/xã --", "Phường 1", "Phường 2", "Phường 3", "Phường 4", "Phường 5", "Phường 6", "Phường 7", "Phường 8", "Phường 9", "Phường 10", "Phường 11", "Phường 12", "Phường 13", "Phường 14"],
-    # ... (các quận khác giữ nguyên như code cũ)
-}
-
-col1, col2 = st.columns(2)
-with col1:
-    tinh = st.selectbox("Tỉnh/Thành phố *", options=tinh_thanh_list, index=0)
-with col2:
-    # Xử lý quận/huyện
-    if tinh != "-- Chọn tỉnh/thành --":
-        # Lấy danh sách quận/huyện cho tỉnh đã chọn, nếu không có thì dùng danh sách rỗng
-        quan_options = quan_huyen_dict.get(tinh, [])
-        if quan_options:
-            # Nếu có dữ liệu, hiển thị selectbox
-            huyen = st.selectbox("Quận/Huyện *", options=quan_options, index=0)
-            huyen_text = huyen if huyen != "-- Chọn quận/huyện --" else ""
-        else:
-            # Nếu không có dữ liệu, cho nhập tay
-            st.caption(f"Không có dữ liệu quận/huyện cho {tinh}, vui lòng nhập tay")
-            huyen_text = st.text_input("Quận/Huyện *", placeholder="Nhập tên quận/huyện")
-    else:
-        # Chưa chọn tỉnh, disable
-        st.selectbox("Quận/Huyện *", options=["-- Chọn quận/huyện --"], index=0, disabled=True)
-        huyen_text = ""
-
-col3, col4 = st.columns(2)
-with col3:
-    # Xử lý phường/xã
-    if tinh != "-- Chọn tỉnh/thành --" and huyen_text and huyen_text != "-- Chọn quận/huyện --":
-        # Kiểm tra xem quận đã chọn có trong dictionary phường/xã không
-        if huyen_text in phuong_xa_dict:
-            xa_options = phuong_xa_dict[huyen_text]
-            xa = st.selectbox("Phường/Xã *", options=xa_options, index=0)
-            xa_text = xa if xa != "-- Chọn phường/xã --" else ""
-        else:
-            st.caption(f"Không có dữ liệu phường/xã cho {huyen_text}, vui lòng nhập tay")
-            xa_text = st.text_input("Phường/Xã *", placeholder="Nhập tên phường/xã")
-    else:
-        # Chưa chọn đủ, disable
-        st.selectbox("Phường/Xã *", options=["-- Chọn phường/xã --"], index=0, disabled=True)
-        xa_text = ""
-
-with col4:
-    so_nha = st.text_input("Số nhà, tên đường *", placeholder="VD: 123 Nguyễn Huệ")
-
-# Ghép địa chỉ hoàn chỉnh
-dia_chi_day_du = ""
-if tinh != "-- Chọn tỉnh/thành --" and huyen_text and huyen_text != "-- Chọn quận/huyện --" and xa_text and so_nha.strip():
-    dia_chi_day_du = f"{so_nha.strip()}, {xa_text}, {huyen_text}, {tinh}"
+                st.subheader("🏠 Địa chỉ nhận hàng")
+                
+                # Dữ liệu mẫu (có thể thay bằng file JSON sau)
+                tinh_thanh_list = ["-- Chọn tỉnh/thành --", "Hồ Chí Minh", "Hà Nội", "Bình Định", "Đà Nẵng"]
+                quan_huyen_dict = {
+                    "Hồ Chí Minh": ["-- Chọn quận/huyện --", "Quận 1", "Quận 2", "Quận 3", "Quận 4", "Quận 5", "Quận 6", "Quận 7", "Quận 8", "Quận 9", "Quận 10", "Quận 11", "Quận 12", "Bình Tân", "Bình Thạnh", "Gò Vấp", "Phú Nhuận", "Tân Bình", "Tân Phú", "Thủ Đức", "Củ Chi", "Hóc Môn", "Bình Chánh", "Nhà Bè", "Cần Giờ"],
+                    "Hà Nội": ["-- Chọn quận/huyện --", "Ba Đình", "Hoàn Kiếm", "Hai Bà Trưng", "Đống Đa", "Tây Hồ", "Cầu Giấy", "Thanh Xuân", "Hoàng Mai", "Long Biên", "Bắc Từ Liêm", "Nam Từ Liêm", "Hà Đông", "Sơn Tây", "Ba Vì", "Chương Mỹ", "Đan Phượng", "Đông Anh", "Gia Lâm", "Hoài Đức", "Mê Linh", "Mỹ Đức", "Phú Xuyên", "Phúc Thọ", "Quốc Oai", "Sóc Sơn", "Thạch Thất", "Thanh Oai", "Thanh Trì", "Thường Tín", "Ứng Hòa"],
+                    "Bình Định": ["-- Chọn quận/huyện --", "Quy Nhơn", "An Nhơn", "Hoài Nhơn", "Tuy Phước", "Phù Cát", "Phù Mỹ", "Vĩnh Thạnh", "Tây Sơn", "Vân Canh", "An Lão", "Hoài Ân"],
+                    "Đà Nẵng": ["-- Chọn quận/huyện --", "Hải Châu", "Thanh Khê", "Sơn Trà", "Ngũ Hành Sơn", "Liên Chiểu", "Cẩm Lệ", "Hòa Vang"]
+                }
+                
+                # Dictionary phường/xã chỉ có dữ liệu cho một số quận (có thể bổ sung sau)
+                phuong_xa_dict = {
+                    "Quận 1": ["-- Chọn phường/xã --", "Phường Bến Nghé", "Phường Bến Thành", "Phường Cầu Kho", "Phường Cầu Ông Lãnh", "Phường Cô Giang", "Phường Đa Kao", "Phường Nguyễn Cư Trinh", "Phường Nguyễn Thái Bình", "Phường Phạm Ngũ Lão", "Phường Tân Định"],
+                    "Quận 2": ["-- Chọn phường/xã --", "Phường An Khánh", "Phường An Lợi Đông", "Phường An Phú", "Phường Bình An", "Phường Bình Khánh", "Phường Bình Trưng Đông", "Phường Bình Trưng Tây", "Phường Cát Lái", "Phường Thạnh Mỹ Lợi", "Phường Thảo Điền"],
+                    "Quận 3": ["-- Chọn phường/xã --", "Phường 1", "Phường 2", "Phường 3", "Phường 4", "Phường 5", "Phường 6", "Phường 7", "Phường 8", "Phường 9", "Phường 10", "Phường 11", "Phường 12", "Phường 13", "Phường 14"],
+                    "Quận 4": ["-- Chọn phường/xã --", "Phường 1", "Phường 2", "Phường 3", "Phường 4", "Phường 5", "Phường 6", "Phường 7", "Phường 8", "Phường 9", "Phường 10", "Phường 11", "Phường 12", "Phường 13", "Phường 14", "Phường 15", "Phường 16", "Phường 17", "Phường 18"],
+                    "Quận 5": ["-- Chọn phường/xã --", "Phường 1", "Phường 2", "Phường 3", "Phường 4", "Phường 5", "Phường 6", "Phường 7", "Phường 8", "Phường 9", "Phường 10", "Phường 11", "Phường 12", "Phường 13", "Phường 14", "Phường 15"],
+                    "Quận 6": ["-- Chọn phường/xã --", "Phường 1", "Phường 2", "Phường 3", "Phường 4", "Phường 5", "Phường 6", "Phường 7", "Phường 8", "Phường 9", "Phường 10", "Phường 11", "Phường 12", "Phường 13", "Phường 14"],
+                    "Quận 7": ["-- Chọn phường/xã --", "Phường Bình Thuận", "Phường Phú Mỹ", "Phường Phú Thuận", "Phường Tân Hưng", "Phường Tân Kiểng", "Phường Tân Phong", "Phường Tân Phú", "Phường Tân Quy", "Phường Tân Thuận Đông", "Phường Tân Thuận Tây"],
+                    "Quận 8": ["-- Chọn phường/xã --", "Phường 1", "Phường 2", "Phường 3", "Phường 4", "Phường 5", "Phường 6", "Phường 7", "Phường 8", "Phường 9", "Phường 10", "Phường 11", "Phường 12", "Phường 13", "Phường 14", "Phường 15", "Phường 16"],
+                    "Quận 9": ["-- Chọn phường/xã --", "Phường Hiệp Phú", "Phường Long Bình", "Phường Long Phước", "Phường Long Thạnh Mỹ", "Phường Long Trường", "Phường Phú Hữu", "Phường Phước Bình", "Phường Phước Long A", "Phường Phước Long B", "Phường Tân Phú", "Phường Tăng Nhơn Phú A", "Phường Tăng Nhơn Phú B"],
+                    "Quận 10": ["-- Chọn phường/xã --", "Phường 1", "Phường 2", "Phường 3", "Phường 4", "Phường 5", "Phường 6", "Phường 7", "Phường 8", "Phường 9", "Phường 10", "Phường 11", "Phường 12", "Phường 13", "Phường 14", "Phường 15"],
+                    "Quận 11": ["-- Chọn phường/xã --", "Phường 1", "Phường 2", "Phường 3", "Phường 4", "Phường 5", "Phường 6", "Phường 7", "Phường 8", "Phường 9", "Phường 10", "Phường 11", "Phường 12", "Phường 13", "Phường 14", "Phường 15", "Phường 16"],
+                    "Quận 12": ["-- Chọn phường/xã --", "Phường An Phú Đông", "Phường Đông Hưng Thuận", "Phường Hiệp Thành", "Phường Tân Chánh Hiệp", "Phường Tân Hưng Thuận", "Phường Tân Thới Hiệp", "Phường Tân Thới Nhất", "Phường Thạnh Lộc", "Phường Thạnh Xuân", "Phường Thới An", "Phường Trung Mỹ Tây"],
+                    "Bình Thạnh": ["-- Chọn phường/xã --", "Phường 1", "Phường 2", "Phường 3", "Phường 5", "Phường 6", "Phường 7", "Phường 11", "Phường 12", "Phường 13", "Phường 14", "Phường 15", "Phường 17", "Phường 19", "Phường 21", "Phường 22", "Phường 24", "Phường 25", "Phường 26", "Phường 27", "Phường 28"],
+                    "Gò Vấp": ["-- Chọn phường/xã --", "Phường 1", "Phường 3", "Phường 4", "Phường 5", "Phường 6", "Phường 7", "Phường 8", "Phường 9", "Phường 10", "Phường 11", "Phường 12", "Phường 13", "Phường 14", "Phường 15", "Phường 16", "Phường 17"],
+                    "Phú Nhuận": ["-- Chọn phường/xã --", "Phường 1", "Phường 2", "Phường 3", "Phường 4", "Phường 5", "Phường 7", "Phường 8", "Phường 9", "Phường 10", "Phường 11", "Phường 12", "Phường 13", "Phường 14", "Phường 15", "Phường 17"],
+                    "Tân Bình": ["-- Chọn phường/xã --", "Phường 1", "Phường 2", "Phường 3", "Phường 4", "Phường 5", "Phường 6", "Phường 7", "Phường 8", "Phường 9", "Phường 10", "Phường 11", "Phường 12", "Phường 13", "Phường 14", "Phường 15"],
+                    "Tân Phú": ["-- Chọn phường/xã --", "Phường Hiệp Tân", "Phường Hòa Thạnh", "Phường Phú Thạnh", "Phường Phú Thọ Hòa", "Phường Phú Trung", "Phường Sơn Kỳ", "Phường Tân Quý", "Phường Tân Sơn Nhì", "Phường Tân Thành", "Phường Tân Thới Hòa", "Phường Tây Thạnh"],
+                    "Thủ Đức": ["-- Chọn phường/xã --", "Phường Bình Chiểu", "Phường Bình Thọ", "Phường Hiệp Bình Chánh", "Phường Hiệp Bình Phước", "Phường Linh Chiểu", "Phường Linh Đông", "Phường Linh Tây", "Phường Linh Trung", "Phường Linh Xuân", "Phường Tam Bình", "Phường Tam Phú", "Phường Trường Thọ"],
+                    "Quy Nhơn": ["-- Chọn phường/xã --", "Phường Lê Hồng Phong", "Phường Trần Hưng Đạo", "Phường Lý Thường Kiệt", "Phường Nguyễn Văn Cừ", "Phường Ngô Mây", "Phường Thị Nại", "Phường Đống Đa", "Phường Trần Phú", "Phường Hải Cảng", "Phường Ghềnh Ráng", "Phường Nhơn Bình", "Phường Nhơn Phú", "Xã Nhơn Hải", "Xã Nhơn Hội", "Xã Nhơn Lý", "Xã Nhơn Châu"],
+                    "An Nhơn": ["-- Chọn phường/xã --", "Phường Bình Định", "Phường Đập Đá", "Phường Nhơn Hòa", "Phường Nhơn Thành", "Xã Nhơn An", "Xã Nhơn Hạnh", "Xã Nhơn Hậu", "Xã Nhơn Khánh", "Xã Nhơn Lộc", "Xã Nhơn Mỹ", "Xã Nhơn Phong", "Xã Nhơn Phúc", "Xã Nhơn Tân", "Xã Nhơn Thọ"],
+                    "Hoài Nhơn": ["-- Chọn phường/xã --", "Phường Bồng Sơn", "Phường Hoài Đức", "Phường Hoài Hảo", "Phường Hoài Hương", "Phường Hoài Tân", "Phường Hoài Thanh", "Phường Hoài Thanh Tây", "Phường Tam Quan", "Phường Tam Quan Bắc", "Xã Hoài Châu", "Xã Hoài Châu Bắc", "Xã Hoài Hải", "Xã Hoài Mỹ", "Xã Hoài Phú", "Xã Hoài Sơn", "Xã Hoài Xuân"],
+                    "Tuy Phước": ["-- Chọn phường/xã --", "Phường Diêu Trì", "Thị trấn Tuy Phước", "Xã Phước An", "Xã Phước Hiệp", "Xã Phước Hòa", "Xã Phước Hưng", "Xã Phước Lộc", "Xã Phước Nghĩa", "Xã Phước Quang", "Xã Phước Sơn", "Xã Phước Thắng", "Xã Phước Thành", "Xã Phước Thuận"],
+                }
+                
+                col1, col2 = st.columns(2)
+                with col1:
+                    tinh = st.selectbox("Tỉnh/Thành phố *", options=tinh_thanh_list, index=0)
+                with col2:
+                    # Xử lý quận/huyện
+                    if tinh != "-- Chọn tỉnh/thành --":
+                        # Lấy danh sách quận/huyện cho tỉnh đã chọn, nếu không có thì dùng danh sách rỗng
+                        quan_options = quan_huyen_dict.get(tinh, [])
+                        if quan_options:
+                            # Nếu có dữ liệu, hiển thị selectbox
+                            huyen = st.selectbox("Quận/Huyện *", options=quan_options, index=0)
+                            huyen_text = huyen if huyen != "-- Chọn quận/huyện --" else ""
+                        else:
+                            # Nếu không có dữ liệu, cho nhập tay
+                            st.caption(f"Không có dữ liệu quận/huyện cho {tinh}, vui lòng nhập tay")
+                            huyen_text = st.text_input("Quận/Huyện *", placeholder="Nhập tên quận/huyện")
+                    else:
+                        # Chưa chọn tỉnh, disable
+                        st.selectbox("Quận/Huyện *", options=["-- Chọn quận/huyện --"], index=0, disabled=True)
+                        huyen_text = ""
+                
+                col3, col4 = st.columns(2)
+                with col3:
+                    # Xử lý phường/xã
+                    if tinh != "-- Chọn tỉnh/thành --" and huyen_text and huyen_text != "-- Chọn quận/huyện --":
+                        # Kiểm tra xem quận đã chọn có trong dictionary phường/xã không
+                        if huyen_text in phuong_xa_dict:
+                            xa_options = phuong_xa_dict[huyen_text]
+                            xa = st.selectbox("Phường/Xã *", options=xa_options, index=0)
+                            xa_text = xa if xa != "-- Chọn phường/xã --" else ""
+                        else:
+                            st.caption(f"Không có dữ liệu phường/xã cho {huyen_text}, vui lòng nhập tay")
+                            xa_text = st.text_input("Phường/Xã *", placeholder="Nhập tên phường/xã")
+                    else:
+                        # Chưa chọn đủ, disable
+                        st.selectbox("Phường/Xã *", options=["-- Chọn phường/xã --"], index=0, disabled=True)
+                        xa_text = ""
+                
+                with col4:
+                    so_nha = st.text_input("Số nhà, tên đường *", placeholder="VD: 123 Nguyễn Huệ")
+                
+                # Ghép địa chỉ hoàn chỉnh
+                dia_chi_day_du = ""
+                if tinh != "-- Chọn tỉnh/thành --" and huyen_text and huyen_text != "-- Chọn quận/huyện --" and xa_text and so_nha.strip():
+                    dia_chi_day_du = f"{so_nha.strip()}, {xa_text}, {huyen_text}, {tinh}"
                 
                 st.subheader("🚚 Vận chuyển")
                 khu_vuc = st.radio(
@@ -714,7 +733,7 @@ if tinh != "-- Chọn tỉnh/thành --" and huyen_text and huyen_text != "-- Ch�
                 
                 khung_gio = st.selectbox(
                     "Khung giờ giao hàng (dự kiến)",
-                    ["8:00 - 11:00", "11:00 - 13:00", "13:00 - 16:00", "16:00 - 19:00"]
+                    ["8:00 - 11:00", "11:00 - 13:00", "13:00 - 16:00", "16:00 - 19:00", "19:00 - 21:00"]
                 )
                 
                 st.subheader("💳 Thanh toán")
@@ -790,6 +809,7 @@ if tinh != "-- Chọn tỉnh/thành --" and huyen_text and huyen_text != "-- Ch�
                             st.session_state.hien_thi_don_hang = True
                             st.session_state.gio_hang = {}  # Xóa giỏ hàng
                             st.rerun()
+
 # ---- TRA CỨU ĐƠN HÀNG ----
 elif chon_menu == "🔍 Tra Cứu Đơn Hàng":
     st.markdown("<h1 style='color: #2e7d32; text-align:center;'>🔍 Tra cứu đơn hàng</h1>", unsafe_allow_html=True)
@@ -1036,10 +1056,3 @@ st.markdown("""
     </a>
 </div>
 """, unsafe_allow_html=True)
-
-
-
-
-
-
-
