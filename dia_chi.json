@@ -14,10 +14,6 @@
         "phuong_xa": [
           {"name": "Phường An Khánh"},
           {"name": "Phường Thảo Điền"}
-            {"name": "Phường Thảo Điền"}
-            {"name": "Phường Thảo Điền"}
-            {"name": "Phường Thảo Điền"}
-            {"name": "Phường Thảo Điền"}
         ]
       }
     ]
@@ -29,22 +25,7 @@
         "name": "Ba Đình",
         "phuong_xa": [
           {"name": "Phường 1"},
-          {"name": "Phường 2"},
-          {"name": "Phường Phúc Xá"},
-          {"name": "Phường Trúc Bạch"}
-          {"name": "Phường Vĩnh Phúc"}
-          {"name": "Phường Cống Vị"}
-          {"name": "Phường Liễu Giai"}
-          {"name": "Phường Nguyễn Trung Trực"}
-          {"name": "Phường Quán Thánh"}
-          {"name": "Phường Ngọc Hà"}
-          {"name": "Phường Điện Biên"}
-          {"name": "Phường Đội Cấn"}
-          {"name": "Phường Ngọc Khánh"}
-          {"name": "Phường Kim Mã"}
-          {"name": "Phường Giảng Võ"}
-          {"name": "Phường Thành Công"}
-            
+          {"name": "Phường 2"}
         ]
       }
     ]
