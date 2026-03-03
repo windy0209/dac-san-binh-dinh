@@ -10,6 +10,7 @@ import random
 import html
 import json
 import os  # <-- THÊM: để xử lý đường dẫn file
+import requests
 
 # =============================
 # 1. CẤU HÌNH TRANG & ẨN TOOLBAR
@@ -638,21 +639,21 @@ elif chon_menu == "🛒 Giỏ Hàng":
             # --- Đọc dữ liệu địa chỉ từ file JSON (đã sửa đường dẫn) ---
             @st.cache_data
             def load_dia_chi():
-                # SỬA: Dùng đường dẫn tuyệt đối dựa trên thư mục chứa file app.py
-                file_path = os.path.join(os.path.dirname(__file__), 'dia_chi.json')
+                # URL raw của file dia_chi.json trên GitHub (thay bằng link thật của bạn)
+                url = "https://raw.githubusercontent.com/username/repo/branch/dia_chi.json"
                 try:
-                    with open(file_path, 'r', encoding='utf-8') as f:
-                        data = json.load(f)
+                    response = requests.get(url)
+                    response.raise_for_status()  # Kiểm tra lỗi HTTP
+                    data = response.json()
                     return data
-                except FileNotFoundError:
-                    st.warning(f"Không tìm thấy file dia_chi.json tại {file_path}. Sẽ dùng danh sách tỉnh dự phòng và cho phép nhập tay.")
+                except requests.exceptions.RequestException as e:
+                    st.warning(f"Không thể tải file từ GitHub: {e}. Sẽ dùng danh sách tỉnh dự phòng.")
                     return None
                 except json.JSONDecodeError:
-                    st.error("File dia_chi.json bị lỗi định dạng. Vui lòng kiểm tra lại.")
+                    st.error("Dữ liệu từ GitHub không đúng định dạng JSON.")
                     return None
-
-            dia_chi_data = load_dia_chi()
-            
+                        dia_chi_data = load_dia_chi()
+                        
             # Nếu có file JSON thì lấy danh sách tỉnh từ đó, nếu không thì dùng danh sách mặc định
             if dia_chi_data:
                 tinh_list = ["-- Chọn tỉnh/thành --"] + [item['name'] for item in dia_chi_data]
@@ -1065,3 +1066,4 @@ st.markdown("""
     </a>
 </div>
 """, unsafe_allow_html=True)
+
