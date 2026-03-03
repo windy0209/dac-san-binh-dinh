@@ -11,6 +11,7 @@ import html
 import json
 import os  
 import requests
+import pytz
 
 # =============================
 # 1. CẤU HÌNH TRANG & ẨN TOOLBAR
@@ -651,7 +652,6 @@ elif chon_menu == "🛒 Giỏ Hàng":
             @st.cache_data
             def load_dia_chi():
                 url = "https://raw.githubusercontent.com/windy0209/dac-san-binh-dinh/main/dia_chi.json"
-                
                 try:
                     response = requests.get(url)
                     response.raise_for_status()
@@ -680,9 +680,9 @@ elif chon_menu == "🛒 Giỏ Hàng":
                     "-- Chọn tỉnh/thành --",
                     "An Giang", "Bà Rịa - Vũng Tàu", "Bạc Liêu", "Bắc Giang", "Bắc Kạn", "Bắc Ninh",
                     "Bến Tre", "Bình Dương", "Bình Định", "Bình Phước", "Bình Thuận", "Cà Mau",
-                    "Cao Bằng", "Cần Thơ", "Tp.Đà Nẵng", "Đắk Lắk", "Đắk Nông", "Điện Biên", "Đồng Nai",
-                    "Đồng Tháp", "Gia Lai", "Hà Giang", "Hà Nam", "Tp.Hà Nội", "Hà Tĩnh", "Hải Dương",
-                    "Tp.Hải Phòng", "Hậu Giang", "Hòa Bình", "Tp.Hồ Chí Minh", "Hưng Yên",
+                    "Cao Bằng", "Cần Thơ", "Đà Nẵng", "Đắk Lắk", "Đắk Nông", "Điện Biên", "Đồng Nai",
+                    "Đồng Tháp", "Gia Lai", "Hà Giang", "Hà Nam", "Hà Nội", "Hà Tĩnh", "Hải Dương",
+                    "Hải Phòng", "Hậu Giang", "Hòa Bình", "Thành phố Hồ Chí Minh", "Hưng Yên",
                     "Khánh Hòa", "Kiên Giang", "Kon Tum", "Lai Châu", "Lạng Sơn", "Lào Cai", "Lâm Đồng",
                     "Long An", "Nam Định", "Nghệ An", "Ninh Bình", "Ninh Thuận", "Phú Thọ", "Phú Yên",
                     "Quảng Bình", "Quảng Nam", "Quảng Ngãi", "Quảng Ninh", "Quảng Trị", "Sóc Trăng",
@@ -692,7 +692,7 @@ elif chon_menu == "🛒 Giỏ Hàng":
                 quan_huyen_map = {}
                 phuong_xa_map = {}
 
-            # --- CÁC CALLBACK (đặt ngoài form) ---
+            # --- CÁC CALLBACK ---
             def cap_nhat_tinh():
                 st.session_state.dia_chi_huyen = "-- Chọn quận/huyện --"
                 st.session_state.dia_chi_xa = "-- Chọn phường/xã --"
@@ -713,7 +713,6 @@ elif chon_menu == "🛒 Giỏ Hàng":
             # --- PHẦN CHỌN ĐỊA CHỈ (NGOÀI FORM) ---
             st.subheader("🏠 Địa chỉ nhận hàng")
             
-            # Hàng 1: Tỉnh và Quận/Huyện
             col1, col2 = st.columns(2)
             with col1:
                 tinh_index = tinh_list.index(st.session_state.dia_chi_tinh) if st.session_state.dia_chi_tinh in tinh_list else 0
@@ -748,7 +747,6 @@ elif chon_menu == "🛒 Giỏ Hàng":
                     )
                     huyen_text = huyen_tay
             
-            # Hàng 2: Phường/Xã và Số nhà
             col3, col4 = st.columns(2)
             with col3:
                 if huyen_text and huyen_text != "-- Chọn quận/huyện --" and huyen_text in phuong_xa_map:
@@ -772,7 +770,7 @@ elif chon_menu == "🛒 Giỏ Hàng":
             with col4:
                 so_nha = st.text_input("Số nhà, tên đường *", placeholder="VD: 123 Nguyễn Huệ", key="so_nha")
             
-            # Xác định địa chỉ hoàn chỉnh từ session state (dùng sau khi submit)
+            # Xác định địa chỉ hoàn chỉnh
             tinh = st.session_state.dia_chi_tinh
             if tinh in quan_huyen_map:
                 huyen_thuc = st.session_state.dia_chi_huyen if st.session_state.dia_chi_huyen != "-- Chọn quận/huyện --" else ""
@@ -786,7 +784,7 @@ elif chon_menu == "🛒 Giỏ Hàng":
 
             dia_chi_day_du = f"{so_nha}, {xa_thuc}, {huyen_thuc}, {tinh}".strip(", ")
             
-            # --- FORM THANH TOÁN (chỉ chứa các trường còn lại và nút submit) ---
+            # --- FORM THANH TOÁN ---
             with st.form("checkout_form"):
                 st.subheader("📋 Thông tin giao hàng")
                 ho_ten = st.text_input("Họ tên *", key="ho_ten_form")
@@ -826,7 +824,6 @@ elif chon_menu == "🛒 Giỏ Hàng":
                 submitted = st.form_submit_button("XÁC NHẬN ĐẶT HÀNG")
                 
                 if submitted:
-                    # Kiểm tra dữ liệu từ các trường trong form và địa chỉ đã chọn
                     if not ho_ten or not so_dt or not dia_chi_day_du or not so_nha:
                         st.error("Vui lòng điền đầy đủ họ tên, SĐT và địa chỉ (chọn tỉnh, nhập huyện/xã và số nhà).")
                     else:
@@ -834,8 +831,11 @@ elif chon_menu == "🛒 Giỏ Hàng":
                         if sdt_chuan is None:
                             st.error("Số điện thoại không hợp lệ! Vui lòng nhập 10 số (có thể có số 0 ở đầu).")
                         else:
-                            ma_don = "DH" + datetime.now().strftime("%y%m%d%H%M%S") + str(random.randint(10, 99))
-                            ngay_dat = datetime.now().strftime("%d/%m/%Y %H:%M")
+                            # Lấy thời gian Việt Nam
+                            tz_vn = pytz.timezone('Asia/Ho_Chi_Minh')
+                            now_vn = datetime.now(tz_vn)
+                            ma_don = "DH" + now_vn.strftime("%y%m%d%H%M%S") + str(random.randint(10, 99))
+                            ngay_dat = now_vn.strftime("%d/%m/%Y %H:%M")
                             
                             san_pham_str = ", ".join([f"{sp['ten']} x{sp['so_luong']}" for sp in ds_san_pham])
                             tong_sl = sum(sp['so_luong'] for sp in ds_san_pham)
@@ -865,7 +865,7 @@ elif chon_menu == "🛒 Giỏ Hàng":
                             
                             st.session_state.don_hang_vua_dat = {
                                 'ma_don': ma_don,
-                                'ngay': datetime.now().strftime("%d/%m/%Y"),
+                                'ngay': now_vn.strftime("%d/%m/%Y"),
                                 'tong_hang': int(tong),
                                 'phi_ship': int(phi_ship),
                                 'tong_thanh_toan': int(tong + phi_ship),
@@ -1121,6 +1121,7 @@ st.markdown("""
     </a>
 </div>
 """, unsafe_allow_html=True)
+
 
 
 
