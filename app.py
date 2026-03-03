@@ -601,13 +601,14 @@ elif chon_menu == "🛒 Giỏ Hàng":
                 sp_rows = df_sp[df_sp['ID'].astype(str) == id_sp]
                 if not sp_rows.empty:
                     sp = sp_rows.iloc[0]
-                    thanh_tien = sp['Giá'] * sl
+                    don_gia = int(sp['Giá'])  # Ép kiểu int
+                    thanh_tien = don_gia * sl
                     tong += thanh_tien
                     ds_san_pham.append({
                         'id': id_sp,
                         'ten': sp['Sản phẩm'],
                         'so_luong': sl,
-                        'don_gia': sp['Giá'],
+                        'don_gia': don_gia,
                         'thanh_tien': thanh_tien
                     })
                     st.markdown(f"<p style='color: #0066cc; font-size: 1.1rem;'>✅ {sp['Sản phẩm']} x{sl} - {format_vnd(thanh_tien)}</p>", unsafe_allow_html=True)
@@ -664,11 +665,11 @@ elif chon_menu == "🛒 Giỏ Hàng":
                             
                             # Chuẩn bị dữ liệu đơn hàng
                             san_pham_str = ", ".join([f"{sp['ten']} x{sp['so_luong']}" for sp in ds_san_pham])
-                            tong_sl = sum([sp['so_luong'] for sp in ds_san_pham])
+                            tong_sl = sum(sp['so_luong'] for sp in ds_san_pham)
                             
                             # Ghi vào sheet DonHang (cần đảm bảo sheet có đủ cột)
                             ws_don = ket_noi_sheet("DonHang")
-                            # Thứ tự cột: Mã đơn, Thời gian, Họ tên, SĐT, Địa chỉ, Sản phẩm, Tổng số lượng, Tổng tiền hàng, Phí ship, Tổng thanh toán, Phương thức thanh toán, Khung giờ, Ghi chú, Trạng thái
+                            # Ép kiểu int cho tất cả giá trị số để tránh lỗi JSON serialize
                             ws_don.append_row([
                                 ma_don,
                                 ngay_dat,
@@ -676,10 +677,10 @@ elif chon_menu == "🛒 Giỏ Hàng":
                                 sdt_chuan,
                                 dia_chi,
                                 san_pham_str,
-                                tong_sl,
-                                tong,
-                                phi_ship,
-                                tong + phi_ship,
+                                int(tong_sl),
+                                int(tong),
+                                int(phi_ship),
+                                int(tong + phi_ship),
                                 phuong_thuc,
                                 khung_gio,
                                 ghi_chu,
@@ -696,16 +697,16 @@ elif chon_menu == "🛒 Giỏ Hàng":
                             st.session_state.don_hang_vua_dat = {
                                 'ma_don': ma_don,
                                 'ngay': datetime.now().strftime("%d/%m/%Y"),
-                                'tong_hang': tong,
-                                'phi_ship': phi_ship,
-                                'tong_thanh_toan': tong + phi_ship,
+                                'tong_hang': int(tong),
+                                'phi_ship': int(phi_ship),
+                                'tong_thanh_toan': int(tong + phi_ship),
                                 'phuong_thuc_tt': phuong_thuc,
                                 'san_pham': ds_san_pham
                             }
                             st.session_state.hien_thi_don_hang = True
                             st.session_state.gio_hang = {}  # Xóa giỏ hàng
                             st.rerun()
-
+                            
 # ---- TRA CỨU ĐƠN HÀNG (ĐÃ SỬA LỖI SĐT) ----
 elif chon_menu == "🔍 Tra Cứu Đơn Hàng":
     # ... (giữ nguyên code Tra Cứu, nhưng cập nhật hiển thị thêm các cột mới nếu có)
@@ -954,3 +955,4 @@ st.markdown("""
     </a>
 </div>
 """, unsafe_allow_html=True)
+
