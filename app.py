@@ -8,6 +8,7 @@ import time
 import re
 import random
 import html
+import json
 
 # =============================
 # 1. CẤU HÌNH TRANG & ẨN TOOLBAR
@@ -599,7 +600,7 @@ elif chon_menu == "🛍️ Cửa Hàng":
                         st.markdown('</div>', unsafe_allow_html=True)
                         st.write("")
 
-# ---- GIỎ HÀNG (ĐÃ SỬA LỖI SĐT + BỔ SUNG CÁC TRƯỜNG MỚI + ÉP KIỂU INT + 63 TỈNH/THÀNH) ----
+# ---- GIỎ HÀNG (ĐÃ SỬA LỖI SĐT + BỔ SUNG CÁC TRƯỜNG MỚI + ÉP KIỂU INT + ĐỌC ĐỊA CHỈ TỪ JSON) ----
 elif chon_menu == "🛒 Giỏ Hàng":
     # Nếu đang hiển thị đơn hàng vừa đặt, ưu tiên hiển thị thông tin
     if st.session_state.hien_thi_don_hang:
@@ -633,17 +634,33 @@ elif chon_menu == "🛒 Giỏ Hàng":
                     })
                     st.markdown(f"<p style='color: #0066cc; font-size: 1.1rem;'>✅ {sp['Sản phẩm']} x{sl} - {format_vnd(thanh_tien)}</p>", unsafe_allow_html=True)
             
-            # Form thanh toán với các trường mới
-            with st.form("checkout"):
-                st.subheader("📋 Thông tin giao hàng")
-                ho_ten = st.text_input("Họ tên *")
-                so_dt = st.text_input("Số điện thoại *", placeholder="VD: 0932642376")
-                
-                # --- Địa chỉ với dropdown (63 tỉnh/thành) ---
-                st.subheader("🏠 Địa chỉ nhận hàng")
-                
-                # Danh sách 63 tỉnh/thành phố (sắp xếp theo tên)
-                tinh_thanh_list = [
+            # --- Đọc dữ liệu địa chỉ từ file JSON ---
+            @st.cache_data
+            def load_dia_chi():
+                try:
+                    with open('dia_chi.json', 'r', encoding='utf-8') as f:
+                        data = json.load(f)
+                    return data
+                except FileNotFoundError:
+                    return None
+
+            dia_chi_data = load_dia_chi()
+            
+            # Nếu có file JSON thì lấy danh sách tỉnh từ đó, nếu không thì dùng danh sách mặc định
+            if dia_chi_data:
+                tinh_list = ["-- Chọn tỉnh/thành --"] + [item['name'] for item in dia_chi_data]
+                # Tạo mapping từ tên tỉnh -> danh sách quận/huyện
+                quan_huyen_map = {}
+                phuong_xa_map = {}
+                for tinh in dia_chi_data:
+                    tinh_name = tinh['name']
+                    quan_huyen_map[tinh_name] = ["-- Chọn quận/huyện --"] + [qh['name'] for qh in tinh.get('quan_huyen', [])]
+                    for qh in tinh.get('quan_huyen', []):
+                        qh_name = qh['name']
+                        phuong_xa_map[qh_name] = ["-- Chọn phường/xã --"] + [px['name'] for px in qh.get('phuong_xa', [])]
+            else:
+                # Danh sách 63 tỉnh/thành dự phòng
+                tinh_list = [
                     "-- Chọn tỉnh/thành --",
                     "An Giang", "Bà Rịa - Vũng Tàu", "Bạc Liêu", "Bắc Giang", "Bắc Kạn", "Bắc Ninh",
                     "Bến Tre", "Bình Dương", "Bình Định", "Bình Phước", "Bình Thuận", "Cà Mau",
@@ -656,20 +673,24 @@ elif chon_menu == "🛒 Giỏ Hàng":
                     "Sơn La", "Tây Ninh", "Thái Bình", "Thái Nguyên", "Thanh Hóa", "Thừa Thiên Huế",
                     "Tiền Giang", "Trà Vinh", "Tuyên Quang", "Vĩnh Long", "Vĩnh Phúc", "Yên Bái"
                 ]
+                quan_huyen_map = {}
+                phuong_xa_map = {}
+            
+            # Form thanh toán với các trường mới
+            with st.form("checkout"):
+                st.subheader("📋 Thông tin giao hàng")
+                ho_ten = st.text_input("Họ tên *")
+                so_dt = st.text_input("Số điện thoại *", placeholder="VD: 0932642376")
                 
-                # Dữ liệu quận/huyện (có thể bổ sung sau, hiện tại để trống)
-                quan_huyen_dict = {}
-                
-                # Dữ liệu phường/xã (có thể bổ sung sau)
-                phuong_xa_dict = {}
+                st.subheader("🏠 Địa chỉ nhận hàng")
                 
                 col1, col2 = st.columns(2)
                 with col1:
-                    tinh = st.selectbox("Tỉnh/Thành phố *", options=tinh_thanh_list, index=0)
+                    tinh = st.selectbox("Tỉnh/Thành phố *", options=tinh_list, index=0)
                 with col2:
                     # Xử lý quận/huyện
-                    if tinh != "-- Chọn tỉnh/thành --" and tinh in quan_huyen_dict:
-                        quan_options = quan_huyen_dict[tinh]
+                    if tinh != "-- Chọn tỉnh/thành --" and tinh in quan_huyen_map:
+                        quan_options = quan_huyen_map[tinh]
                         huyen = st.selectbox("Quận/Huyện *", options=quan_options, index=0)
                         huyen_text = huyen if huyen != "-- Chọn quận/huyện --" else ""
                     else:
@@ -682,8 +703,8 @@ elif chon_menu == "🛒 Giỏ Hàng":
                 col3, col4 = st.columns(2)
                 with col3:
                     # Xử lý phường/xã
-                    if huyen_text and huyen_text != "-- Chọn quận/huyện --" and huyen_text in phuong_xa_dict:
-                        xa_options = phuong_xa_dict[huyen_text]
+                    if huyen_text and huyen_text != "-- Chọn quận/huyện --" and huyen_text in phuong_xa_map:
+                        xa_options = phuong_xa_map[huyen_text]
                         xa = st.selectbox("Phường/Xã *", options=xa_options, index=0)
                         xa_text = xa if xa != "-- Chọn phường/xã --" else ""
                     else:
@@ -1033,6 +1054,7 @@ st.markdown("""
     </a>
 </div>
 """, unsafe_allow_html=True)
+
 
 
 
