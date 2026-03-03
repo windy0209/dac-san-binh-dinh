@@ -576,6 +576,12 @@ elif chon_menu == "🛍️ Cửa Hàng":
                         st.markdown(f'<img src="{img}" style="border-radius: 15px; object-fit: cover; height: 180px; width: 100%; margin-bottom:12px;">', unsafe_allow_html=True)
                         
                         st.markdown(f'<div class="product-name" style="font-weight:700; height:50px; overflow:hidden;">{row["Sản phẩm"]}</div>', unsafe_allow_html=True)
+                        
+                        # Hiển thị mô tả sản phẩm
+                        mo_ta = row.get("Mô tả", "")
+                        if mo_ta:
+                            st.markdown(f'<div style="color:#666; font-size:0.9rem; margin-bottom:10px; max-height:60px; overflow-y:auto;">{mo_ta}</div>', unsafe_allow_html=True)
+                        
                         gia_formatted = format_vnd(row["Giá"])
                         st.markdown(f'<div class="gia-ban" style="color:#2e7d32; font-size:1.3rem; font-weight:800; margin-bottom:5px;">{gia_formatted}</div>', unsafe_allow_html=True)
                         st.markdown(f'<div style="color:#2e7d32; font-size:0.9rem; margin-bottom:15px; font-weight:500;">📦 Còn lại: {row["Tồn kho"]}</div>', unsafe_allow_html=True)
@@ -590,7 +596,6 @@ elif chon_menu == "🛍️ Cửa Hàng":
                         
                         st.markdown('</div>', unsafe_allow_html=True)
                         st.write("")
-
 # ---- GIỎ HÀNG (ĐÃ SỬA LỖI SĐT + BỔ SUNG CÁC TRƯỜNG MỚI + ÉP KIỂU INT) ----
 elif chon_menu == "🛒 Giỏ Hàng":
     # Nếu đang hiển thị đơn hàng vừa đặt, ưu tiên hiển thị thông tin
@@ -965,4 +970,5 @@ st.markdown("""
     </a>
 </div>
 """, unsafe_allow_html=True)
+
 
