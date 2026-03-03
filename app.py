@@ -640,7 +640,7 @@ elif chon_menu == "🛒 Giỏ Hàng":
             @st.cache_data
             def load_dia_chi():
                 # URL raw của file dia_chi.json trên GitHub (thay bằng link thật của bạn)
-                url = "https://raw.githubusercontent.com/username/repo/branch/dia_chi.json"
+                url = "https://raw.githubusercontent.com/windy0209/dac-san-binh-dinh/main/dia_chi.json"
                 try:
                     response = requests.get(url)
                     response.raise_for_status()  # Kiểm tra lỗi HTTP
@@ -1066,4 +1066,5 @@ st.markdown("""
     </a>
 </div>
 """, unsafe_allow_html=True)
+
 
