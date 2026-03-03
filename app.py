@@ -577,13 +577,12 @@ elif chon_menu == "🛍️ Cửa Hàng":
                         
                         st.markdown(f'<div class="product-name" style="font-weight:700; height:50px; overflow:hidden;">{row["Sản phẩm"]}</div>', unsafe_allow_html=True)
                         
-                        # Hiển thị mô tả sản phẩm, nếu không có thì tạo khoảng trống tối thiểu để card đồng đều
+                        # Hiển thị mô tả sản phẩm với chiều cao cố định 60px để đồng bộ giữa các card
                         mo_ta = row.get("Mô tả", "")
                         if mo_ta:
-                            st.markdown(f'<div style="color:#666; font-size:0.9rem; margin-bottom:10px; max-height:60px; overflow-y:auto;">{mo_ta}</div>', unsafe_allow_html=True)
+                            st.markdown(f'<div style="color:#666; font-size:0.9rem; height:60px; overflow-y:auto; margin-bottom:10px;">{mo_ta}</div>', unsafe_allow_html=True)
                         else:
-                            # Giữ khoảng trống đồng bộ chiều cao với các card có mô tả
-                            st.markdown('<div style="min-height:60px; margin-bottom:10px;"></div>', unsafe_allow_html=True)
+                            st.markdown('<div style="height:60px; margin-bottom:10px;"></div>', unsafe_allow_html=True)
                         
                         gia_formatted = format_vnd(row["Giá"])
                         st.markdown(f'<div class="gia-ban" style="color:#2e7d32; font-size:1.3rem; font-weight:800; margin-bottom:5px;">{gia_formatted}</div>', unsafe_allow_html=True)
@@ -973,6 +972,7 @@ st.markdown("""
     </a>
 </div>
 """, unsafe_allow_html=True)
+
 
 
 
