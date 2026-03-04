@@ -516,7 +516,7 @@ if chon_menu == "🏠 Trang Chủ":
     st.markdown("<h1 style='text-align:center;color:#2e7d32;'>🏯 Tinh Hoa Ẩm Thực Bình Định</h1>", unsafe_allow_html=True)
     c1, c2, c3 = st.columns(3)
     c1.success("🌿 **SẠCH & TƯƠI MỖI NGÀY**\n\n100% nguyên liệu tự nhiên – không chất bảo quản. Tươi ngon như vừa thu hoạch, an tâm cho cả gia đình.")
-    c2.success("🚚 **GIAO NHANH TOÀN QUỐC**\n\nĐóng gói kỹ lưỡng. Nhận hàng nhanh, vẫn giữ trọn độ tươi ngon.")
+    c2.success("🚚 **GIAO HÀNG NHANH CHÓNG**\n\nĐóng gói kỹ lưỡng. Nhận hàng nhanh, vẫn giữ trọn độ tươi ngon.")
     c3.info("💝 **QUÀ TẶNG YÊU THƯƠNG**\n\nMón quà đậm hương vị quê hương – sẵn sàng biếu tặng. Trao quà yêu thương, gửi trọn tâm ý.")
 
     st.markdown("<h3 style='color: #2e7d32;'>🔥 Đặc Sản Đang Bán Chạy</h3>", unsafe_allow_html=True)
@@ -1121,6 +1121,7 @@ st.markdown("""
     </a>
 </div>
 """, unsafe_allow_html=True)
+
 
 
 
