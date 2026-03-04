@@ -621,6 +621,7 @@ elif chon_menu == "🛒 Giỏ Hàng":
     st.markdown('<div class="gio-hang-tab">', unsafe_allow_html=True)
     st.markdown("""
     <style>
+    /* Tất cả văn bản trong tab Giỏ Hàng (trừ nút và ô nhập) đều màu xanh dương */
     .gio-hang-tab label, 
     .gio-hang-tab .stTextInput label, 
     .gio-hang-tab .stSelectbox label, 
@@ -628,23 +629,25 @@ elif chon_menu == "🛒 Giỏ Hàng":
     .gio-hang-tab .stTextArea label,
     .gio-hang-tab .stNumberInput label,
     .gio-hang-tab .stMetric label,
-    .gio-hang-tab .stMetric .metric-label {
-        color: #0066cc !important;
-        font-weight: 500;
-    }
+    .gio-hang-tab .stMetric .metric-label,
     .gio-hang-tab .stMarkdown p,
     .gio-hang-tab .stMarkdown span:not(.info-label),
     .gio-hang-tab .stText,
     .gio-hang-tab div[data-testid="stForm"] .stMarkdown,
-    .gio-hang-tab .st-eb {
+    .gio-hang-tab .st-eb,
+    .gio-hang-tab h1,                 /* Bao gồm tiêu đề chính */
+    .gio-hang-tab h2,                  /* Các tiêu đề phụ như "Địa chỉ nhận hàng" */
+    .gio-hang-tab h3 {
         color: #0066cc !important;
     }
-    /* Giữ màu cho các nút bấm và nội dung ô nhập liệu */
+    /* Giữ màu trắng cho chữ trên nút bấm */
     .gio-hang-tab .stButton button {
         color: white !important;
     }
+    /* Giữ màu chữ tối trong ô nhập liệu để dễ đọc */
     .gio-hang-tab input, 
-    .gio-hang-tab textarea {
+    .gio-hang-tab textarea,
+    .gio-hang-tab select {
         color: #333 !important;
     }
     </style>
@@ -654,12 +657,13 @@ elif chon_menu == "🛒 Giỏ Hàng":
     if st.session_state.hien_thi_don_hang:
         hien_thi_thong_tin_don_hang()
     else:
-        # Đổi tiêu đề thành màu xanh dương
+        # Tiêu đề chính (đã được CSS xử lý màu, nhưng vẫn để inline để an toàn)
         st.markdown("<h1 style='color: #0066cc;'>🛒 Giỏ Hàng</h1>", unsafe_allow_html=True)
         
         if not st.session_state.gio_hang:
             st.markdown("<p style='color: #0066cc; font-size: 1.1rem;'>⚠️ Giỏ hàng trống.</p>", unsafe_allow_html=True)
         else:
+            # Kết nối sheet sản phẩm
             ws_sp = ket_noi_sheet("SanPham")
             df_sp = pd.DataFrame(ws_sp.get_all_records())
             df_sp["Giá"] = df_sp["Giá"].apply(clean_price)
@@ -1158,6 +1162,7 @@ st.markdown("""
     </a>
 </div>
 """, unsafe_allow_html=True)
+
 
 
 
