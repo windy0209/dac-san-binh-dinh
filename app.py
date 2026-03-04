@@ -620,49 +620,59 @@ elif chon_menu == "🛒 Giỏ Hàng":
     # === BẮT ĐẦU KHU VỰC GIỎ HÀNG ===
     st.markdown('<div class="gio-hang-tab">', unsafe_allow_html=True)
     
-    # CSS MỞ RỘNG – target tất cả các thành phần văn bản có thể có
+    # CSS TÙY CHỈNH: 
+    # - Tiêu đề (h1, h3) và nút xác nhận màu xanh lá
+    # - Các văn bản khác (label, metric, text, ...) màu xanh dương
     st.markdown("""
     <style>
     .gio-hang-tab {
-        color: #0066cc;  /* màu cơ bản cho toàn bộ khu vực */
+        color: #0066cc;  /* màu cơ bản cho toàn bộ khu vực (sẽ được kế thừa) */
     }
-    /* Các selector cụ thể cho từng loại widget Streamlit */
-    .gio-hang-tab label,                                   /* label của mọi widget */
-    .gio-hang-tab .stTextInput label,                      /* label input text */
-    .gio-hang-tab .stSelectbox label,                      /* label selectbox */
-    .gio-hang-tab .stRadio label,                          /* label của radio group và các lựa chọn */
-    .gio-hang-tab .stTextArea label,                       /* label text area */
-    .gio-hang-tab .stNumberInput label,                    /* label number input */
-    .gio-hang-tab .stMetric label,                         /* label metric */
-    .gio-hang-tab .stMetric .metric-label,                 /* label metric (cách khác) */
-    .gio-hang-tab .stMarkdown p,                           /* đoạn văn bản markdown */
-    .gio-hang-tab .stMarkdown span,                        /* span trong markdown */
-    .gio-hang-tab .stText,                                  /* text thuần */
-    .gio-hang-tab div[data-testid="stForm"] .stMarkdown,   /* text trong form */
-    .gio-hang-tab div[data-testid="stRadio"] label,        /* label của radio button */
-    .gio-hang-tab div[role="radiogroup"] label,            /* label trong radio group */
-    .gio-hang-tab div[data-testid="stSelectbox"] span,     /* text đã chọn trong selectbox */
-    .gio-hang-tab div[data-testid="stMetricValue"],        /* giá trị của metric */
-    .gio-hang-tab div[data-testid="stMetricLabel"],        /* label của metric */
-    .gio-hang-tab .stAlert p,                               /* text trong alert */
-    .gio-hang-tab .stInfo p, .gio-hang-tab .stWarning p, 
+    /* Các thành phần văn bản thông thường: màu xanh dương */
+    .gio-hang-tab label,
+    .gio-hang-tab .stTextInput label,
+    .gio-hang-tab .stSelectbox label,
+    .gio-hang-tab .stRadio label,
+    .gio-hang-tab .stTextArea label,
+    .gio-hang-tab .stNumberInput label,
+    .gio-hang-tab .stMetric label,
+    .gio-hang-tab .stMetric .metric-label,
+    .gio-hang-tab .stMarkdown p,
+    .gio-hang-tab .stMarkdown span:not(.info-label),
+    .gio-hang-tab .stText,
+    .gio-hang-tab div[data-testid="stForm"] .stMarkdown,
+    .gio-hang-tab div[data-testid="stRadio"] label,
+    .gio-hang-tab div[role="radiogroup"] label,
+    .gio-hang-tab div[data-testid="stSelectbox"] span,
+    .gio-hang-tab div[data-testid="stMetricValue"],
+    .gio-hang-tab div[data-testid="stMetricLabel"],
+    .gio-hang-tab .stAlert p,
+    .gio-hang-tab .stInfo p, .gio-hang-tab .stWarning p,
     .gio-hang-tab .stError p, .gio-hang-tab .stSuccess p,
-    .gio-hang-tab h1, .gio-hang-tab h2, .gio-hang-tab h3,   /* các tiêu đề */
-    .gio-hang-tab h4, .gio-hang-tab h5, .gio-hang-tab h6,
-    .gio-hang-tab .st-bb, .gio-hang-tab .st-at,            /* các class chung của text */
-    .gio-hang-tab .st-cf, .gio-hang-tab .st-cg,            /* thêm một số class phổ biến */
+    .gio-hang-tab .st-bb, .gio-hang-tab .st-at,
+    .gio-hang-tab .st-cf, .gio-hang-tab .st-cg,
     .gio-hang-tab .st-da, .gio-hang-tab .st-db,
     .gio-hang-tab .st-ae, .gio-hang-tab .st-af,
-    /* Đảm bảo các phần tử trong cột, container cũng được áp dụng */
     .gio-hang-tab div[data-testid="column"] *,
     .gio-hang-tab div[data-testid="stVerticalBlock"] > div,
     .gio-hang-tab .stHorizontalBlock > div {
         color: #0066cc !important;
     }
-    /* Giữ màu nút trắng */
+    /* TIÊU ĐỀ: màu xanh lá */
+    .gio-hang-tab h1,
+    .gio-hang-tab h3 {          /* st.subheader tạo thẻ h3 */
+        color: #2e7d32 !important;
+    }
+    /* NÚT XÁC NHẬN ĐẶT HÀNG: màu xanh lá, chữ trắng */
     .gio-hang-tab .stButton button {
+        background-color: #2e7d32 !important;
         color: white !important;
-        background-color: #2e7d32;  /* giữ màu nền xanh lá */
+        border: none;
+        border-radius: 12px;
+        font-weight: 600;
+    }
+    .gio-hang-tab .stButton button:hover {
+        background-color: #f39c12 !important;  /* màu cam khi hover */
     }
     /* Giữ màu chữ trong ô nhập liệu và placeholder */
     .gio-hang-tab input, 
@@ -675,10 +685,6 @@ elif chon_menu == "🛒 Giỏ Hàng":
     .gio-hang-tab textarea::placeholder {
         color: #aaa !important;
     }
-    /* Giữ màu cho các icon nếu có */
-    .gio-hang-tab .stIcon {
-        color: inherit;
-    }
     </style>
     """, unsafe_allow_html=True)
 
@@ -686,8 +692,8 @@ elif chon_menu == "🛒 Giỏ Hàng":
     if st.session_state.hien_thi_don_hang:
         hien_thi_thong_tin_don_hang()
     else:
-        # Tiêu đề chính
-        st.markdown("<h1 style='color: #0066cc;'>🛒 Giỏ Hàng</h1>", unsafe_allow_html=True)
+        # Tiêu đề chính (màu xanh lá nhờ CSS, nhưng vẫn có thể để inline nếu muốn)
+        st.markdown("<h1>🛒 Giỏ Hàng</h1>", unsafe_allow_html=True)
         
         if not st.session_state.gio_hang:
             st.markdown("<p style='color: #0066cc; font-size: 1.1rem;'>⚠️ Giỏ hàng trống.</p>", unsafe_allow_html=True)
@@ -778,7 +784,7 @@ elif chon_menu == "🛒 Giỏ Hàng":
                 st.rerun()
 
             # --- PHẦN CHỌN ĐỊA CHỈ (NGOÀI FORM) ---
-            st.subheader("🏠 Địa chỉ nhận hàng")
+            st.subheader("🏠 Địa chỉ nhận hàng")   # sẽ có màu xanh lá nhờ CSS h3
             
             col1, col2 = st.columns(2)
             with col1:
@@ -853,11 +859,11 @@ elif chon_menu == "🛒 Giỏ Hàng":
             
             # --- FORM THANH TOÁN ---
             with st.form("checkout_form"):
-                st.subheader("📋 Thông tin giao hàng")
+                st.subheader("📋 Thông tin giao hàng")   # màu xanh lá
                 ho_ten = st.text_input("Họ tên *", key="ho_ten_form")
                 so_dt = st.text_input("Số điện thoại *", placeholder="VD: 0932642376", key="so_dt_form")
                 
-                st.subheader("🚚 Vận chuyển")
+                st.subheader("🚚 Vận chuyển")            # màu xanh lá
                 khu_vuc = st.radio(
                     "Khu vực giao hàng",
                     ["Hồ Chí Minh (+30,000 VNĐ phí ship)", "Tỉnh/Thành khác (liên hệ)"],
@@ -872,7 +878,7 @@ elif chon_menu == "🛒 Giỏ Hàng":
                     key="khung_gio_form"
                 )
                 
-                st.subheader("💳 Thanh toán")
+                st.subheader("💳 Thanh toán")             # màu xanh lá
                 phuong_thuc = st.radio(
                     "Phương thức thanh toán",
                     ["Tiền mặt khi nhận hàng", "Chuyển khoản ngân hàng", "Ví Momo", "Thẻ tín dụng"],
@@ -888,6 +894,7 @@ elif chon_menu == "🛒 Giỏ Hàng":
                 col2.metric("Phí ship", format_vnd(phi_ship))
                 col3.metric("Tổng thanh toán", format_vnd(tong + phi_ship))
                 
+                # Nút xác nhận (màu xanh lá nhờ CSS)
                 submitted = st.form_submit_button("XÁC NHẬN ĐẶT HÀNG")
                 
                 if submitted:
@@ -1191,6 +1198,7 @@ st.markdown("""
     </a>
 </div>
 """, unsafe_allow_html=True)
+
 
 
 
