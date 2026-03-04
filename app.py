@@ -617,11 +617,45 @@ elif chon_menu == "🛒 Giỏ Hàng":
     if "dia_chi_xa_tay" not in st.session_state:
         st.session_state.dia_chi_xa_tay = ""
 
+    # === BẮT ĐẦU KHU VỰC GIỎ HÀNG (thêm div bao + CSS màu xanh dương) ===
+    st.markdown('<div class="gio-hang-tab">', unsafe_allow_html=True)
+    st.markdown("""
+    <style>
+    .gio-hang-tab label, 
+    .gio-hang-tab .stTextInput label, 
+    .gio-hang-tab .stSelectbox label, 
+    .gio-hang-tab .stRadio label, 
+    .gio-hang-tab .stTextArea label,
+    .gio-hang-tab .stNumberInput label,
+    .gio-hang-tab .stMetric label,
+    .gio-hang-tab .stMetric .metric-label {
+        color: #0066cc !important;
+        font-weight: 500;
+    }
+    .gio-hang-tab .stMarkdown p,
+    .gio-hang-tab .stMarkdown span:not(.info-label),
+    .gio-hang-tab .stText,
+    .gio-hang-tab div[data-testid="stForm"] .stMarkdown,
+    .gio-hang-tab .st-eb {
+        color: #0066cc !important;
+    }
+    /* Giữ màu cho các nút bấm và nội dung ô nhập liệu */
+    .gio-hang-tab .stButton button {
+        color: white !important;
+    }
+    .gio-hang-tab input, 
+    .gio-hang-tab textarea {
+        color: #333 !important;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
     # Nếu đang hiển thị đơn hàng vừa đặt, ưu tiên hiển thị thông tin
     if st.session_state.hien_thi_don_hang:
         hien_thi_thong_tin_don_hang()
     else:
-        st.markdown("<h1 style='color: #2e7d32;'>🛒 Giỏ Hàng</h1>", unsafe_allow_html=True)
+        # Đổi tiêu đề thành màu xanh dương
+        st.markdown("<h1 style='color: #0066cc;'>🛒 Giỏ Hàng</h1>", unsafe_allow_html=True)
         
         if not st.session_state.gio_hang:
             st.markdown("<p style='color: #0066cc; font-size: 1.1rem;'>⚠️ Giỏ hàng trống.</p>", unsafe_allow_html=True)
@@ -875,6 +909,9 @@ elif chon_menu == "🛒 Giỏ Hàng":
                             st.session_state.hien_thi_don_hang = True
                             st.session_state.gio_hang = {}
                             st.rerun()
+
+    # === KẾT THÚC KHU VỰC GIỎ HÀNG ===
+    st.markdown('</div>', unsafe_allow_html=True)
 # ---- TRA CỨU ĐƠN HÀNG ----
 elif chon_menu == "🔍 Tra Cứu Đơn Hàng":
     st.markdown("<h1 style='color: #2e7d32; text-align:center;'>🔍 Tra cứu đơn hàng</h1>", unsafe_allow_html=True)
@@ -1121,6 +1158,7 @@ st.markdown("""
     </a>
 </div>
 """, unsafe_allow_html=True)
+
 
 
 
