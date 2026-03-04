@@ -617,27 +617,30 @@ elif chon_menu == "🛒 Giỏ Hàng":
     if "dia_chi_xa_tay" not in st.session_state:
         st.session_state.dia_chi_xa_tay = ""
 
-    # === BẮT ĐẦU KHU VỰC GIỎ HÀNG (thêm div bao + CSS màu xanh dương) ===
+    # === BẮT ĐẦU KHU VỰC GIỎ HÀNG (div bao + CSS màu xanh dương cho mọi text) ===
     st.markdown('<div class="gio-hang-tab">', unsafe_allow_html=True)
     st.markdown("""
     <style>
     /* Tất cả văn bản trong tab Giỏ Hàng (trừ nút và ô nhập) đều màu xanh dương */
-    .gio-hang-tab label, 
-    .gio-hang-tab .stTextInput label, 
-    .gio-hang-tab .stSelectbox label, 
-    .gio-hang-tab .stRadio label, 
+    .gio-hang-tab label,                             /* nhãn của input, select, radio, checkbox */
+    .gio-hang-tab .stTextInput label,               
+    .gio-hang-tab .stSelectbox label,                
+    .gio-hang-tab .stRadio label,                    /* label của radio group và từng lựa chọn */
     .gio-hang-tab .stTextArea label,
     .gio-hang-tab .stNumberInput label,
-    .gio-hang-tab .stMetric label,
+    .gio-hang-tab .stMetric label,                   /* label "Tổng tiền hàng", "Phí ship"... */
     .gio-hang-tab .stMetric .metric-label,
-    .gio-hang-tab .stMarkdown p,
-    .gio-hang-tab .stMarkdown span:not(.info-label),
-    .gio-hang-tab .stText,
-    .gio-hang-tab div[data-testid="stForm"] .stMarkdown,
-    .gio-hang-tab .st-eb,
-    .gio-hang-tab h1,                 /* Bao gồm tiêu đề chính */
-    .gio-hang-tab h2,                  /* Các tiêu đề phụ như "Địa chỉ nhận hàng" */
-    .gio-hang-tab h3 {
+    .gio-hang-tab .stMarkdown p,                     /* các đoạn văn bản thông thường */
+    .gio-hang-tab .stMarkdown span:not(.info-label), /* trừ span có class info-label (nếu dùng trong card) */
+    .gio-hang-tab .stText,                           /* text thuần */
+    .gio-hang-tab div[data-testid="stForm"] .stMarkdown, /* text trong form */
+    .gio-hang-tab .st-eb,                            /* class không rõ, nhưng để an toàn */
+    .gio-hang-tab h1, .gio-hang-tab h2, .gio-hang-tab h3,  /* các tiêu đề */
+    .gio-hang-tab .stRadio div[role="radiogroup"] label,  /* text các lựa chọn radio */
+    .gio-hang-tab .stSelectbox div[data-baseweb="select"] span, /* text của select đã chọn */
+    .gio-hang-tab .stAlert p,                         /* text trong alert (thông báo lỗi/thành công) */
+    .gio-hang-tab .stInfo p, .gio-hang-tab .stWarning p, .gio-hang-tab .stError p,
+    .gio-hang-tab .stSuccess p {
         color: #0066cc !important;
     }
     /* Giữ màu trắng cho chữ trên nút bấm */
@@ -650,6 +653,11 @@ elif chon_menu == "🛒 Giỏ Hàng":
     .gio-hang-tab select {
         color: #333 !important;
     }
+    /* Placeholder giữ màu mặc định (xám) */
+    .gio-hang-tab input::placeholder,
+    .gio-hang-tab textarea::placeholder {
+        color: #aaa !important;
+    }
     </style>
     """, unsafe_allow_html=True)
 
@@ -657,7 +665,7 @@ elif chon_menu == "🛒 Giỏ Hàng":
     if st.session_state.hien_thi_don_hang:
         hien_thi_thong_tin_don_hang()
     else:
-        # Tiêu đề chính (đã được CSS xử lý màu, nhưng vẫn để inline để an toàn)
+        # Tiêu đề chính (màu xanh dương)
         st.markdown("<h1 style='color: #0066cc;'>🛒 Giỏ Hàng</h1>", unsafe_allow_html=True)
         
         if not st.session_state.gio_hang:
@@ -1162,6 +1170,7 @@ st.markdown("""
     </a>
 </div>
 """, unsafe_allow_html=True)
+
 
 
 
