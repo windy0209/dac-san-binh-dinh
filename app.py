@@ -1313,6 +1313,7 @@ st.markdown("""
         <div class="footer-col">
             <h4>Kết nối</h4>
             <div class="social-icons">
+                <a href="https://zalo.me/0932642376" target="_blank"><i class="fas fa-comment-dots"></i></a>
                 <a href="#" target="_blank"><i class="fab fa-facebook-f"></i></a>
                 <a href="#" target="_blank"><i class="fab fa-twitter"></i></a>
                 <a href="#" target="_blank"><i class="fab fa-instagram"></i></a>
@@ -1324,5 +1325,6 @@ st.markdown("""
     </div>
 </div>
 """, unsafe_allow_html=True)
+
 
 
