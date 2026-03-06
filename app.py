@@ -620,13 +620,11 @@ elif chon_menu == "🛒 Giỏ Hàng":
     # === BẮT ĐẦU KHU VỰC GIỎ HÀNG ===
     st.markdown('<div class="gio-hang-tab">', unsafe_allow_html=True)
     
-    # CSS TÙY CHỈNH: 
-    # - Tiêu đề (h1, h3) và nút xác nhận màu xanh lá
-    # - Các văn bản khác (label, metric, text, ...) màu xanh dương
+    # CSS TÙY CHỈNH
     st.markdown("""
     <style>
     .gio-hang-tab {
-        color: #0066cc;  /* màu cơ bản cho toàn bộ khu vực (sẽ được kế thừa) */
+        color: #0066cc;  /* màu cơ bản cho toàn bộ khu vực */
     }
     /* Các thành phần văn bản thông thường: màu xanh dương */
     .gio-hang-tab label,
@@ -658,12 +656,12 @@ elif chon_menu == "🛒 Giỏ Hàng":
     .gio-hang-tab .stHorizontalBlock > div {
         color: #0066cc !important;
     }
-    /* TIÊU ĐỀ: màu xanh lá */
+    /* TIÊU ĐỀ (h1, h3) màu xanh lá */
     .gio-hang-tab h1,
-    .gio-hang-tab h3 {          /* st.subheader tạo thẻ h3 */
+    .gio-hang-tab h3 {
         color: #2e7d32 !important;
     }
-    /* NÚT XÁC NHẬN ĐẶT HÀNG: màu xanh lá, chữ trắng */
+    /* NÚT XÁC NHẬN ĐẶT HÀNG */
     .gio-hang-tab .stButton button {
         background-color: #2e7d32 !important;
         color: white !important;
@@ -672,7 +670,7 @@ elif chon_menu == "🛒 Giỏ Hàng":
         font-weight: 600;
     }
     .gio-hang-tab .stButton button:hover {
-        background-color: #f39c12 !important;  /* màu cam khi hover */
+        background-color: #f39c12 !important;
     }
     /* Giữ màu chữ trong ô nhập liệu và placeholder */
     .gio-hang-tab input, 
@@ -692,7 +690,7 @@ elif chon_menu == "🛒 Giỏ Hàng":
     if st.session_state.hien_thi_don_hang:
         hien_thi_thong_tin_don_hang()
     else:
-        # Tiêu đề chính (màu xanh lá nhờ CSS, nhưng vẫn có thể để inline nếu muốn)
+        # Tiêu đề chính (màu xanh lá)
         st.markdown("<h1>🛒 Giỏ Hàng</h1>", unsafe_allow_html=True)
         
         if not st.session_state.gio_hang:
@@ -784,7 +782,7 @@ elif chon_menu == "🛒 Giỏ Hàng":
                 st.rerun()
 
             # --- PHẦN CHỌN ĐỊA CHỈ (NGOÀI FORM) ---
-            st.subheader("🏠 Địa chỉ nhận hàng")   # sẽ có màu xanh lá nhờ CSS h3
+            st.subheader("🏠 Địa chỉ nhận hàng")   # màu xanh lá
             
             col1, col2 = st.columns(2)
             with col1:
@@ -866,11 +864,22 @@ elif chon_menu == "🛒 Giỏ Hàng":
                 st.subheader("🚚 Vận chuyển")            # màu xanh lá
                 khu_vuc = st.radio(
                     "Khu vực giao hàng",
-                    ["Hồ Chí Minh (+30,000 VNĐ phí ship)", "Tỉnh/Thành khác (liên hệ)"],
+                    [
+                        "Hồ Chí Minh (bán kính < 5km) - Miễn phí ship cho đơn hàng >300,000 VNĐ",
+                        "Hồ Chí Minh (bán kính > 5km) - Phí ship 30,000 VNĐ",
+                        "Tỉnh/Thành khác (liên hệ)"
+                    ],
                     index=0,
                     key="khu_vuc_form"
                 )
-                phi_ship = 30000 if "Hồ Chí Minh" in khu_vuc else 0
+                
+                # Tính phí ship tạm thời để hiển thị metric
+                if "Hồ Chí Minh (bán kính < 5km)" in khu_vuc:
+                    phi_ship = 0 if tong > 300000 else 30000
+                elif "Hồ Chí Minh (bán kính > 5km)" in khu_vuc:
+                    phi_ship = 30000
+                else:
+                    phi_ship = 0
                 
                 khung_gio = st.selectbox(
                     "Khung giờ giao hàng (dự kiến)",
@@ -894,7 +903,6 @@ elif chon_menu == "🛒 Giỏ Hàng":
                 col2.metric("Phí ship", format_vnd(phi_ship))
                 col3.metric("Tổng thanh toán", format_vnd(tong + phi_ship))
                 
-                # Nút xác nhận (màu xanh lá nhờ CSS)
                 submitted = st.form_submit_button("XÁC NHẬN ĐẶT HÀNG")
                 
                 if submitted:
@@ -905,50 +913,60 @@ elif chon_menu == "🛒 Giỏ Hàng":
                         if sdt_chuan is None:
                             st.error("Số điện thoại không hợp lệ! Vui lòng nhập 10 số (có thể có số 0 ở đầu).")
                         else:
-                            # Lấy thời gian Việt Nam
-                            tz_vn = pytz.timezone('Asia/Ho_Chi_Minh')
-                            now_vn = datetime.now(tz_vn)
-                            ma_don = "DH" + now_vn.strftime("%y%m%d%H%M%S") + str(random.randint(10, 99))
-                            ngay_dat = now_vn.strftime("%d/%m/%Y %H:%M")
-                            
-                            san_pham_str = ", ".join([f"{sp['ten']} x{sp['so_luong']}" for sp in ds_san_pham])
-                            tong_sl = sum(sp['so_luong'] for sp in ds_san_pham)
-                            
-                            ws_don = ket_noi_sheet("DonHang")
-                            ws_don.append_row([
-                                ma_don,
-                                ngay_dat,
-                                ho_ten,
-                                sdt_chuan,
-                                dia_chi_day_du,
-                                san_pham_str,
-                                int(tong_sl),
-                                int(tong),
-                                int(phi_ship),
-                                int(tong + phi_ship),
-                                phuong_thuc,
-                                khung_gio,
-                                ghi_chu,
-                                "Mới"
-                            ])
-                            
-                            for sp in ds_san_pham:
-                                cell = ws_sp.find(str(sp['ten']))
-                                current_stock = int(ws_sp.cell(cell.row, 6).value)
-                                ws_sp.update_cell(cell.row, 6, current_stock - sp['so_luong'])
-                            
-                            st.session_state.don_hang_vua_dat = {
-                                'ma_don': ma_don,
-                                'ngay': now_vn.strftime("%d/%m/%Y"),
-                                'tong_hang': int(tong),
-                                'phi_ship': int(phi_ship),
-                                'tong_thanh_toan': int(tong + phi_ship),
-                                'phuong_thuc_tt': phuong_thuc,
-                                'san_pham': ds_san_pham
-                            }
-                            st.session_state.hien_thi_don_hang = True
-                            st.session_state.gio_hang = {}
-                            st.rerun()
+                            # Kiểm tra nếu chọn tỉnh khác
+                            if "Tỉnh/Thành khác" in khu_vuc:
+                                st.warning("Vui lòng liên hệ cửa hàng theo hotline 0932612376 để đặt hàng. Xin cảm ơn quý khách!")
+                            else:
+                                # Tính lại phí ship chính xác dựa trên lựa chọn
+                                if "Hồ Chí Minh (bán kính < 5km)" in khu_vuc:
+                                    phi_ship = 0 if tong > 300000 else 30000
+                                else:  # "Hồ Chí Minh (bán kính > 5km)"
+                                    phi_ship = 30000
+
+                                # Lấy thời gian Việt Nam
+                                tz_vn = pytz.timezone('Asia/Ho_Chi_Minh')
+                                now_vn = datetime.now(tz_vn)
+                                ma_don = "DH" + now_vn.strftime("%y%m%d%H%M%S") + str(random.randint(10, 99))
+                                ngay_dat = now_vn.strftime("%d/%m/%Y %H:%M")
+                                
+                                san_pham_str = ", ".join([f"{sp['ten']} x{sp['so_luong']}" for sp in ds_san_pham])
+                                tong_sl = sum(sp['so_luong'] for sp in ds_san_pham)
+                                
+                                ws_don = ket_noi_sheet("DonHang")
+                                ws_don.append_row([
+                                    ma_don,
+                                    ngay_dat,
+                                    ho_ten,
+                                    sdt_chuan,
+                                    dia_chi_day_du,
+                                    san_pham_str,
+                                    int(tong_sl),
+                                    int(tong),
+                                    int(phi_ship),
+                                    int(tong + phi_ship),
+                                    phuong_thuc,
+                                    khung_gio,
+                                    ghi_chu,
+                                    "Mới"
+                                ])
+                                
+                                for sp in ds_san_pham:
+                                    cell = ws_sp.find(str(sp['ten']))
+                                    current_stock = int(ws_sp.cell(cell.row, 6).value)
+                                    ws_sp.update_cell(cell.row, 6, current_stock - sp['so_luong'])
+                                
+                                st.session_state.don_hang_vua_dat = {
+                                    'ma_don': ma_don,
+                                    'ngay': now_vn.strftime("%d/%m/%Y"),
+                                    'tong_hang': int(tong),
+                                    'phi_ship': int(phi_ship),
+                                    'tong_thanh_toan': int(tong + phi_ship),
+                                    'phuong_thuc_tt': phuong_thuc,
+                                    'san_pham': ds_san_pham
+                                }
+                                st.session_state.hien_thi_don_hang = True
+                                st.session_state.gio_hang = {}
+                                st.rerun()
 
     # === KẾT THÚC KHU VỰC GIỎ HÀNG ===
     st.markdown('</div>', unsafe_allow_html=True)
@@ -1023,7 +1041,7 @@ elif chon_menu == "📞 Thông Tin":
         st.markdown(f"""
         <div style="background:white; padding:25px; border-radius:20px; box-shadow:0 10px 25px rgba(0,0,0,0.05);">
             <h3 style="color: #2e7d32; margin-top: 0;">🏡 Cửa Hàng Xứ Nẫu</h3>
-            <p style="color: #0066cc;"><b>📍 Địa chỉ:</b> 96 Ngô Đức Đệ, Phường Bình Định, TX. An Nhơn, Bình Định</p>
+            <p style="color: #0066cc;"><b>📍 Địa chỉ:</b> Chung Cư Tam Phú, 38 Cây Keo, Phường Tam Phú, Thủ Đức, Tp.Hồ Chí Minh</p>
             <p style="color: #0066cc;"><b>📞 Hotline:</b> 0932.642.376</p>
             <p style="color: #0066cc;"><b>📧 Email:</b> miendatvo86@gmail.com</p>
             <hr>
@@ -1032,8 +1050,9 @@ elif chon_menu == "📞 Thông Tin":
         </div>
         """, unsafe_allow_html=True)
     with col_map:
-        toa_do = pd.DataFrame({'lat': [13.8930853], 'lon': [109.1002733]})
-        st.map(toa_do, zoom=14)
+        # Tọa độ Chung Cư Tam Phú, 38 Cây Keo, Phường Tam Phú, Thủ Đức
+        toa_do = pd.DataFrame({'lat': [10.8528], 'lon': [106.7585]})
+        st.map(toa_do, zoom=15)  # zoom 15 để nhìn rõ khu vực
 
 # ---- QUẢN TRỊ ----
 elif chon_menu == "📊 Quản Trị":
@@ -1198,30 +1217,3 @@ st.markdown("""
     </a>
 </div>
 """, unsafe_allow_html=True)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
