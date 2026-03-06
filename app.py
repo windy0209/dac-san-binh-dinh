@@ -1230,7 +1230,7 @@ st.markdown("""
     background-color: #e8f5e9;
     padding: 30px 20px 20px;
     border-top: 3px solid #2e7d32;
-    margin: 0;  /* loại bỏ mọi margin */
+    margin: 0;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     clear: both;
 }
@@ -1243,8 +1243,9 @@ st.markdown("""
     gap: 20px;
 }
 .footer-col {
-    flex: 1 1 250px;
+    flex: 1 1 200px;
     margin-bottom: 20px;
+    min-width: 160px;
 }
 .footer-col h4 {
     color: #2e7d32;
@@ -1284,6 +1285,24 @@ st.markdown("""
     background-color: #f39c12;
     transform: scale(1.1);
 }
+.qr-code {
+    text-align: center;
+}
+.qr-code img {
+    width: 120px;
+    height: 120px;
+    border-radius: 12px;
+    border: 2px solid #2e7d32;
+    padding: 5px;
+    background: white;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+.qr-code p {
+    margin-top: 8px;
+    font-size: 0.9rem;
+    color: #2e7d32;
+    font-weight: 500;
+}
 .copyright {
     text-align: center;
     margin-top: 20px;
@@ -1295,6 +1314,10 @@ st.markdown("""
 @media (max-width: 768px) {
     .footer-container {
         flex-direction: column;
+    }
+    .qr-code img {
+        width: 100px;
+        height: 100px;
     }
 }
 </style>
@@ -1319,12 +1342,14 @@ st.markdown("""
                 <a href="#" target="_blank"><i class="fab fa-instagram"></i></a>
             </div>
         </div>
+        <div class="footer-col qr-code">
+            <h4>Quét mã QR</h4>
+            <img src="https://raw.githubusercontent.com/windy0209/dac-san-binh-dinh/main/qrcode.png" alt="QR Code">
+            <p>Kết nối để trải nghiệm mua sắm trên thiết bị di động</p>
+        </div>
     </div>
     <div class="copyright">
         © 2025 Cửa Hàng Xứ Nẫu. All rights reserved. | Designed with <i class="fas fa-heart" style="color: #f39c12;"></i> từ miendatvo86
     </div>
 </div>
 """, unsafe_allow_html=True)
-
-
-
