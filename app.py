@@ -1218,16 +1218,21 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 # =============================
-# 11. FOOTER (CHÂN TRANG)
+# 11. FOOTER (CHÂN TRANG) - SÁT LỀ DƯỚI
 # =============================
 st.markdown("""
 <style>
+/* Xóa padding dưới cùng của container chính để footer sát mép */
+.main > .block-container {
+    padding-bottom: 0 !important;
+}
 .footer {
     background-color: #e8f5e9;
     padding: 30px 20px 20px;
     border-top: 3px solid #2e7d32;
-    margin-top: 40px;
+    margin: 0;  /* loại bỏ mọi margin */
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    clear: both;
 }
 .footer-container {
     display: flex;
@@ -1308,16 +1313,16 @@ st.markdown("""
         <div class="footer-col">
             <h4>Kết nối</h4>
             <div class="social-icons">
-                <a href="https://zalo.me/0932642376" target="_blank"><i class="fas fa-comment-dots"></i></a>
                 <a href="#" target="_blank"><i class="fab fa-facebook-f"></i></a>
+                <a href="#" target="_blank"><i class="fab fa-twitter"></i></a>
                 <a href="#" target="_blank"><i class="fab fa-instagram"></i></a>
-                <a href="#" target="_blank"><i class="fab fa-youtube"></i></a>
             </div>
         </div>
     </div>
     <div class="copyright">
-        © 2025 Cửa Hàng Xứ Nẫu. All rights reserved. | Designed with miendatvo86❤️ từ Bình Định
+        © 2025 Cửa Hàng Xứ Nẫu. All rights reserved. | Designed with <i class="fas fa-heart" style="color: #f39c12;"></i> từ miendatvo86
     </div>
 </div>
 """, unsafe_allow_html=True)
+
 
