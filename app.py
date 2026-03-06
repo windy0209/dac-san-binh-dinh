@@ -1297,7 +1297,7 @@ st.markdown("""
     <div class="footer-container">
         <div class="footer-col">
             <h4>Về chúng tôi</h4>
-            <p>XỨ NẪU STORE - Đặc sản Bình Định chính hiệu, giao hàng toàn quốc. Mang hương vị quê nhà đến mọi gia đình.</p>
+            <p>XỨ NẪU STORE - Đặc sản Bình Định chính hiệu, giao hàng nhanh. Mang hương vị quê nhà đến mọi gia đình.</p>
         </div>
         <div class="footer-col">
             <h4>Liên hệ</h4>
@@ -1316,7 +1316,8 @@ st.markdown("""
         </div>
     </div>
     <div class="copyright">
-        © 2025 Cửa Hàng Xứ Nẫu. All rights reserved. | Designed with ❤️ từ Bình Định
+        © 2025 Cửa Hàng Xứ Nẫu. All rights reserved. | Designed with miendatvo86❤️ từ Bình Định
     </div>
 </div>
 """, unsafe_allow_html=True)
+
