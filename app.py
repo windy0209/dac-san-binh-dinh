@@ -1217,3 +1217,106 @@ st.markdown("""
     </a>
 </div>
 """, unsafe_allow_html=True)
+# =============================
+# 11. FOOTER (CHÂN TRANG)
+# =============================
+st.markdown("""
+<style>
+.footer {
+    background-color: #e8f5e9;
+    padding: 30px 20px 20px;
+    border-top: 3px solid #2e7d32;
+    margin-top: 40px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+.footer-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    max-width: 1200px;
+    margin: 0 auto;
+    gap: 20px;
+}
+.footer-col {
+    flex: 1 1 250px;
+    margin-bottom: 20px;
+}
+.footer-col h4 {
+    color: #2e7d32;
+    margin-bottom: 15px;
+    font-size: 1.2rem;
+    border-bottom: 2px solid #2e7d32;
+    padding-bottom: 5px;
+    display: inline-block;
+}
+.footer-col p, .footer-col a {
+    color: #1b5e20;
+    line-height: 1.6;
+    text-decoration: none;
+}
+.footer-col a:hover {
+    color: #f39c12;
+    text-decoration: underline;
+}
+.social-icons {
+    display: flex;
+    gap: 15px;
+    margin-top: 10px;
+}
+.social-icons a {
+    background-color: #2e7d32;
+    color: white;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: 0.3s;
+    font-size: 18px;
+}
+.social-icons a:hover {
+    background-color: #f39c12;
+    transform: scale(1.1);
+}
+.copyright {
+    text-align: center;
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid #c8e6c9;
+    color: #2e7d32;
+    font-size: 0.9rem;
+}
+@media (max-width: 768px) {
+    .footer-container {
+        flex-direction: column;
+    }
+}
+</style>
+<div class="footer">
+    <div class="footer-container">
+        <div class="footer-col">
+            <h4>Về chúng tôi</h4>
+            <p>XỨ NẪU STORE - Đặc sản Bình Định chính hiệu, giao hàng toàn quốc. Mang hương vị quê nhà đến mọi gia đình.</p>
+        </div>
+        <div class="footer-col">
+            <h4>Liên hệ</h4>
+            <p><i class="fas fa-map-marker-alt"></i> Chung Cư Tam Phú, 38 Cây Keo, Phường Tam Phú, Thủ Đức, TP.HCM</p>
+            <p><i class="fas fa-phone"></i> 0932.642.376</p>
+            <p><i class="fas fa-envelope"></i> miendatvo86@gmail.com</p>
+        </div>
+        <div class="footer-col">
+            <h4>Kết nối</h4>
+            <div class="social-icons">
+                <a href="https://zalo.me/0932642376" target="_blank"><i class="fas fa-comment-dots"></i></a>
+                <a href="#" target="_blank"><i class="fab fa-facebook-f"></i></a>
+                <a href="#" target="_blank"><i class="fab fa-instagram"></i></a>
+                <a href="#" target="_blank"><i class="fab fa-youtube"></i></a>
+            </div>
+        </div>
+    </div>
+    <div class="copyright">
+        © 2025 Cửa Hàng Xứ Nẫu. All rights reserved. | Designed with ❤️ từ Bình Định
+    </div>
+</div>
+""", unsafe_allow_html=True)
